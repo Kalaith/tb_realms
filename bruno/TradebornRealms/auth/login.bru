@@ -1,0 +1,51 @@
+meta {
+  name: Login User
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{baseUrl}}/api/auth/login
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "email": "test@example.com",
+    "password": "Password123!"
+  }
+}
+
+tests {
+  test("Status code is 200", function() {
+    expect(res.status).to.equal(200);
+  });
+  
+  test("Response contains user object", function() {
+    expect(res.body).to.have.property("user");
+    expect(res.body.user).to.have.property("id");
+    expect(res.body.user).to.have.property("username");
+    expect(res.body.user).to.have.property("email");
+  });
+  
+  test("Response contains token", function() {
+    expect(res.body).to.have.property("token");
+    // Store the token for subsequent authenticated requests
+    bru.setEnvVar("authToken", res.body.token);
+  });
+}
+
+docs {
+  Authenticate an existing user and get an access token.
+  
+  Required fields:
+  - email: User's email address
+  - password: User's password
+  
+  Returns the user object and authentication token.
+}

@@ -1,0 +1,51 @@
+meta {
+  name: Get Specific User Achievement
+  type: http
+  seq: 6
+}
+
+get {
+  url: {{baseUrl}}/api/achievements/user/{{userId}}/{{achievementId}}
+  body: none
+  auth: bearer
+}
+
+headers {
+  Authorization: Bearer {{authToken}}
+}
+
+tests {
+  test("Status code is 200", function() {
+    expect(res.status).to.equal(200);
+  });
+  
+  test("Response contains a specific user achievement", function() {
+    expect(res.body).to.have.property("success").that.equals(true);
+    expect(res.body).to.have.property("data");
+    
+    const userAchievement = res.body.data;
+    expect(userAchievement).to.have.property("userId").that.equals(vars.get("userId"));
+    expect(userAchievement).to.have.property("achievementId").to.include(vars.get("achievementId"));
+    expect(userAchievement).to.have.property("achievement");
+    expect(userAchievement).to.have.property("progress").that.is.a("number");
+    expect(userAchievement).to.have.property("progressMax").that.is.a("number");
+    expect(userAchievement).to.have.property("unlocked").that.is.a("boolean");
+    
+    // Check achievement structure
+    const achievement = userAchievement.achievement;
+    expect(achievement).to.have.property("name");
+    expect(achievement).to.have.property("description");
+    expect(achievement).to.have.property("category");
+    expect(achievement).to.have.property("points").that.is.a("number");
+  });
+}
+
+docs {
+  Returns a specific achievement for a user with progress information.
+  
+  This endpoint requires authentication and authorization (only the user themself or an admin can access).
+  
+  Variable requirements:
+  - userId: The ID of the user
+  - achievementId: The ID of the specific achievement to retrieve
+}

@@ -1,0 +1,38 @@
+# Dependencies
+/vendor/
+
+# Environment variables
+.env
+
+# Logs
+*.log
+logs/
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Temporary files
+*.tmp
+*.temp
+
+# Composer
+composer.phar
+composer.lock
+
+# PHPUnit
+.phpunit.result.cache
+
+# Test output
+/tests/output/

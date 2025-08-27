@@ -1,0 +1,36 @@
+meta {
+  name: Get Current User
+  type: http
+  seq: 3
+}
+
+get {
+  url: {{baseUrl}}/api/auth/user
+  body: none
+  auth: bearer
+}
+
+headers {
+  Authorization: Bearer {{authToken}}
+}
+
+tests {
+  test("Status code is 200", function() {
+    expect(res.status).to.equal(200);
+  });
+  
+  test("Response contains user object", function() {
+    expect(res.body).to.have.property("user");
+    expect(res.body.user).to.have.property("id");
+    expect(res.body.user).to.have.property("username");
+    expect(res.body.user).to.have.property("email");
+  });
+}
+
+docs {
+  Gets the profile information of the currently authenticated user.
+  
+  This endpoint requires a valid JWT token in the Authorization header.
+  
+  Returns the user object with profile details.
+}

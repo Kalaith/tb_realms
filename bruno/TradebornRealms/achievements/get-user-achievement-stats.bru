@@ -1,0 +1,51 @@
+meta {
+  name: Get User Achievement Stats
+  type: http
+  seq: 4
+}
+
+get {
+  url: {{baseUrl}}/api/achievements/user/{{userId}}/stats
+  body: none
+  auth: bearer
+}
+
+headers {
+  Authorization: Bearer {{authToken}}
+}
+
+tests {
+  test("Status code is 200", function() {
+    expect(res.status).to.equal(200);
+  });
+  
+  test("Response contains user achievement statistics", function() {
+    expect(res.body).to.have.property("success").that.equals(true);
+    expect(res.body).to.have.property("data");
+    
+    const stats = res.body.data;
+    expect(stats).to.have.property("totalAchievements").that.is.a("number");
+    expect(stats).to.have.property("unlockedAchievements").that.is.a("number");
+    expect(stats).to.have.property("completionPercentage").that.is.a("number");
+    expect(stats).to.have.property("totalPoints").that.is.a("number");
+    expect(stats).to.have.property("earnedPoints").that.is.a("number");
+    
+    // Validate completion percentage (0-100%)
+    expect(stats.completionPercentage).to.be.at.least(0).and.at.most(100);
+    
+    // Validate earned points is not greater than total points
+    expect(stats.earnedPoints).to.be.at.most(stats.totalPoints);
+    
+    // Validate unlocked achievements is not greater than total achievements
+    expect(stats.unlockedAchievements).to.be.at.most(stats.totalAchievements);
+  });
+}
+
+docs {
+  Returns achievement statistics for a specific user.
+  
+  This endpoint requires authentication and authorization (only the user themself or an admin can access).
+  
+  Variable requirements:
+  - userId: The ID of the user whose achievement stats to retrieve
+}

@@ -1,0 +1,54 @@
+meta {
+  name: Filter Stocks
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{baseUrl}}/api/stocks/filter?sector=Technology&minPrice=50&maxPrice=500
+  body: none
+  auth: bearer
+}
+
+headers {
+  Authorization: Bearer {{authToken}}
+}
+
+tests {
+  test("Status code is 200", function() {
+    expect(res.status).to.equal(200);
+  });
+  
+  test("Response contains filtered stocks array", function() {
+    expect(res.body).to.have.property("stocks");
+    expect(res.body.stocks).to.be.an("array");
+    
+    // If we have stocks in the response, check their structure and filters
+    if (res.body.stocks.length > 0) {
+      const stock = res.body.stocks[0];
+      expect(stock).to.have.property("id");
+      expect(stock).to.have.property("symbol");
+      expect(stock).to.have.property("name");
+      expect(stock).to.have.property("currentPrice");
+      expect(stock).to.have.property("sector");
+      
+      // Verify filter parameters are applied
+      expect(stock.sector).to.equal("Technology");
+      expect(stock.currentPrice).to.be.at.least(50);
+      expect(stock.currentPrice).to.be.at.most(500);
+    }
+  });
+}
+
+docs {
+  Returns a filtered list of stocks based on query parameters.
+  
+  This endpoint requires authentication.
+  
+  Available filters:
+  - sector: The industry sector (e.g., Technology, Healthcare)
+  - minPrice: Minimum stock price
+  - maxPrice: Maximum stock price
+  
+  Returns an array of stock objects matching the specified criteria.
+}

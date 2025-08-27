@@ -1,0 +1,44 @@
+meta {
+  name: Initialize Database
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{baseUrl}}/api/database/initialize
+  body: json
+  auth: bearer
+}
+
+headers {
+  Content-Type: application/json
+}
+
+auth:bearer {
+  token: {{authToken}}
+}
+
+body:json {
+  {
+    "confirm": "YES_INITIALIZE_DB"
+  }
+}
+
+docs {
+  # Database Initialization
+  
+  This request initializes the database with default seed data.
+  
+  ## ⚠️ WARNING
+  
+  This operation will delete all existing data in the database and replace it with seed data.
+  Only administrators can perform this operation.
+  
+  ## Required Parameters
+  
+  - `confirm`: Must be exactly "YES_INITIALIZE_DB" to confirm the destructive operation
+  
+  ## Authentication
+  
+  Requires admin authentication token.
+}

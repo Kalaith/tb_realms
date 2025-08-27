@@ -1,0 +1,58 @@
+meta {
+  name: Update User Settings
+  type: http
+  seq: 2
+}
+
+put {
+  url: {{baseUrl}}/api/settings
+  body: json
+  auth: bearer
+}
+
+headers {
+  Authorization: Bearer {{authToken}}
+  Content-Type: application/json
+}
+
+body:json {
+  "theme": "dark",
+  "language": "en",
+  "dataRefreshInterval": 10000,
+  "showGridLines": true,
+  "playerHighlighting": true,
+  "notificationPosition": "top-right",
+  "soundEffects": true,
+  "focusMode": false,
+  "stockChangeThreshold": 5
+}
+
+tests {
+  test("Status code is 200", function() {
+    expect(res.status).to.equal(200);
+  });
+  
+  test("Response contains updated settings", function() {
+    expect(res.body).to.have.property("success").that.equals(true);
+    expect(res.body).to.have.property("data");
+    
+    const settings = res.body.data;
+    expect(settings).to.have.property("theme").that.equals("dark");
+    expect(settings).to.have.property("language").that.equals("en");
+    expect(settings).to.have.property("dataRefreshInterval").that.equals(10000);
+    expect(settings).to.have.property("showGridLines").that.equals(true);
+    expect(settings).to.have.property("playerHighlighting").that.equals(true);
+    expect(settings).to.have.property("notificationPosition").that.equals("top-right");
+    expect(settings).to.have.property("soundEffects").that.equals(true);
+    expect(settings).to.have.property("focusMode").that.equals(false);
+    expect(settings).to.have.property("stockChangeThreshold").that.equals(5);
+  });
+}
+
+docs {
+  Updates the settings for the current authenticated user.
+  
+  This endpoint requires authentication.
+  
+  The request body can include any or all of the user settings properties. Only the properties included will be updated.
+}

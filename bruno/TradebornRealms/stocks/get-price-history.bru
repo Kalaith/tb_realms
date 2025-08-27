@@ -1,0 +1,43 @@
+meta {
+  name: Get Stock Price History
+  type: http
+  seq: 4
+}
+
+get {
+  url: {{baseUrl}}/api/stocks/1/price-history
+  body: none
+  auth: bearer
+}
+
+headers {
+  Authorization: Bearer {{authToken}}
+}
+
+tests {
+  test("Status code is 200", function() {
+    expect(res.status).to.equal(200);
+  });
+  
+  test("Response contains price history array", function() {
+    expect(res.body).to.have.property("priceHistory");
+    expect(res.body.priceHistory).to.be.an("array");
+    
+    // If we have price data in the response, check its structure
+    if (res.body.priceHistory.length > 0) {
+      const pricePoint = res.body.priceHistory[0];
+      expect(pricePoint).to.have.property("date");
+      expect(pricePoint).to.have.property("price");
+    }
+  });
+}
+
+docs {
+  Returns the price history for a specific stock.
+  
+  This endpoint requires authentication.
+  
+  The stock ID is provided in the URL path.
+  
+  Returns an array of price points, each containing a date and price value.
+}

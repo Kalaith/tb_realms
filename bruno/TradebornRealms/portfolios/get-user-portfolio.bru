@@ -1,0 +1,50 @@
+meta {
+  name: Get User Portfolio
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/api/portfolios/user/{{userId}}
+  body: none
+  auth: bearer
+}
+
+headers {
+  Authorization: Bearer {{authToken}}
+}
+
+tests {
+  test("Status code is 200", function() {
+    expect(res.status).to.equal(200);
+  });
+  
+  test("Response contains portfolio object", function() {
+    expect(res.body).to.have.property("portfolio");
+    expect(res.body.portfolio).to.have.property("id");
+    expect(res.body.portfolio).to.have.property("userId");
+    expect(res.body.portfolio).to.have.property("holdings");
+    expect(res.body.portfolio).to.have.property("cashBalance");
+    expect(res.body.portfolio).to.have.property("totalValue");
+    
+    // If we have holdings in the response, check their structure
+    if (res.body.portfolio.holdings.length > 0) {
+      const holding = res.body.portfolio.holdings[0];
+      expect(holding).to.have.property("stockId");
+      expect(holding).to.have.property("quantity");
+      expect(holding).to.have.property("averagePurchasePrice");
+      expect(holding).to.have.property("currentValue");
+    }
+  });
+}
+
+docs {
+  Returns the portfolio for a specific user.
+  
+  This endpoint requires authentication, and the authenticated user can only
+  access their own portfolio unless they have admin privileges.
+  
+  The user ID is provided in the URL path.
+  
+  Returns a portfolio object with holdings and balance information.
+}

@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/10.5/phpunit.xsd"         bootstrap="vendor/autoload.php"
+         colors="true"
+         testdox="true">    <testsuites>
+        <testsuite name="Application Test Suite">
+            <directory>tests/hero</directory>
+            <directory>tests/betting</directory>
+            <directory>tests/building</directory>
+            <directory>tests/event</directory>
+            <directory>tests/influence</directory>
+            <directory>tests/landmark</directory>
+            <directory>tests/region</directory>
+            <directory>tests/settlement</directory>
+            <directory>tests/status</directory>
+        </testsuite>
+    </testsuites><source>
+        <include>
+            <directory suffix=".php">src</directory>
+        </include>
+        <exclude>
+            <directory>vendor</directory>
+            <directory>tests</directory>
+        </exclude>
+    </source>
+    <php>
+        <env name="APP_ENV" value="testing"/>
+        <const name="TEST_MODE" value="true"/>
+    </php>
+</phpunit>

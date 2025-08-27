@@ -1,0 +1,41 @@
+meta {
+  name: Get Stock by ID
+  type: http
+  seq: 3
+}
+
+get {
+  url: {{baseUrl}}/api/stocks/1
+  body: none
+  auth: bearer
+}
+
+headers {
+  Authorization: Bearer {{authToken}}
+}
+
+tests {
+  test("Status code is 200", function() {
+    expect(res.status).to.equal(200);
+  });
+  
+  test("Response contains stock object", function() {
+    expect(res.body).to.have.property("stock");
+    expect(res.body.stock).to.have.property("id");
+    expect(res.body.stock).to.have.property("symbol");
+    expect(res.body.stock).to.have.property("name");
+    expect(res.body.stock).to.have.property("currentPrice");
+    expect(res.body.stock).to.have.property("sector");
+    expect(res.body.stock).to.have.property("companyDescription");
+  });
+}
+
+docs {
+  Returns detailed information about a specific stock.
+  
+  This endpoint requires authentication.
+  
+  The stock ID is provided in the URL path.
+  
+  Returns a comprehensive stock object with all available details.
+}

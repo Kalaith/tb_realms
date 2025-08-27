@@ -1,0 +1,45 @@
+meta {
+  name: Get Market Events by Severity
+  type: http
+  seq: 4
+}
+
+get {
+  url: {{baseUrl}}/api/events/severity/{{eventSeverity}}
+  body: none
+  auth: bearer
+}
+
+headers {
+  Authorization: Bearer {{authToken}}
+}
+
+tests {
+  test("Status code is 200", function() {
+    expect(res.status).to.equal(200);
+  });
+  
+  test("Response contains events of the specified severity", function() {
+    expect(res.body).to.have.property("success").that.equals(true);
+    expect(res.body).to.have.property("data").that.is.an("array");
+    
+    // If we have events, verify their structure and severity
+    if (res.body.data.length > 0) {
+      const event = res.body.data[0];
+      expect(event).to.have.property("id");
+      expect(event).to.have.property("severity").that.equals(vars.get("eventSeverity"));
+      expect(event).to.have.property("title");
+      expect(event).to.have.property("description");
+      expect(event).to.have.property("type");
+    }
+  });
+}
+
+docs {
+  Returns market events filtered by severity level.
+  
+  This endpoint requires authentication.
+  
+  Variable requirements:
+  - eventSeverity: The severity level to filter by (e.g., low, medium, high, critical)
+}

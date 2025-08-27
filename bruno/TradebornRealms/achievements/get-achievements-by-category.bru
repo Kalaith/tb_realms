@@ -1,0 +1,49 @@
+meta {
+  name: Get Achievements by Category
+  type: http
+  seq: 5
+}
+
+get {
+  url: {{baseUrl}}/api/achievements/user/{{userId}}/category/{{category}}
+  body: none
+  auth: bearer
+}
+
+headers {
+  Authorization: Bearer {{authToken}}
+}
+
+tests {
+  test("Status code is 200", function() {
+    expect(res.status).to.equal(200);
+  });
+  
+  test("Response contains achievements in the specified category", function() {
+    expect(res.body).to.have.property("success").that.equals(true);
+    expect(res.body).to.have.property("data").that.is.an("array");
+    
+    // If we have achievements, verify they belong to the specified category
+    if (res.body.data.length > 0) {
+      const userAchievement = res.body.data[0];
+      expect(userAchievement).to.have.property("achievement");
+      expect(userAchievement.achievement).to.have.property("category").that.equals(vars.get("category"));
+      
+      // Check other properties
+      expect(userAchievement).to.have.property("userId");
+      expect(userAchievement).to.have.property("achievementId");
+      expect(userAchievement).to.have.property("progress").that.is.a("number");
+      expect(userAchievement).to.have.property("unlocked").that.is.a("boolean");
+    }
+  });
+}
+
+docs {
+  Returns achievements for a specific user filtered by category.
+  
+  This endpoint requires authentication and authorization (only the user themself or an admin can access).
+  
+  Variable requirements:
+  - userId: The ID of the user whose achievements to retrieve
+  - category: The achievement category to filter by (e.g., trading, portfolio, performance, strategy)
+}

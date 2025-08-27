@@ -1,0 +1,53 @@
+meta {
+  name: Register New User
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{baseUrl}}/api/auth/register
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "username": "testuser",
+    "email": "test@example.com",
+    "password": "Password123!"
+  }
+}
+
+tests {
+  test("Status code is 201", function() {
+    expect(res.status).to.equal(201);
+  });
+  
+  test("Response contains user object", function() {
+    expect(res.body).to.have.property("user");
+    expect(res.body.user).to.have.property("id");
+    expect(res.body.user).to.have.property("username");
+    expect(res.body.user.username).to.equal("testuser");
+    expect(res.body.user).to.have.property("email");
+    expect(res.body.user.email).to.equal("test@example.com");
+  });
+  
+  test("Response contains token", function() {
+    expect(res.body).to.have.property("token");
+  });
+}
+
+docs {
+  Register a new user account in the system.
+  
+  Required fields:
+  - username: User's display name
+  - email: User's email address (must be unique)
+  - password: User's password (must meet complexity requirements)
+  
+  Returns the created user object and authentication token.
+}

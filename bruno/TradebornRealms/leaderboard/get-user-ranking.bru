@@ -1,0 +1,44 @@
+meta {
+  name: Get User Ranking
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{baseUrl}}/api/leaderboard/user/{{userId}}
+  body: none
+  auth: bearer
+}
+
+headers {
+  Authorization: Bearer {{authToken}}
+}
+
+tests {
+  test("Status code is 200", function() {
+    expect(res.status).to.equal(200);
+  });
+  
+  test("Response contains user ranking data", function() {
+    expect(res.body).to.have.property("success").that.equals(true);
+    expect(res.body).to.have.property("data");
+    
+    const userRanking = res.body.data;
+    expect(userRanking).to.have.property("id").that.equals(vars.get("userId"));
+    expect(userRanking).to.have.property("username");
+    expect(userRanking).to.have.property("avatarUrl");
+    expect(userRanking).to.have.property("portfolioValue").that.is.a("number");
+    expect(userRanking).to.have.property("rank").that.is.a("number");
+    expect(userRanking).to.have.property("change").that.is.a("number");
+    expect(userRanking).to.have.property("performancePercent").that.is.a("number");
+  });
+}
+
+docs {
+  Returns the leaderboard ranking for a specific user.
+  
+  This endpoint requires authentication and authorization (only the user themself or an admin can access).
+  
+  Variable requirements:
+  - userId: The ID of the user whose ranking to retrieve
+}

@@ -1,0 +1,45 @@
+meta {
+  name: Get All Market Events
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/api/events
+  body: none
+  auth: bearer
+}
+
+headers {
+  Authorization: Bearer {{authToken}}
+}
+
+tests {
+  test("Status code is 200", function() {
+    expect(res.status).to.equal(200);
+  });
+  
+  test("Response contains events array", function() {
+    expect(res.body).to.have.property("events");
+    expect(res.body.events).to.be.an("array");
+    
+    // If we have events in the response, check their structure
+    if (res.body.events.length > 0) {
+      const event = res.body.events[0];
+      expect(event).to.have.property("id");
+      expect(event).to.have.property("title");
+      expect(event).to.have.property("description");
+      expect(event).to.have.property("eventType");
+      expect(event).to.have.property("severity");
+      expect(event).to.have.property("timestamp");
+    }
+  });
+}
+
+docs {
+  Returns all market events.
+  
+  This endpoint requires authentication.
+  
+  Returns an array of market event objects with detailed information.
+}

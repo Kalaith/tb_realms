@@ -1,0 +1,45 @@
+meta {
+  name: Get Market Events by Type
+  type: http
+  seq: 3
+}
+
+get {
+  url: {{baseUrl}}/api/events/type/{{eventType}}
+  body: none
+  auth: bearer
+}
+
+headers {
+  Authorization: Bearer {{authToken}}
+}
+
+tests {
+  test("Status code is 200", function() {
+    expect(res.status).to.equal(200);
+  });
+  
+  test("Response contains events of the specified type", function() {
+    expect(res.body).to.have.property("success").that.equals(true);
+    expect(res.body).to.have.property("data").that.is.an("array");
+    
+    // If we have events, verify their structure and type
+    if (res.body.data.length > 0) {
+      const event = res.body.data[0];
+      expect(event).to.have.property("id");
+      expect(event).to.have.property("type").that.equals(vars.get("eventType"));
+      expect(event).to.have.property("title");
+      expect(event).to.have.property("description");
+      expect(event).to.have.property("severity");
+    }
+  });
+}
+
+docs {
+  Returns market events filtered by event type.
+  
+  This endpoint requires authentication.
+  
+  Variable requirements:
+  - eventType: The type of events to filter by (e.g., news, earnings_report, market_shift, sector_trend)
+}

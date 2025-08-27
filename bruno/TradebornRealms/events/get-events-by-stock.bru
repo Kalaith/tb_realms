@@ -1,0 +1,52 @@
+meta {
+  name: Get Events by Stock ID
+  type: http
+  seq: 5
+}
+
+get {
+  url: {{baseUrl}}/api/events/stock/{{stockId}}
+  body: none
+  auth: bearer
+}
+
+headers {
+  Authorization: Bearer {{authToken}}
+}
+
+tests {
+  test("Status code is 200", function() {
+    expect(res.status).to.equal(200);
+  });
+  
+  test("Response contains events affecting the specified stock", function() {
+    expect(res.body).to.have.property("success").that.equals(true);
+    expect(res.body).to.have.property("data").that.is.an("array");
+    
+    // If we have events, verify they affect the specified stock
+    if (res.body.data.length > 0) {
+      const event = res.body.data[0];
+      expect(event).to.have.property("id");
+      expect(event).to.have.property("affectedStocks").that.is.an("array");
+      
+      // Check that at least one of the affected stocks matches our stockId
+      let stockFound = false;
+      for (const affectedStock of event.affectedStocks) {
+        if (affectedStock.stockId === vars.get("stockId")) {
+          stockFound = true;
+          break;
+        }
+      }
+      expect(stockFound).to.be.true;
+    }
+  });
+}
+
+docs {
+  Returns market events that affect a specific stock.
+  
+  This endpoint requires authentication.
+  
+  Variable requirements:
+  - stockId: The ID of the stock to get events for
+}

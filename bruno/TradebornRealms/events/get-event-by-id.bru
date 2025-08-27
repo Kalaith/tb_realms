@@ -1,0 +1,44 @@
+meta {
+  name: Get Market Event by ID
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{baseUrl}}/api/events/{{eventId}}
+  body: none
+  auth: bearer
+}
+
+headers {
+  Authorization: Bearer {{authToken}}
+}
+
+tests {
+  test("Status code is 200", function() {
+    expect(res.status).to.equal(200);
+  });
+  
+  test("Response contains a single event with correct structure", function() {
+    expect(res.body).to.have.property("success").that.equals(true);
+    expect(res.body).to.have.property("data");
+    
+    const event = res.body.data;
+    expect(event).to.have.property("id");
+    expect(event).to.have.property("title");
+    expect(event).to.have.property("description");
+    expect(event).to.have.property("date");
+    expect(event).to.have.property("type");
+    expect(event).to.have.property("severity");
+    expect(event).to.have.property("affectedStocks").that.is.an("array");
+  });
+}
+
+docs {
+  Returns a specific market event by its ID.
+  
+  This endpoint requires authentication.
+  
+  Variable requirements:
+  - eventId: The ID of the market event to retrieve
+}

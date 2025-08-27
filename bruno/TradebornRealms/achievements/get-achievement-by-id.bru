@@ -1,0 +1,45 @@
+meta {
+  name: Get Achievement by ID
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{baseUrl}}/api/achievements/{{achievementId}}
+  body: none
+  auth: bearer
+}
+
+headers {
+  Authorization: Bearer {{authToken}}
+}
+
+tests {
+  test("Status code is 200", function() {
+    expect(res.status).to.equal(200);
+  });
+  
+  test("Response contains a single achievement with correct structure", function() {
+    expect(res.body).to.have.property("success").that.equals(true);
+    expect(res.body).to.have.property("data");
+    
+    const achievement = res.body.data;
+    expect(achievement).to.have.property("id");
+    expect(achievement).to.have.property("name");
+    expect(achievement).to.have.property("description");
+    expect(achievement).to.have.property("category");
+    expect(achievement).to.have.property("criteria");
+    expect(achievement).to.have.property("points").that.is.a("number");
+    expect(achievement).to.have.property("icon");
+    expect(achievement).to.have.property("difficulty");
+  });
+}
+
+docs {
+  Returns a specific achievement by its ID.
+  
+  This endpoint requires authentication.
+  
+  Variable requirements:
+  - achievementId: The ID of the achievement to retrieve
+}

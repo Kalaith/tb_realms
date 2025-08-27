@@ -1,0 +1,62 @@
+meta {
+  name: Buy Stock
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{baseUrl}}/api/portfolios/{{portfolioId}}/buy
+  body: json
+  auth: bearer
+}
+
+headers {
+  Content-Type: application/json
+  Authorization: Bearer {{authToken}}
+}
+
+body:json {
+  {
+    "stockId": 1,
+    "quantity": 10
+  }
+}
+
+tests {
+  test("Status code is 200", function() {
+    expect(res.status).to.equal(200);
+  });
+  
+  test("Response contains transaction details", function() {
+    expect(res.body).to.have.property("transaction");
+    expect(res.body.transaction).to.have.property("id");
+    expect(res.body.transaction).to.have.property("portfolioId");
+    expect(res.body.transaction).to.have.property("stockId");
+    expect(res.body.transaction).to.have.property("type").to.equal("buy");
+    expect(res.body.transaction).to.have.property("quantity").to.equal(10);
+    expect(res.body.transaction).to.have.property("price");
+    expect(res.body.transaction).to.have.property("totalAmount");
+    expect(res.body.transaction).to.have.property("timestamp");
+  });
+  
+  test("Response contains updated portfolio", function() {
+    expect(res.body).to.have.property("portfolio");
+    expect(res.body.portfolio).to.have.property("cashBalance");
+    expect(res.body.portfolio).to.have.property("holdings");
+  });
+}
+
+docs {
+  Executes a buy transaction for stocks in a user's portfolio.
+  
+  This endpoint requires authentication, and the user can only make transactions
+  in their own portfolio.
+  
+  The portfolio ID is provided in the URL path.
+  
+  Required request body:
+  - stockId: ID of the stock to buy
+  - quantity: Number of shares to buy
+  
+  Returns the transaction details and updated portfolio information.
+}

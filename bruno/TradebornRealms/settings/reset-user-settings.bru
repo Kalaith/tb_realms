@@ -1,0 +1,47 @@
+meta {
+  name: Reset User Settings
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{baseUrl}}/api/settings/reset
+  body: none
+  auth: bearer
+}
+
+headers {
+  Authorization: Bearer {{authToken}}
+}
+
+tests {
+  test("Status code is 200", function() {
+    expect(res.status).to.equal(200);
+  });
+  
+  test("Response contains reset settings with default values", function() {
+    expect(res.body).to.have.property("success").that.equals(true);
+    expect(res.body).to.have.property("data");
+    
+    const settings = res.body.data;
+    expect(settings).to.have.property("id");
+    expect(settings).to.have.property("userId");
+    expect(settings).to.have.property("theme");
+    expect(settings).to.have.property("language");
+    expect(settings).to.have.property("dataRefreshInterval").that.is.a("number");
+    expect(settings).to.have.property("showGridLines").that.is.a("boolean");
+    expect(settings).to.have.property("playerHighlighting").that.is.a("boolean");
+    expect(settings).to.have.property("notificationPosition");
+    expect(settings).to.have.property("soundEffects").that.is.a("boolean");
+    expect(settings).to.have.property("focusMode").that.is.a("boolean");
+    expect(settings).to.have.property("stockChangeThreshold").that.is.a("number");
+  });
+}
+
+docs {
+  Resets all user settings to their default values for the current authenticated user.
+  
+  This endpoint requires authentication.
+  
+  The response includes the user settings after they have been reset to defaults.
+}

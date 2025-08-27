@@ -1,0 +1,65 @@
+
+!.vscode/extensions.json
+# Build outputs
+# Cache directories
+# Coverage and testing directories
+# Dependency directories
+# Environment files
+# IDEs and editors
+# Logs
+# Optional REPL history
+# OS files
+# Output of 'npm pack'
+# Temporary files
+# TypeScript cache
+# Yarn Integrity file
+*.env
+*.env.*
+*.local
+*.log
+*.njsproj
+*.ntvs*
+*.sln
+*.sublime-workspace
+*.suo
+*.sw?
+*.swo
+*.swp
+*.tgz
+*.tsbuildinfo
+.DS_Store
+.env
+.env.*
+.env.development
+.env.development.local
+.env.local
+.env.production
+.env.production.local
+.env.test
+.env.test.local
+.eslintcache
+.idea/
+.node_repl_history
+.npm
+.nyc_output/
+.pnpm-debug.log*
+.vitest/
+.vscode/*
+.yarn-integrity
+build/
+coverage/
+dist/
+dist-ssr/
+jspm_packages/
+lerna-debug.log*
+logs/
+mcp
+node_modules/
+npm-debug.log*
+out/
+pnpm-debug.log*
+temp/
+Thumbs.db
+tmp/
+yarn-debug.log*
+yarn-error.log*

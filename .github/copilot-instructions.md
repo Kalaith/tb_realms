@@ -1,0 +1,21 @@
+Do not run commands
+- Keep code simple, readable, and well-commented.
+- Follow naming/style conventions and reuse code.
+- Use linters/formatters; run and fix tests after changes.
+- Keep files under 300 lines; split logically if needed.
+- Store shared types in entities/, helpers in utils/.
+- Use consistent file/folder names.
+- Update game_design_doc.md for major changes.
+- Maintain full test coverage.
+- Use compound components for complex UI.
+- Follow accessibility best practices.
+- Use VS Code with PowerShell on Windows.
+- Use strict typing. Avoid any; prefer unknown or define interfaces/types explicitly. Use DTOs, input validation schemas, or utility types when appropriate.
+- Check folder existence before creation.
+- Use environment variables for config.
+- Review and refine Copilot suggestions.
+- Test changes incrementally.
+- Require auth on all endpoints.
+- Validate/sanitize inputs; use standard error formats.
+- Implement rate limiting and monitor security events.
+- Always use HTTPS.

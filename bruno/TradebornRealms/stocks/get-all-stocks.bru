@@ -1,0 +1,43 @@
+meta {
+  name: Get All Stocks
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/api/stocks
+  body: none
+  auth: bearer
+}
+
+headers {
+  Authorization: Bearer {{authToken}}
+}
+
+tests {
+  test("Status code is 200", function() {
+    expect(res.status).to.equal(200);
+  });
+  
+  test("Response contains stocks array", function() {
+    expect(res.body).to.have.property("stocks");
+    expect(res.body.stocks).to.be.an("array");
+    
+    // If we have stocks in the response, check their structure
+    if (res.body.stocks.length > 0) {
+      const stock = res.body.stocks[0];
+      expect(stock).to.have.property("id");
+      expect(stock).to.have.property("symbol");
+      expect(stock).to.have.property("name");
+      expect(stock).to.have.property("currentPrice");
+    }
+  });
+}
+
+docs {
+  Returns a list of all available stocks.
+  
+  This endpoint requires authentication.
+  
+  Returns an array of stock objects with basic information.
+}

@@ -1,0 +1,14 @@
+RewriteEngine On
+
+# Set the base path for tradeborn_realms subdirectory
+RewriteBase /tradeborn_realms/
+
+# Route API requests to backend
+RewriteCond %{REQUEST_URI} ^/tradeborn_realms/api/
+RewriteRule ^api/(.*)$ backend/public/index.php [QSA,L]
+
+# Handle client-side routing for React app
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond %{REQUEST_URI} !^/tradeborn_realms/backend/
+RewriteRule . index.html [L]
