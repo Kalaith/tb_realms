@@ -40,5 +40,10 @@
             "@php -r \"@mkdir('storage/test', 0777, true);\"",
             "phpunit"
         ]
+    },
+    "config": {
+        "allow-plugins": {
+            "php-http/discovery": true
+        }
     }
 }
