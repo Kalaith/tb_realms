@@ -11,6 +11,7 @@ use App\Models\Portfolio;
 use App\Exceptions\ResourceNotFoundException;
 use App\Exceptions\UnauthorizedException;
 use Ramsey\Uuid\Uuid;
+use Illuminate\Database\Capsule\Manager as DB;
 
 /**
  * Stock trading business logic
@@ -18,6 +19,17 @@ use Ramsey\Uuid\Uuid;
  */
 class StockActions
 {
+    // Market configuration constants
+    private const PRICE_VARIANCE_BASIS_POINTS = 500; // ±5% variance
+    private const MARKET_OPEN_HOUR = 9;
+    private const MARKET_CLOSE_HOUR = 17;
+    private const PERCENT_MULTIPLIER = 100;
+    private const DEFAULT_HISTORY_DAYS = 30;
+    private const TOP_PERFORMERS_LIMIT = 5;
+    private const MOCK_VOLUME_MIN = 10000;
+    private const MOCK_VOLUME_MAX = 100000;
+    private const PRICE_VARIANCE_DIVISOR = 10000;
+
     public function __construct(
         private StockRepository $stockRepository,
         private TransactionRepository $transactionRepository,
@@ -140,7 +152,7 @@ class StockActions
     /**
      * Get stock price history for charts
      */
-    public function getStockHistory(string $stockId, int $days = 30): array
+    public function getStockHistory(string $stockId, int $days = self::DEFAULT_HISTORY_DAYS): array
     {
         $stock = $this->stockRepository->findById($stockId);
         
@@ -155,36 +167,39 @@ class StockActions
 
     /**
      * Update stock prices (called by market simulation)
+     * Uses database transaction to ensure data consistency
      */
     public function updateStockPrices(array $priceUpdates): array
     {
-        $updatedStocks = [];
-        
-        foreach ($priceUpdates as $update) {
-            $stock = $this->stockRepository->findById($update['stock_id']);
-            
-            if ($stock) {
-                $previousPrice = $stock->current_price;
-                $newPrice = $update['new_price'];
-                
-                $dayChange = $newPrice - $previousPrice;
-                $dayChangePercentage = $previousPrice > 0 ? ($dayChange / $previousPrice) * 100 : 0;
-                
-                $updateData = [
-                    'previous_close' => $previousPrice,
-                    'current_price' => $newPrice,
-                    'day_change' => $dayChange,
-                    'day_change_percentage' => $dayChangePercentage,
-                    'volume' => $update['volume'] ?? $stock->volume,
-                    'last_updated' => now()
-                ];
-                
-                $updatedStock = $this->stockRepository->updateStock($stock->id, $updateData);
-                $updatedStocks[] = $this->formatStockData($updatedStock);
+        return DB::transaction(function() use ($priceUpdates) {
+            $updatedStocks = [];
+
+            foreach ($priceUpdates as $update) {
+                $stock = $this->stockRepository->findById($update['stock_id']);
+
+                if ($stock) {
+                    $previousPrice = $stock->current_price;
+                    $newPrice = $update['new_price'];
+
+                    $dayChange = $newPrice - $previousPrice;
+                    $dayChangePercentage = $previousPrice > 0 ? ($dayChange / $previousPrice) * self::PERCENT_MULTIPLIER : 0;
+
+                    $updateData = [
+                        'previous_close' => $previousPrice,
+                        'current_price' => $newPrice,
+                        'day_change' => $dayChange,
+                        'day_change_percentage' => $dayChangePercentage,
+                        'volume' => $update['volume'] ?? $stock->volume,
+                        'last_updated' => now()
+                    ];
+
+                    $updatedStock = $this->stockRepository->updateStock($stock->id, $updateData);
+                    $updatedStocks[] = $this->formatStockData($updatedStock);
+                }
             }
-        }
-        
-        return $updatedStocks;
+
+            return $updatedStocks;
+        });
     }
 
     /**
@@ -193,9 +208,9 @@ class StockActions
     public function getMarketSummary(): array
     {
         $totalStocks = $this->stockRepository->getTotalActiveStocks();
-        $gainers = $this->stockRepository->getTopGainers(5);
-        $losers = $this->stockRepository->getTopLosers(5);
-        $mostActive = $this->stockRepository->getMostActiveByVolume(5);
+        $gainers = $this->stockRepository->getTopGainers(self::TOP_PERFORMERS_LIMIT);
+        $losers = $this->stockRepository->getTopLosers(self::TOP_PERFORMERS_LIMIT);
+        $mostActive = $this->stockRepository->getMostActiveByVolume(self::TOP_PERFORMERS_LIMIT);
         
         return [
             'total_stocks' => $totalStocks,
@@ -252,16 +267,16 @@ class StockActions
         
         for ($i = $days; $i >= 0; $i--) {
             $date = now()->subDays($i);
-            $variance = (mt_rand(-500, 500) / 10000); // ±5% variance
+            $variance = (mt_rand(-self::PRICE_VARIANCE_BASIS_POINTS, self::PRICE_VARIANCE_BASIS_POINTS) / self::PRICE_VARIANCE_DIVISOR);
             $price = $basePrice * (1 + $variance);
-            
+
             $history[] = [
                 'date' => $date->toDateString(),
                 'open' => round($price * 0.995, 4),
                 'high' => round($price * 1.01, 4),
                 'low' => round($price * 0.99, 4),
                 'close' => round($price, 4),
-                'volume' => mt_rand(10000, 100000)
+                'volume' => mt_rand(self::MOCK_VOLUME_MIN, self::MOCK_VOLUME_MAX)
             ];
         }
         
@@ -275,13 +290,13 @@ class StockActions
     {
         // Simple market hours simulation
         $hour = (int) now()->format('H');
-        $isOpen = $hour >= 9 && $hour < 17; // 9 AM to 5 PM
+        $isOpen = $hour >= self::MARKET_OPEN_HOUR && $hour < self::MARKET_CLOSE_HOUR;
         
         return [
             'is_open' => $isOpen,
             'status' => $isOpen ? 'open' : 'closed',
-            'next_open' => $isOpen ? null : now()->next('9:00')->toISOString(),
-            'next_close' => $isOpen ? now()->setTime(17, 0)->toISOString() : null
+            'next_open' => $isOpen ? null : now()->next(self::MARKET_OPEN_HOUR . ':00')->toISOString(),
+            'next_close' => $isOpen ? now()->setTime(self::MARKET_CLOSE_HOUR, 0)->toISOString() : null
         ];
     }
 }

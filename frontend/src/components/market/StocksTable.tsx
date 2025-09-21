@@ -1,18 +1,24 @@
 import React, { Fragment } from 'react';
 import { Stock } from '../../entities/Stock';
 import { formatCurrency, formatPercentage, formatMarketCap } from '../../utils/formatUtils';
-import StockDetailsPanel from './StockDetailsPanel';
 
 interface StocksTableProps {
   stocks: Stock[];
   selectedStock: Stock | null;
   sortBy: 'name' | 'price' | 'change' | 'volume' | 'marketCap';
   sortDirection: 'asc' | 'desc';
-  activeTab: 'overview' | 'financials' | 'news';
   onStockSelect: (stock: Stock | null) => void;
   onSort: (sortBy: 'name' | 'price' | 'change' | 'volume' | 'marketCap') => void;
-  onTabChange: (tab: 'overview' | 'financials' | 'news') => void;
 }
+
+// Table column configuration
+const TABLE_COLUMNS = [
+  { key: 'name', label: 'Symbol / Name' },
+  { key: 'price', label: 'Price' },
+  { key: 'change', label: 'Change' },
+  { key: 'marketCap', label: 'Market Cap' },
+  { key: 'volume', label: 'Volume' },
+] as const;
 
 /**
  * Displays a table of stocks with sortable columns and expandable details
@@ -22,10 +28,8 @@ const StocksTable: React.FC<StocksTableProps> = ({
   selectedStock,
   sortBy,
   sortDirection,
-  activeTab,
   onStockSelect,
-  onSort,
-  onTabChange
+  onSort
 }) => {
   /**
    * Handle keyboard navigation for stock selection
@@ -115,49 +119,60 @@ const StocksTable: React.FC<StocksTableProps> = ({
           <tbody className="bg-white divide-y divide-gray-200 dark:bg-gray-800 dark:divide-gray-700">
             {stocks.map(stock => (
               <Fragment key={stock.id}>
-                <tr 
+                <tr
                   onClick={() => onStockSelect(selectedStock?.id === stock.id ? null : stock)}
                   onKeyDown={(e) => handleStockKeyDown(e, stock)}
                   tabIndex={0}
-                  aria-selected={selectedStock?.id === stock.id}
-                  role="row"
+                  role="button"
+                  aria-label={`${stock.symbol} - ${stock.name}, current price ${formatCurrency(stock.currentPrice)}, ${stock.changePercent >= 0 ? 'up' : 'down'} ${formatPercentage(stock.changePercent, true, 2, 2, false)}`}
                   aria-expanded={selectedStock?.id === stock.id}
-                  aria-controls={`stock-details-${stock.id}`}
-                  className={`cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700 ${selectedStock?.id === stock.id ? 'bg-blue-50 dark:bg-blue-900/30' : ''}`}
+                  aria-describedby={`stock-summary-${stock.id}`}
+                  aria-pressed={selectedStock?.id === stock.id}
+                  className={`cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
+                    selectedStock?.id === stock.id ? 'bg-blue-50 dark:bg-blue-900/30' : ''
+                  }`}
                 >
                   <td className="px-4 py-3 whitespace-nowrap">
                     <div className="font-medium text-gray-900 dark:text-white">{stock.symbol}</div>
                     <div className="text-sm text-gray-500 dark:text-gray-400">{stock.name}</div>
+                    <div id={`stock-summary-${stock.id}`} className="sr-only">
+                      Stock: {stock.symbol} ({stock.name}).
+                      Current price: {formatCurrency(stock.currentPrice)}.
+                      Change: {formatCurrency(stock.change)} ({formatPercentage(stock.changePercent, true, 2, 2, false)}).
+                      Market cap: {formatMarketCap(stock.marketCap)}.
+                      Volume: {stock.volume.toLocaleString()} shares.
+                      {selectedStock?.id === stock.id ? ' Details panel is open.' : ' Click to view details.'}
+                    </div>
                   </td>
                   <td className="px-4 py-3 whitespace-nowrap font-medium text-gray-900 dark:text-white">
-                    {formatCurrency(stock.currentPrice)}
+                    <span aria-label={`Current price ${formatCurrency(stock.currentPrice)}`}>
+                      {formatCurrency(stock.currentPrice)}
+                    </span>
                   </td>
                   <td className={`px-4 py-3 whitespace-nowrap font-medium ${stock.changePercent >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
-                    <div>{formatCurrency(stock.change)}</div>
-                    <div className="text-sm">
+                    <div aria-label={`Price change ${formatCurrency(stock.change)}`}>
+                      {formatCurrency(stock.change)}
+                    </div>
+                    <div className="text-sm" aria-label={`Percentage change ${formatPercentage(stock.changePercent, true, 2, 2, false)}`}>
                       {formatPercentage(stock.changePercent, true, 2, 2, false)}
                     </div>
                   </td>
                   <td className="px-4 py-3 whitespace-nowrap text-gray-700 dark:text-gray-300">
-                    {formatMarketCap(stock.marketCap)}
+                    <span aria-label={`Market cap ${formatMarketCap(stock.marketCap)}`}>
+                      {formatMarketCap(stock.marketCap)}
+                    </span>
                   </td>
                   <td className="px-4 py-3 whitespace-nowrap text-gray-700 dark:text-gray-300">
-                    {stock.volume.toLocaleString()}
+                    <span aria-label={`Volume ${stock.volume.toLocaleString()} shares`}>
+                      {stock.volume.toLocaleString()}
+                    </span>
                   </td>
                 </tr>
-                {selectedStock?.id === stock.id && (
-                  <StockDetailsPanel 
-                    stock={stock} 
-                    activeTab={activeTab} 
-                    setActiveTab={onTabChange}
-                    onClose={() => onStockSelect(null)}
-                  />
-                )}
               </Fragment>
             ))}
             {stocks.length === 0 && (
               <tr>
-                <td colSpan={5} className="px-4 py-8 text-center text-gray-500 dark:text-gray-400">
+                <td colSpan={TABLE_COLUMNS.length} className="px-4 py-8 text-center text-gray-500 dark:text-gray-400">
                   No stocks found matching your criteria
                 </td>
               </tr>

@@ -1,7 +1,8 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useState } from 'react';
 import { TradeFormProps } from '../../entities/Trade';
 import { formatCurrency } from '../../utils/formatUtils';
 import { TransactionType, Position } from '../../entities/Portfolio';
+import { validateTrade, TRADE_CONSTRAINTS } from '../../utils/tradeValidation';
 
 /**
  * TradeForm component - Provides interface for buying and selling stocks
@@ -18,25 +19,52 @@ const TradeForm: React.FC<TradeFormProps> = ({
   onConfirmRequest,
   loading
 }) => {
+  const [validationErrors, setValidationErrors] = useState<string[]>([]);
+
   // Get position for current stock
   const getCurrentPosition = useCallback(() => {
     if (!stock || !userPortfolio) return null;
     return userPortfolio.positions.find((p: Position) => p.stockId === stock.id);
   }, [stock, userPortfolio]);
-  
+
   const currentPosition = getCurrentPosition();
 
-  // Check if user can afford trade
-  const canAffordTrade = useCallback(() => {
-    if (!stock || !userPortfolio || tradeShares <= 0) return false;
-    
-    if (tradeType === TransactionType.BUY) {
-      return userPortfolio.cash >= tradeAmount;
-    } else {
-      const position = getCurrentPosition();
-      return position && position.shares >= tradeShares;
+  // Validate trade and check if user can afford it
+  const validateCurrentTrade = useCallback(() => {
+    if (!stock || !userPortfolio) return { isValid: false, errors: ['Stock or portfolio data missing'] };
+
+    const validation = validateTrade(
+      tradeShares,
+      tradeAmount,
+      tradeType,
+      userPortfolio.cash,
+      currentPosition?.shares
+    );
+
+    setValidationErrors(validation.errors);
+    return validation;
+  }, [stock, userPortfolio, tradeShares, tradeAmount, tradeType, currentPosition]);
+
+  // Handle shares input change with validation
+  const handleSharesChange = useCallback((value: string) => {
+    const numericValue = parseInt(value) || 0;
+
+    // Basic client-side validation
+    if (numericValue < 0) return;
+    if (numericValue > TRADE_CONSTRAINTS.MAX_SHARES_PER_TRADE) return;
+
+    onSharesChange(numericValue);
+
+    // Clear previous validation errors when user starts typing
+    if (validationErrors.length > 0) {
+      setValidationErrors([]);
     }
-  }, [stock, userPortfolio, tradeType, tradeShares, tradeAmount, getCurrentPosition]);
+  }, [onSharesChange, validationErrors.length]);
+
+  const canAffordTrade = useCallback(() => {
+    const validation = validateCurrentTrade();
+    return validation.isValid && tradeShares > 0;
+  }, [validateCurrentTrade, tradeShares]);
 
   return (
     <div className="w-full" role="form" aria-labelledby="trade-form-title">
@@ -79,16 +107,22 @@ const TradeForm: React.FC<TradeFormProps> = ({
       
       <div className="mb-4">
         <label htmlFor="shares" className="block mb-1 text-sm font-medium text-gray-700 dark:text-gray-300">Number of Shares</label>
-        <input 
-          type="number" 
-          id="shares" 
+        <input
+          type="number"
+          id="shares"
           value={tradeShares}
-          onChange={(e) => onSharesChange(parseInt(e.target.value) || 0)}
-          min="1"
+          onChange={(e) => handleSharesChange(e.target.value)}
+          min={TRADE_CONSTRAINTS.MIN_SHARES}
+          max={TRADE_CONSTRAINTS.MAX_SHARES_PER_TRADE}
           step="1"
-          className="w-full px-3 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className={`w-full px-3 py-2 bg-white dark:bg-gray-700 border rounded-md text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 ${
+            validationErrors.length > 0
+              ? 'border-red-300 dark:border-red-600 focus:ring-red-500'
+              : 'border-gray-300 dark:border-gray-600 focus:ring-blue-500'
+          }`}
           aria-label="Number of shares to trade"
           aria-describedby="shares-error"
+          aria-invalid={validationErrors.length > 0}
         />
       </div>
       
@@ -106,19 +140,13 @@ const TradeForm: React.FC<TradeFormProps> = ({
         </div>
       </div>
       
-      {tradeType === TransactionType.BUY && 
-       userPortfolio && 
-       tradeAmount > userPortfolio.cash && (
+      {validationErrors.length > 0 && (
         <div className="p-3 mb-4 text-sm text-red-700 bg-red-100 rounded-md dark:bg-red-900 dark:text-red-200" id="shares-error" role="alert">
-          Insufficient funds. Available: {formatCurrency(userPortfolio.cash)}
-        </div>
-      )}
-      
-      {tradeType === TransactionType.SELL && 
-       currentPosition && 
-       tradeShares > currentPosition.shares && (
-        <div className="p-3 mb-4 text-sm text-red-700 bg-red-100 rounded-md dark:bg-red-900 dark:text-red-200" id="shares-error" role="alert">
-          Insufficient shares. Available: {currentPosition.shares}
+          <ul className="list-disc list-inside space-y-1">
+            {validationErrors.map((error, index) => (
+              <li key={index}>{error}</li>
+            ))}
+          </ul>
         </div>
       )}
       

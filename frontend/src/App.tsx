@@ -7,6 +7,7 @@ import ProtectedRoute from './components/auth/ProtectedRoute';
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
 import ServerStatus from './components/common/ServerStatus';
+import ErrorBoundary from './components/common/ErrorBoundary';
 
 // Import actual page components
 import Home from './pages/Home'; // New Home page with market overview for all users
@@ -33,17 +34,18 @@ const NotFound = () => (
 );
 
 function App() {
-  // Get base path from environment variables, defaulting to root
-  const basename = import.meta.env.VITE_BASE_PATH?.replace(/\/$/, '') || '';
+  // Get base path from environment variables
+  const basename = import.meta.env.VITE_BASE_PATH?.replace(/\/$/, '') ?? '';
   
   return (
-    <AuthProvider>
-      <NavigationProvider>
-        <BrowserRouter basename={basename}>
-          {/* Server status indicator */}
-          <ServerStatus />
-          
-          <Routes>
+    <ErrorBoundary>
+      <AuthProvider>
+        <NavigationProvider>
+          <BrowserRouter basename={basename}>
+            {/* Server status indicator */}
+            <ServerStatus />
+
+            <Routes>
             {/* Auth Routes */}
             <Route path="/login" element={<LoginPage />} />
             <Route path="/register" element={<RegisterPage />} />
@@ -70,10 +72,11 @@ function App() {
               {/* 404 Not Found */}
               <Route path="*" element={<NotFound />} />
             </Route>
-          </Routes>
-        </BrowserRouter>
-      </NavigationProvider>
-    </AuthProvider>
+            </Routes>
+          </BrowserRouter>
+        </NavigationProvider>
+      </AuthProvider>
+    </ErrorBoundary>
   );
 }
 

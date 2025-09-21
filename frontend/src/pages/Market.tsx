@@ -3,6 +3,7 @@ import { stockService } from '../api/stockService';
 import { Stock } from '../entities/Stock';
 import { StockFilters } from '../entities/api';
 import { MarketFilters, StocksTable } from '../components/market';
+import StockDetailsPanel from '../components/market/StockDetailsPanel';
 import { LoadingSpinner } from '../components/utility';
 
 /**
@@ -133,16 +134,24 @@ const Market = () => {
       />
 
       {/* Stocks table */}
-      <StocksTable 
+      <StocksTable
         stocks={filteredStocks}
         selectedStock={selectedStock}
         sortBy={sortBy}
         sortDirection={sortDirection}
-        activeTab={activeTab}
         onStockSelect={handleStockSelect}
         onSort={handleSort}
-        onTabChange={setActiveTab}
       />
+
+      {/* Stock details panel - shown when a stock is selected */}
+      {selectedStock && (
+        <StockDetailsPanel
+          stock={selectedStock}
+          activeTab={activeTab}
+          setActiveTab={setActiveTab}
+          onClose={() => setSelectedStock(null)}
+        />
+      )}
     </div>
   );
 };

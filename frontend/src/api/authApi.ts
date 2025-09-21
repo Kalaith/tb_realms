@@ -5,9 +5,13 @@
 import axios from 'axios';
 import { AuthUser, LoginRequest, RegisterRequest, ApiResponse } from '../entities/Auth';
 
-// Base API URL from environment variables with fallback
+// Base API URL from environment variables - required
 // IMPORTANT: Make sure this matches your backend server address and port
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
+const API_URL = import.meta.env.VITE_API_URL;
+
+if (!API_URL) {
+  throw new Error('VITE_API_URL environment variable is required');
+}
 
 /**
  * Axios instance with base configuration

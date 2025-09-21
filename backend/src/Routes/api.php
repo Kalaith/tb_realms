@@ -2,6 +2,7 @@
 
 use Slim\Routing\RouteCollectorProxy;
 use App\Controllers\AuthController;
+use App\Controllers\Auth0Controller;
 use App\Controllers\PortfolioController;
 use App\Controllers\StockController;
 use App\Controllers\TransactionController;
@@ -13,6 +14,7 @@ use App\Controllers\WatchlistController;
 // use App\Controllers\EventController;
 // use App\Controllers\UserSettingsController;
 use App\Middleware\JwtAuthMiddleware;
+use App\Middleware\Auth0Middleware;
 
 // API Routes
 $app->group('/api', function (RouteCollectorProxy $group) {
@@ -121,6 +123,15 @@ $app->group('/api', function (RouteCollectorProxy $group) {
     // ==================================================
     $group->post('/auth/register', [AuthController::class, 'register']);
     $group->post('/auth/login', [AuthController::class, 'login']);
+    
+    // ==================================================
+    // Auth0 Routes (Auth0 token authentication required)
+    // ==================================================
+    $group->group('/auth0', function (RouteCollectorProxy $auth0Group) {
+        $auth0Group->post('/verify', [Auth0Controller::class, 'verifyUser']);
+        $auth0Group->get('/me', [Auth0Controller::class, 'getCurrentUser']);
+        $auth0Group->get('/validate', [Auth0Controller::class, 'validateSession']);
+    })->add(Auth0Middleware::class);
 
     // ==================================================
     // Public Stock Information Routes (No Auth Required)

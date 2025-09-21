@@ -11,11 +11,13 @@ class User extends Model
     protected $table = 'users';
     
     protected $fillable = [
+        'auth0_id',
         'email',
         'username',
         'password',
         'first_name',
         'last_name',
+        'display_name',
         'avatar_url',
         'role',
         'starting_balance',
@@ -43,13 +45,15 @@ class User extends Model
         if (!Schema::schema()->hasTable('users')) {
             Schema::schema()->create('users', function (Blueprint $table) {
                 $table->id();
+                $table->string('auth0_id')->unique()->nullable();
                 $table->string('email')->unique();
                 $table->string('username')->unique();
-                $table->string('password');
+                $table->string('password')->nullable(); // Make nullable for Auth0 users
                 $table->string('first_name')->nullable();
                 $table->string('last_name')->nullable();
+                $table->string('display_name')->nullable();
                 $table->text('avatar_url')->nullable();
-                $table->enum('role', ['user', 'admin', 'moderator'])->default('user');
+                $table->enum('role', ['player', 'admin', 'moderator'])->default('player'); // Changed 'user' to 'player' for game context
                 $table->decimal('starting_balance', 15, 2)->default(10000.00);
                 $table->boolean('is_active')->default(true);
                 $table->timestamp('last_login_at')->nullable();
@@ -57,6 +61,7 @@ class User extends Model
                 $table->timestamps();
 
                 // Indexes
+                $table->index('auth0_id');
                 $table->index('email');
                 $table->index('username');
                 $table->index('role');

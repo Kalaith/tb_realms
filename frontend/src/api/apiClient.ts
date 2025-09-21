@@ -1,10 +1,17 @@
 /**
  * API Client for making HTTP requests to the backend
  * Provides a wrapper around fetch API with common functionality
+ * Includes response caching for improved performance
  */
 
-// Base API URL - would come from environment variables in a real app
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
+import { apiCache, CacheKeys, CacheTTL } from '../utils/apiCache';
+
+// Base API URL - required environment variable
+const API_BASE_URL = import.meta.env.VITE_API_URL;
+
+if (!API_BASE_URL) {
+  throw new Error('VITE_API_URL environment variable is required');
+}
 
 /**
  * Get the authentication token from localStorage
@@ -58,31 +65,50 @@ const buildUrl = (endpoint: string): string => {
 const handleResponse = async (response: Response) => {
   // Parse JSON response
   const data = await response.json().catch(() => ({}));
-  
+
   // Handle error responses
   if (!response.ok) {
-    throw {
-      status: response.status,
-      statusText: response.statusText,
-      data,
-    };
+    const { ApiResponseError } = await import('../entities/errors');
+    throw new ApiResponseError(
+      data.message || `HTTP ${response.status}: ${response.statusText}`,
+      response.status,
+      response.statusText,
+      data.error
+    );
   }
-  
+
   return data;
 };
 
 // API client with common HTTP methods
 const apiClient = {
   /**
-   * Send a GET request
+   * Send a GET request with optional caching
    */
-  async get(endpoint: string, options = {}) {
+  async get(endpoint: string, options: { cache?: boolean; cacheKey?: string; cacheTTL?: number } = {}) {
+    const { cache = false, cacheKey, cacheTTL = CacheTTL.STOCKS_LIST } = options;
+
+    // Check cache first if caching is enabled
+    if (cache && cacheKey) {
+      const cachedData = apiCache.get(cacheKey);
+      if (cachedData) {
+        return cachedData;
+      }
+    }
+
     const response = await fetch(buildUrl(endpoint), {
       ...buildRequestOptions(options),
       method: 'GET',
     });
-    
-    return handleResponse(response);
+
+    const data = await handleResponse(response);
+
+    // Store in cache if caching is enabled
+    if (cache && cacheKey) {
+      apiCache.set(cacheKey, data, cacheTTL);
+    }
+
+    return data;
   },
   
   /**

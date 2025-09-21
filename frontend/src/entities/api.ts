@@ -1,17 +1,17 @@
-export interface ApiResponse<T> {
-  success: boolean;
+export class ApiResponse<T = any> {
+  success!: boolean;
   data?: T;
   error?: ApiError;
   meta?: ApiMeta;
 }
 
-export interface ApiError {
-  code: string;
-  message: string;
+export class ApiError {
+  code!: string;
+  message!: string;
   details?: Record<string, unknown>;
 }
 
-export interface ApiMeta {
+export class ApiMeta {
   page?: number;
   pageSize?: number;
   totalItems?: number;

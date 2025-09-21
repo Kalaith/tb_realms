@@ -51,7 +51,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       try {
         // Check if there's a token in localStorage
         const token = localStorage.getItem('token');
-        
+
         if (token) {
           // Fetch current user data if token exists
           const userData = await authApi.getCurrentUser();
@@ -64,12 +64,15 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         }
       } catch (err) {
         console.error('Authentication initialization error:', err);
+        // Clear potentially invalid token on auth error
+        localStorage.removeItem('token');
+        setError('Authentication session expired. Please log in again.');
       } finally {
         // Mark loading as complete regardless of outcome
         setIsLoading(false);
       }
     };
-    
+
     initAuth();
   }, []);  /**
    * Login with credentials
