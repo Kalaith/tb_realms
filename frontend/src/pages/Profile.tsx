@@ -48,7 +48,7 @@ const Profile: React.FC = () => {
           username: user?.username || 'trader123',
           email: user?.email || 'trader@example.com',
           fullName: 'Alex Johnson',
-          avatarUrl: user?.avatarUrl || 'https://i.pravatar.cc/300',
+          avatarUrl: 'https://i.pravatar.cc/300',
           joinDate: '2023-03-15T10:30:00Z',
           bio: 'Passionate trader with 5+ years of experience in stock markets. Focused on tech and renewable energy sectors.',
           location: 'San Francisco, CA',

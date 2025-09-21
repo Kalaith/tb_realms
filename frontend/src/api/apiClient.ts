@@ -4,7 +4,7 @@
  * Includes response caching for improved performance
  */
 
-import { apiCache, CacheKeys, CacheTTL } from '../utils/apiCache';
+import { apiCache, CacheTTL } from '../utils/apiCache';
 
 // Base API URL - required environment variable
 const API_BASE_URL = import.meta.env.VITE_API_URL;
@@ -13,30 +13,8 @@ if (!API_BASE_URL) {
   throw new Error('VITE_API_URL environment variable is required');
 }
 
-/**
- * Get the authentication token from localStorage
- * @returns The JWT token or null if not logged in
- */
-const getAuthToken = (): string | null => {
-  return localStorage.getItem('token'); // Changed to match AuthContext key
-};
-
-// Helper to build request options with auth token
+// Helper to build request options (no authentication needed)
 const buildRequestOptions = (options = {}) => {
-  const token = getAuthToken();
-  
-  // Add Authorization header if token exists
-  if (token) {
-    return {
-      ...options,
-      headers: {
-        ...defaultOptions.headers,
-        'Authorization': `Bearer ${token}`,
-        ...(options as any)?.headers,
-      }
-    };
-  }
-  
   return {
     ...defaultOptions,
     ...options,

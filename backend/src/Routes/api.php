@@ -42,8 +42,8 @@ $app->group('/api', function (RouteCollectorProxy $group) {
     $group->get('/navigation', function($request, $response) {
         $mainNavigation = [
             [
-                'name' => 'Home',
-                'path' => '/',
+                'name' => 'Dashboard',
+                'path' => '/dashboard',
                 'icon' => '🏠',
                 'requiresAuth' => false,
                 'showInHeader' => true
@@ -59,14 +59,28 @@ $app->group('/api', function (RouteCollectorProxy $group) {
                 'name' => 'Portfolio',
                 'path' => '/portfolio',
                 'icon' => '💼',
-                'requiresAuth' => true,
+                'requiresAuth' => false,
+                'showInHeader' => true
+            ],
+            [
+                'name' => 'Transactions',
+                'path' => '/transactions',
+                'icon' => '💳',
+                'requiresAuth' => false,
                 'showInHeader' => true
             ],
             [
                 'name' => 'Watchlist',
                 'path' => '/watchlist',
                 'icon' => '👁️',
-                'requiresAuth' => true,
+                'requiresAuth' => false,
+                'showInHeader' => true
+            ],
+            [
+                'name' => 'Leaderboard',
+                'path' => '/leaderboard',
+                'icon' => '🏆',
+                'requiresAuth' => false,
                 'showInHeader' => true
             ]
         ];
@@ -167,56 +181,49 @@ $app->group('/api', function (RouteCollectorProxy $group) {
     // $group->get('/leaderboard/performance', [LeaderboardController::class, 'getPerformanceLeaderboard']);
 
     // ==================================================
-    // Protected Routes (JWT Authentication Required)
+    // All Routes are now Public (No Authentication Required)
     // ==================================================
-    $group->group('', function (RouteCollectorProxy $protected) {
-        // Authentication Routes (Protected)
-        $protected->get('/auth/me', [AuthController::class, 'getCurrentUser']);
-        $protected->get('/auth/user', [AuthController::class, 'getCurrentUser']); // Alternative endpoint
-        $protected->post('/auth/logout', [AuthController::class, 'logout']);
 
-        // Portfolio Routes (Protected)
-        $protected->get('/portfolio', [PortfolioController::class, 'getPortfolio']);
-        $protected->get('/portfolios/user/{identifier}', [PortfolioController::class, 'getPortfolioByUser']); // Backward compatibility
-        $protected->get('/portfolio/summary', [PortfolioController::class, 'getPortfolio']); // Alternative endpoint
-        $protected->post('/portfolio/reset', [PortfolioController::class, 'resetPortfolio']);
-        $protected->get('/portfolio/performance', [PortfolioController::class, 'getPerformance']);
-        $protected->get('/portfolio/holdings', [PortfolioController::class, 'getHoldings']);
+    // Portfolio Routes (now using default user)
+    $group->get('/portfolio', [PortfolioController::class, 'getPortfolio']);
+    $group->get('/portfolios/user/{identifier}', [PortfolioController::class, 'getPortfolioByUser']); // Backward compatibility
+    $group->get('/portfolio/summary', [PortfolioController::class, 'getPortfolio']); // Alternative endpoint
+    $group->post('/portfolio/reset', [PortfolioController::class, 'resetPortfolio']);
+    $group->get('/portfolio/performance', [PortfolioController::class, 'getPerformance']);
+    $group->get('/portfolio/holdings', [PortfolioController::class, 'getHoldings']);
 
-        // Transaction Routes (Protected)
-        $protected->post('/transactions/buy', [TransactionController::class, 'buyStock']);
-        $protected->post('/transactions/sell', [TransactionController::class, 'sellStock']);
-        $protected->get('/transactions', [TransactionController::class, 'getTransactions']);
-        $protected->get('/transactions/history', [TransactionController::class, 'getTransactionHistory']);
-        $protected->get('/transactions/{id}', [TransactionController::class, 'getTransactionById']);
+    // Transaction Routes (now using default user)
+    $group->post('/transactions/buy', [TransactionController::class, 'buyStock']);
+    $group->post('/transactions/sell', [TransactionController::class, 'sellStock']);
+    $group->get('/transactions', [TransactionController::class, 'getTransactions']);
+    $group->get('/transactions/history', [TransactionController::class, 'getTransactionHistory']);
+    $group->get('/transactions/{id}', [TransactionController::class, 'getTransactionById']);
 
-        // Watchlist Routes (Protected)
-        $protected->get('/watchlist', [WatchlistController::class, 'getWatchlist']);
-        $protected->get('/watchlist/me', [WatchlistController::class, 'getWatchlist']); // Alternative endpoint
-        $protected->post('/watchlist', [WatchlistController::class, 'addToWatchlist']);
-        $protected->delete('/watchlist/{stockId}', [WatchlistController::class, 'removeFromWatchlist']);
+    // Watchlist Routes (now using default user)
+    $group->get('/watchlist', [WatchlistController::class, 'getWatchlist']);
+    $group->get('/watchlist/me', [WatchlistController::class, 'getWatchlist']); // Alternative endpoint
+    $group->post('/watchlist', [WatchlistController::class, 'addToWatchlist']);
+    $group->delete('/watchlist/{stockId}', [WatchlistController::class, 'removeFromWatchlist']);
 
-        // User-specific Achievement Routes (Protected)
-        // TODO: Implement AchievementController and AchievementActions
-        // $protected->get('/achievements', [AchievementController::class, 'getUserAchievements']);
-        // $protected->get('/achievements/progress', [AchievementController::class, 'getAchievementProgress']);
+    // User-specific Achievement Routes (now using default user)
+    // TODO: Implement AchievementController and AchievementActions
+    // $group->get('/achievements', [AchievementController::class, 'getUserAchievements']);
+    // $group->get('/achievements/progress', [AchievementController::class, 'getAchievementProgress']);
 
-        // Friends Leaderboard (Protected)
-        // TODO: Implement LeaderboardController and LeaderboardActions
-        // $protected->get('/leaderboard/friends', [LeaderboardController::class, 'getFriendsLeaderboard']);
+    // Friends Leaderboard (now using default user)
+    // TODO: Implement LeaderboardController and LeaderboardActions
+    // $group->get('/leaderboard/friends', [LeaderboardController::class, 'getFriendsLeaderboard']);
 
-        // User Settings Routes (Protected)
-        // TODO: Implement UserSettingsController and UserSettingsActions
-        // $protected->get('/settings', [UserSettingsController::class, 'getUserSettings']);
-        // $protected->put('/settings', [UserSettingsController::class, 'updateUserSettings']);
-        // $protected->post('/settings/reset', [UserSettingsController::class, 'resetToDefaults']);
+    // User Settings Routes (now using default user)
+    // TODO: Implement UserSettingsController and UserSettingsActions
+    // $group->get('/settings', [UserSettingsController::class, 'getUserSettings']);
+    // $group->put('/settings', [UserSettingsController::class, 'updateUserSettings']);
+    // $group->post('/settings/reset', [UserSettingsController::class, 'resetToDefaults']);
 
-        // User Management Routes (Protected - Admin only)
-        $protected->get('/users', [UserController::class, 'getAllUsers']);
-        $protected->get('/users/{id}', [UserController::class, 'getUserById']);
-        $protected->get('/users/{id}/profile', [UserController::class, 'getUserProfile']);
-        $protected->put('/users/{id}', [UserController::class, 'updateUser']);
-        $protected->delete('/users/{id}', [UserController::class, 'deleteUser']);
-
-    })->add(JwtAuthMiddleware::class);
+    // User Management Routes (now public)
+    $group->get('/users', [UserController::class, 'getAllUsers']);
+    $group->get('/users/{id}', [UserController::class, 'getUserById']);
+    $group->get('/users/{id}/profile', [UserController::class, 'getUserProfile']);
+    $group->put('/users/{id}', [UserController::class, 'updateUser']);
+    $group->delete('/users/{id}', [UserController::class, 'deleteUser']);
 });

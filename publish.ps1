@@ -1,28 +1,17 @@
-# Universal Project Publishing Script
-# Publishes frontend and PHP backend to file system and/or FTP server
-# Supports both root deployment (frontpage) and subfolder deployment (other projects)
+# Simplified Project Publishing Script
+# Three deployment modes:
+# 1. Local development: npm run dev (not handled by this script)
+# 2. Preview: Deploy to XAMPP directory (H:\xampp\htdocs)
+# 3. Production: Deploy to F drive with optional FTP upload
 
 param(
-    [Alias('f')]
-    [switch]$Frontend,
-    [Alias('b')]
-    [switch]$Backend,
-    [Alias('a')]
-    [switch]$All,
-    [Alias('c')]
-    [switch]$Clean,
-    [Alias('v')]
-    [switch]$Verbose,
     [Alias('p')]
-    [switch]$Production,
-    [switch]$FTP,
-    [Alias('fv')]
-    [switch]$ForceVendor,
-    [Alias('fs')]
-    [switch]$FileSystemOnly,
-    [string]$FTPProfile = "default",
-    [Alias('r')]
-    [switch]$RootDeploy
+    [switch]$Production,    # Deploy to F drive (production)
+    [switch]$FTP,           # Upload to FTP after production deploy
+    [Alias('c')]
+    [switch]$Clean,         # Clean destination before deploy
+    [Alias('v')]
+    [switch]$Verbose        # Verbose output
 )
 
 # Auto-detect project name from current directory
@@ -60,61 +49,44 @@ DEPLOY_TO_ROOT=false
     exit 1
 }
 
-# Determine deployment mode - check .env setting or use RootDeploy parameter
-$deployToRoot = $false
-if ($RootDeploy) {
-    $deployToRoot = $true
-} elseif ($DEPLOY_TO_ROOT -eq "true") {
-    $deployToRoot = $true
+# Determine deployment mode and paths
+if ($Production -or $FTP) {
+    # Production mode: F drive
+    $DEST_ROOT = $PRODUCTION_ROOT
+    $ENVIRONMENT = "production"
+} else {
+    # Preview mode: XAMPP directory
+    $DEST_ROOT = $PREVIEW_ROOT
+    $ENVIRONMENT = "preview"
 }
 
-# FTP Configuration from .env (using script variables, not $env)
-$FTPConfig = @{
-    Server = $FTP_SERVER
-    Username = $FTP_USERNAME  
-    Password = $FTP_PASSWORD
-    Port = if ($FTP_PORT) { $FTP_PORT -as [int] } else { 21 }
-    RemoteRoot = if ($FTP_REMOTE_ROOT) { $FTP_REMOTE_ROOT } else { "/" }
-    UseSSL = ($FTP_USE_SSL -eq "true")
-    PassiveMode = ($FTP_PASSIVE_MODE -ne "false")  # Default true
-}
+# Project paths
+$DEST_DIR = Join-Path $DEST_ROOT $PROJECT_NAME
+$FRONTEND_DEST = $DEST_DIR
+$BACKEND_DEST = "$DEST_DIR\backend"
 
-# Validate FTP configuration if FTP deployment is requested
-if ($FTP -and -not $FileSystemOnly) {
+# FTP Configuration (only if using FTP)
+if ($FTP) {
+    $FTPConfig = @{
+        Server = $FTP_SERVER
+        Username = $FTP_USERNAME
+        Password = $FTP_PASSWORD
+        Port = if ($FTP_PORT) { $FTP_PORT -as [int] } else { 21 }
+        RemoteRoot = if ($FTP_REMOTE_ROOT) { $FTP_REMOTE_ROOT } else { "/" }
+        UseSSL = ($FTP_USE_SSL -eq "true")
+        PassiveMode = ($FTP_PASSIVE_MODE -ne "false")
+    }
+
+    # Validate FTP configuration
     $missingFTPConfig = @()
     if (-not $FTPConfig.Server) { $missingFTPConfig += "FTP_SERVER" }
     if (-not $FTPConfig.Username) { $missingFTPConfig += "FTP_USERNAME" }
     if (-not $FTPConfig.Password) { $missingFTPConfig += "FTP_PASSWORD" }
-    
+
     if ($missingFTPConfig.Count -gt 0) {
-        Write-Error "Missing FTP configuration in .env file: $($missingFTPConfig -join ', ')"
-        Write-Host @"
-Add the following to your .env file:
-FTP_SERVER=your.ftp.server.com
-FTP_USERNAME=your_username  
-FTP_PASSWORD=your_password
-FTP_PORT=21
-FTP_REMOTE_ROOT=/public_html
-FTP_USE_SSL=false
-FTP_PASSIVE_MODE=true
-"@ -ForegroundColor Yellow
+        Write-Error "Missing FTP configuration: $($missingFTPConfig -join ', ')"
         exit 1
     }
-}
-
-# Set destination paths based on Production flag and deployment mode
-$DEST_ROOT = if ($Production) { $PRODUCTION_ROOT } else { $PREVIEW_ROOT }
-
-if ($deployToRoot) {
-    # Root deployment (like frontpage)
-    $DEST_DIR = $DEST_ROOT
-    $FRONTEND_DEST = $DEST_DIR
-    $BACKEND_DEST = "$DEST_DIR\backend"
-} else {
-    # Subfolder deployment (like other projects)
-    $DEST_DIR = Join-Path $DEST_ROOT $PROJECT_NAME
-    $FRONTEND_DEST = $DEST_DIR
-    $BACKEND_DEST = "$DEST_DIR\backend"
 }
 
 $FRONTEND_SRC = "$PSScriptRoot\frontend"
@@ -414,8 +386,9 @@ function Build-Frontend {
             return $false
         }
     }
-    
-    $environment = if ($Production) { "production" } else { "preview" }
+
+    # When using FTP, always use production environment and F drive staging
+    $environment = if ($Production -or $FTP) { "production" } else { "preview" }
     Write-Info "Setting up $environment environment for frontend build..."
     $envSrc = ".env.$environment"
     $envTemp = ".env.local"
@@ -443,7 +416,7 @@ function Build-Frontend {
         Write-Info "Setting base path for project subfolder: $($env:VITE_BASE_PATH)"
     }
     
-    if ($Production) {
+    if ($Production -or $FTP) {
         npx vite build --mode production
     } else {
         npx vite build --mode preview
@@ -479,9 +452,9 @@ function Publish-Frontend {
         Write-Error "Frontend build output not found at $distPath"
         return $false
     }
-    
-    # File system deployment (if not FTP-only)
-    if (-not $FTP -or $FileSystemOnly) {
+
+    # File system deployment (always stage to F drive first, then optionally upload via FTP)
+    if ($true) {  # Always deploy to file system for staging
         if ($Clean) {
             if ($deployToRoot) {
                 Write-Warning "Cleaning specific frontend files from root directory..."
@@ -536,7 +509,7 @@ function Publish-Frontend {
                 "$($FTPConfig.RemoteRoot)/$PROJECT_NAME".Replace('//', '/')
             }
             
-            Upload-DirectoryToFTP -LocalPath $distPath -RemotePath $ftpDestPath -Config $FTPConfig -ExcludePatterns $excludePatterns
+            Upload-DirectoryToFTP -LocalPath $FRONTEND_DEST -RemotePath $ftpDestPath -Config $FTPConfig -ExcludePatterns $excludePatterns
             Write-Success "Frontend published to FTP server"
         } else {
             Write-Error "FTP connection failed - skipping FTP upload"
@@ -593,9 +566,9 @@ function Publish-Backend {
     }
     
     $success = $true
-    
-    # File system deployment (if not FTP-only)
-    if (-not $FTP -or $FileSystemOnly) {
+
+    # File system deployment (always stage to F drive first, then optionally upload via FTP)
+    if ($true) {  # Always deploy to file system for staging
         if ($Clean) {
             Clean-Directory $BACKEND_DEST
         }
@@ -611,7 +584,7 @@ function Publish-Backend {
         Copy-WithExclusions $BACKEND_SRC $BACKEND_DEST $excludePatterns
         
         # Handle environment configuration
-        $environment = if ($Production) { "production" } else { "preview" }
+        $environment = if ($Production -or $FTP) { "production" } else { "preview" }
         Write-Info "Setting up $environment environment configuration..."
         $envSrc = "$BACKEND_SRC\.env.$environment"
         $envDest = "$BACKEND_DEST\.env"
@@ -654,11 +627,11 @@ function Publish-Backend {
             # Note: Vendor uploads are skipped by default unless -ForceVendor is used
             # This is handled in the Upload-DirectoryToFTP function
             
-            Upload-DirectoryToFTP -LocalPath $BACKEND_SRC -RemotePath $backendRemotePath -Config $FTPConfig -ExcludePatterns $excludePatterns
+            Upload-DirectoryToFTP -LocalPath $BACKEND_DEST -RemotePath $backendRemotePath -Config $FTPConfig -ExcludePatterns $excludePatterns
             
-            # Upload environment file
-            $environment = if ($Production) { "production" } else { "preview" }
-            $envSrc = "$BACKEND_SRC\.env.$environment"
+            # Upload environment file (from staging area)
+            $environment = if ($Production -or $FTP) { "production" } else { "preview" }
+            $envSrc = "$BACKEND_DEST\.env"
             if (Test-Path $envSrc) {
                 $envRemotePath = "$backendRemotePath/.env"
                 Upload-FileToFTP -LocalPath $envSrc -RemotePath $envRemotePath -Config $FTPConfig -CreateDirectories
@@ -679,7 +652,7 @@ function Publish-Backend {
 function Main {
     $deploymentType = if ($deployToRoot) { "Root" } else { "Subfolder" }
     $deploymentTarget = if ($FTP) { 'FTP' } else { 'File System' }
-    $environmentType = if ($Production) { 'Production' } else { 'Preview' }
+    $environmentType = if ($Production -or $FTP) { 'Production' } else { 'Preview' }
     
     Write-Info "$PROJECT_NAME Universal Publishing Script"
     Write-Info "============================================"

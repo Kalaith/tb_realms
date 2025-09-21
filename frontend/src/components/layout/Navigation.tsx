@@ -6,18 +6,14 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { useNavigation } from '../../contexts/NavigationContext';
-import UserMenu from '../auth/UserMenu';
 
 const Navigation: React.FC = () => {
-  const { isAuthenticated } = useAuth();
+  const { user } = useAuth();
   const { mainNavigation, appBranding } = useNavigation();
 
-  // Filter navigation items to show in the header
-  // Since showInHeader might be missing in the API response but we already know
-  // the backend filtered for showInHeader=true, we can assume all items should be shown
-  const navItems = mainNavigation.filter(item => 
-    (item.showInHeader === undefined || item.showInHeader) && 
-    (!item.requiresAuth || isAuthenticated)
+  // Show all navigation items since auth is no longer required
+  const navItems = mainNavigation.filter(item =>
+    item.showInHeader === undefined || item.showInHeader
   );
   
   return (
@@ -45,17 +41,17 @@ const Navigation: React.FC = () => {
           ))}
         </div>
         
-        {/* Right section - shows UserMenu or login button */}
+        {/* Right section - shows user info */}
         <div className="flex items-center">
-          {isAuthenticated ? (
-            <UserMenu />
-          ) : (
-            <Link
-              to="/login"
-              className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600"
-            >
-              Sign in
-            </Link>
+          {user && (
+            <div className="flex items-center space-x-3">
+              <span className="text-sm text-gray-700 dark:text-gray-300">
+                Welcome, {user.username}
+              </span>
+              <span className="text-sm text-green-600 dark:text-green-400 font-medium">
+                ${user.startingBalance.toLocaleString()}
+              </span>
+            </div>
           )}
         </div>
       </div>

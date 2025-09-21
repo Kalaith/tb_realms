@@ -1,172 +1,147 @@
 /**
- * Authentication Context
- * Manages authentication state throughout the application
+ * User Context
+ * Manages user state with local storage (no authentication required)
  */
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import authApi from '../api/authApi';
-import { AuthUser, LoginRequest, RegisterRequest } from '../entities/Auth';
+
+// Simple user interface for local storage
+interface LocalUser {
+  id: string;
+  username: string;
+  email: string;
+  startingBalance: number;
+  createdAt: string;
+}
 
 /**
- * Auth context state and methods
+ * User context state and methods
  */
-interface AuthContextType {
+interface UserContextType {
   // State
-  user: AuthUser | null;
+  user: LocalUser | null;
   isAuthenticated: boolean;
   isLoading: boolean;
-  error: string | null;
-  
+
   // Methods
-  login: (credentials: LoginRequest) => Promise<void>;
-  register: (userData: RegisterRequest) => Promise<void>;
+  createUser: (username: string, email: string) => void;
   logout: () => void;
-  clearError: () => void;
 }
 
 // Create context with default undefined value
-const AuthContext = createContext<AuthContextType | undefined>(undefined);
+const UserContext = createContext<UserContextType | undefined>(undefined);
 
 // Provider props
-interface AuthProviderProps {
+interface UserProviderProps {
   children: ReactNode;
 }
 
 /**
- * Auth Context Provider component
+ * User Context Provider component
  */
-export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
-  // Authentication state
-  const [user, setUser] = useState<AuthUser | null>(null);
+export const AuthProvider: React.FC<UserProviderProps> = ({ children }) => {
+  // User state
+  const [user, setUser] = useState<LocalUser | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string | null>(null);
 
-  // Derived authentication status
+  // Derived authentication status (always true if user exists)
   const isAuthenticated = !!user;
 
   /**
-   * Attempt to restore user session from token on mount
+   * Load user from localStorage on mount
    */
   useEffect(() => {
-    const initAuth = async () => {
+    const initUser = () => {
       try {
-        // Check if there's a token in localStorage
-        const token = localStorage.getItem('token');
+        // Check if there's a user in localStorage
+        const storedUser = localStorage.getItem('tb_realms_user');
 
-        if (token) {
-          // Fetch current user data if token exists
-          const userData = await authApi.getCurrentUser();
-          if (userData) {
-            setUser(userData);
-          } else {
-            // Clear invalid token
-            localStorage.removeItem('token');
-          }
+        if (storedUser) {
+          const userData = JSON.parse(storedUser);
+          setUser(userData);
+        } else {
+          // Create a default user if none exists
+          createDefaultUser();
         }
       } catch (err) {
-        console.error('Authentication initialization error:', err);
-        // Clear potentially invalid token on auth error
-        localStorage.removeItem('token');
-        setError('Authentication session expired. Please log in again.');
+        console.error('User initialization error:', err);
+        // Create a default user on error
+        createDefaultUser();
       } finally {
-        // Mark loading as complete regardless of outcome
         setIsLoading(false);
       }
     };
 
-    initAuth();
-  }, []);  /**
-   * Login with credentials
+    initUser();
+  }, []);
+
+  /**
+   * Create a default user
    */
-  const login = async (credentials: LoginRequest): Promise<void> => {
-    setIsLoading(true);
-    setError(null);
-    
-    try {
-      const userData = await authApi.login(credentials);
-      setUser(userData);
-      
-      // Dispatch a custom event for successful login
-      // This allows other components to respond to login success
-      const loginEvent = new CustomEvent('auth:login-success');
-      window.dispatchEvent(loginEvent);
-    } catch (err) {
-      const errorMessage = err instanceof Error ? 
-        err.message : 
-        'Login failed. Please check your credentials.';
-      
-      setError(errorMessage);
-      throw err;
-    } finally {
-      setIsLoading(false);
-    }
+  const createDefaultUser = () => {
+    const defaultUser: LocalUser = {
+      id: 'user_' + Date.now(),
+      username: 'Player' + Math.floor(Math.random() * 1000),
+      email: 'player@example.com',
+      startingBalance: 10000,
+      createdAt: new Date().toISOString()
+    };
+
+    setUser(defaultUser);
+    localStorage.setItem('tb_realms_user', JSON.stringify(defaultUser));
   };
 
   /**
-   * Register new user
+   * Create a new user
    */
-  const register = async (userData: RegisterRequest): Promise<void> => {
-    setIsLoading(true);
-    setError(null);
-    
-    try {
-      const newUser = await authApi.register(userData);
-      setUser(newUser);
-    } catch (err) {
-      const errorMessage = err instanceof Error ? 
-        err.message : 
-        'Registration failed. Please try again.';
-      
-      setError(errorMessage);
-      throw err;
-    } finally {
-      setIsLoading(false);
-    }
+  const createUser = (username: string, email: string): void => {
+    const newUser: LocalUser = {
+      id: 'user_' + Date.now(),
+      username,
+      email,
+      startingBalance: 10000,
+      createdAt: new Date().toISOString()
+    };
+
+    setUser(newUser);
+    localStorage.setItem('tb_realms_user', JSON.stringify(newUser));
   };
 
   /**
-   * Logout current user
+   * Logout (clear user)
    */
   const logout = (): void => {
-    authApi.logout();
+    localStorage.removeItem('tb_realms_user');
     setUser(null);
-  };
-
-  /**
-   * Clear any authentication errors
-   */
-  const clearError = (): void => {
-    setError(null);
+    // Create a new default user
+    createDefaultUser();
   };
 
   // Create context value
-  const contextValue: AuthContextType = {
+  const contextValue: UserContextType = {
     user,
     isAuthenticated,
     isLoading,
-    error,
-    login,
-    register,
-    logout,
-    clearError
+    createUser,
+    logout
   };
 
   return (
-    <AuthContext.Provider value={contextValue}>
+    <UserContext.Provider value={contextValue}>
       {children}
-    </AuthContext.Provider>
+    </UserContext.Provider>
   );
 };
 
 /**
- * Custom hook for accessing auth context
+ * Custom hook for accessing user context
  * @throws Error if used outside of AuthProvider
  */
-export const useAuth = (): AuthContextType => {
-  const context = useContext(AuthContext);
-  
+export const useAuth = (): UserContextType => {
+  const context = useContext(UserContext);
+
   if (context === undefined) {
     throw new Error('useAuth must be used within an AuthProvider');
   }
-  
+
   return context;
 };

@@ -3,14 +3,10 @@ import { AuthProvider } from './contexts/AuthContext';
 import { NavigationProvider } from './contexts/NavigationContext';
 // Using Layout component with simplified navigation (merged Header and Sidebar)
 import Layout from './components/layout/Layout';
-import ProtectedRoute from './components/auth/ProtectedRoute';
-import LoginPage from './pages/LoginPage';
-import RegisterPage from './pages/RegisterPage';
 import ServerStatus from './components/common/ServerStatus';
 import ErrorBoundary from './components/common/ErrorBoundary';
 
 // Import actual page components
-import Home from './pages/Home'; // New Home page with market overview for all users
 import Dashboard from './pages/Dashboard';
 import Market from './pages/Market';
 import Portfolio from './pages/Portfolio';
@@ -46,29 +42,21 @@ function App() {
             <ServerStatus />
 
             <Routes>
-            {/* Auth Routes */}
-            <Route path="/login" element={<LoginPage />} />
-            <Route path="/register" element={<RegisterPage />} />
-            
             {/* Main App Layout */}
             <Route path="/" element={<Layout />}>
-              {/* Public Routes */}
-              <Route index element={<Home />} /> {/* Using new Home page as the landing page */}
+              {/* All Routes are now public */}
+              <Route index element={<Dashboard />} /> {/* Start directly on dashboard */}
+              <Route path="dashboard" element={<Dashboard />} />
+              <Route path="market" element={<Market />} />
+              <Route path="leaderboard" element={<Leaderboard />} />
+              <Route path="news" element={<News />} />
+              <Route path="portfolio" element={<Portfolio />} />
+              <Route path="transactions" element={<Transactions />} />
+              <Route path="watchlist" element={<Watchlist />} />
+              <Route path="profile" element={<Profile />} />
+              <Route path="settings" element={<Settings />} />
+              <Route path="achievements" element={<Achievements />} />
 
-              {/* Protected Routes */}
-              <Route element={<ProtectedRoute />}>            
-                <Route path="dashboard" element={<Dashboard />} />
-                <Route path="market" element={<Market />} />
-                <Route path="leaderboard" element={<Leaderboard />} />
-                <Route path="news" element={<News />} /> 
-                <Route path="portfolio" element={<Portfolio />} />
-                <Route path="transactions" element={<Transactions />} />
-                <Route path="watchlist" element={<Watchlist />} />
-                <Route path="profile" element={<Profile />} />
-                <Route path="settings" element={<Settings />} />
-                <Route path="achievements" element={<Achievements />} />
-              </Route>
-              
               {/* 404 Not Found */}
               <Route path="*" element={<NotFound />} />
             </Route>
