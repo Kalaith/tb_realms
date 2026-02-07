@@ -26,12 +26,20 @@ const apiClient = axios.create({
 });
 
 /**
- * Add auth token to requests if available
+ * Add auth token to requests if available (Web Hatchery)
  */
 apiClient.interceptors.request.use((config) => {
-  const token = localStorage.getItem('token');
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
+  try {
+    const raw = localStorage.getItem('auth-storage');
+    if (raw) {
+      const parsed = JSON.parse(raw) as { state?: { token?: string | null } };
+      const token = parsed.state?.token ?? null;
+      if (token) {
+        config.headers.Authorization = `Bearer ${token}`;
+      }
+    }
+  } catch {
+    // ignore storage errors
   }
   return config;
 });
@@ -110,18 +118,10 @@ const handleApiError = (error: unknown): never => {
  * @returns AuthUser data with token
  */
 export const login = async (credentials: LoginRequest): Promise<AuthUser> => {
-  try {
-    const response = await apiClient.post<ApiResponse<AuthUser>>('/auth/login', credentials);
-    
-    // Store token for future requests
-    if (response.data.success && response.data.data.token) {
-      localStorage.setItem('token', response.data.data.token);
-    }
-    
-    return response.data.data;
-  } catch (error) {
-    return handleApiError(error);
-  }
+  return handleApiError({
+    code: 'UNSUPPORTED',
+    message: 'Login is handled by Web Hatchery.'
+  });
 };
 
 /**
@@ -130,18 +130,10 @@ export const login = async (credentials: LoginRequest): Promise<AuthUser> => {
  * @returns AuthUser data with token
  */
 export const register = async (userData: RegisterRequest): Promise<AuthUser> => {
-  try {
-    const response = await apiClient.post<ApiResponse<AuthUser>>('/auth/register', userData);
-    
-    // Store token for future requests
-    if (response.data.success && response.data.data.token) {
-      localStorage.setItem('token', response.data.data.token);
-    }
-    
-    return response.data.data;
-  } catch (error) {
-    return handleApiError(error);
-  }
+  return handleApiError({
+    code: 'UNSUPPORTED',
+    message: 'Registration is handled by Web Hatchery.'
+  });
 };
 
 /**
@@ -150,8 +142,8 @@ export const register = async (userData: RegisterRequest): Promise<AuthUser> => 
  */
 export const getCurrentUser = async (): Promise<AuthUser | null> => {
   try {
-    const response = await apiClient.get<ApiResponse<AuthUser>>('/auth/user');
-    return response.data.data;
+    const response = await apiClient.get<ApiResponse<{ user: AuthUser }>>('/auth/session');
+    return response.data.data?.user ?? null;
   } catch (error) {
     // Silently fail for auth check - this is expected when not logged in
     if (axios.isAxiosError(error) && (error.response?.status === 401 || error.response?.status === 403)) {
@@ -187,7 +179,7 @@ export const checkServerConnectivity = async (): Promise<boolean> => {
  * Logout user (client-side only)
  */
 export const logout = (): void => {
-  localStorage.removeItem('token');
+  // Web Hatchery manages auth; no local logout.
 };
 
 export default {

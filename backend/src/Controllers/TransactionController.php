@@ -2,8 +2,8 @@
 
 namespace App\Controllers;
 
-use Psr\Http\Message\ResponseInterface as Response;
-use Psr\Http\Message\ServerRequestInterface as Request;
+use App\Http\Response;
+use App\Http\Request;
 use App\Actions\TransactionActions;
 use App\Traits\ApiResponseTrait;
 
@@ -21,9 +21,11 @@ class TransactionController
      */
     public function buyStock(Request $request, Response $response): Response
     {
+        $userId = $this->getUserId($request);
+
         return $this->handleApiAction(
             $response,
-            fn() => $this->transactionActions->buyStock($request->getParsedBody()),
+            fn() => $this->transactionActions->buyStock((string) $userId, $request->getParsedBody()),
             'processing buy transaction',
             'Buy transaction failed',
             201
@@ -36,9 +38,11 @@ class TransactionController
      */
     public function sellStock(Request $request, Response $response): Response
     {
+        $userId = $this->getUserId($request);
+
         return $this->handleApiAction(
             $response,
-            fn() => $this->transactionActions->sellStock($request->getParsedBody()),
+            fn() => $this->transactionActions->sellStock((string) $userId, $request->getParsedBody()),
             'processing sell transaction',
             'Sell transaction failed',
             201
@@ -51,9 +55,12 @@ class TransactionController
      */
     public function getTransactions(Request $request, Response $response): Response
     {
+        $userId = $this->getUserId($request);
+        $filters = $request->getQueryParams();
+
         return $this->handleApiAction(
             $response,
-            fn() => $this->transactionActions->getTransactions($request->getQueryParams()),
+            fn() => $this->transactionActions->getTransactionHistory((string) $userId, $filters),
             'fetching transactions',
             'Failed to fetch transactions'
         );
@@ -65,9 +72,12 @@ class TransactionController
      */
     public function getTransactionHistory(Request $request, Response $response): Response
     {
+        $userId = $this->getUserId($request);
+        $filters = $request->getQueryParams();
+
         return $this->handleApiAction(
             $response,
-            fn() => $this->transactionActions->getTransactionHistory($request->getQueryParams()),
+            fn() => $this->transactionActions->getTransactionHistory((string) $userId, $filters),
             'fetching transaction history',
             'Failed to fetch transaction history'
         );
@@ -79,11 +89,19 @@ class TransactionController
      */
     public function getTransactionById(Request $request, Response $response, array $args): Response
     {
+        $userId = $this->getUserId($request);
+
         return $this->handleApiAction(
             $response,
-            fn() => $this->transactionActions->getTransactionById((int)$args['id']),
+            fn() => $this->transactionActions->getTransactionById((string) $userId, (string) $args['id']),
             'fetching transaction',
             'Failed to fetch transaction'
         );
+    }
+
+    private function getUserId(Request $request): string|int
+    {
+        $authUser = $request->getAttribute('auth_user');
+        return $authUser['id'] ?? $request->getAttribute('user_id') ?? '';
     }
 }

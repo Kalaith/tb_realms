@@ -2,8 +2,8 @@
 
 namespace App\Controllers;
 
-use Psr\Http\Message\ResponseInterface as Response;
-use Psr\Http\Message\ServerRequestInterface as Request;
+use App\Http\Response;
+use App\Http\Request;
 use App\Actions\PortfolioActions;
 use App\Traits\ApiResponseTrait;
 
@@ -21,12 +21,11 @@ class PortfolioController
      */
     public function getPortfolio(Request $request, Response $response): Response
     {
-        // Use default user ID since authentication is disabled
-        $defaultUserId = 'default_user';
+        $userId = $this->getUserId($request);
 
         return $this->handleApiAction(
             $response,
-            fn() => $this->portfolioActions->getPortfolioData($defaultUserId),
+            fn() => $this->portfolioActions->getPortfolioData($userId),
             'getting portfolio data',
             'Portfolio not found'
         );
@@ -38,12 +37,11 @@ class PortfolioController
      */
     public function resetPortfolio(Request $request, Response $response): Response
     {
-        // Use default user ID since authentication is disabled
-        $defaultUserId = 'default_user';
+        $userId = $this->getUserId($request);
 
         return $this->handleApiAction(
             $response,
-            fn() => $this->portfolioActions->resetPortfolio($defaultUserId),
+            fn() => $this->portfolioActions->resetPortfolio($userId),
             'resetting portfolio',
             'Portfolio reset failed'
         );
@@ -55,12 +53,11 @@ class PortfolioController
      */
     public function getPerformance(Request $request, Response $response): Response
     {
-        // Use default user ID since authentication is disabled
-        $defaultUserId = 'default_user';
+        $userId = $this->getUserId($request);
 
         return $this->handleApiAction(
             $response,
-            fn() => $this->portfolioActions->getPerformanceMetrics($defaultUserId),
+            fn() => $this->portfolioActions->getPortfolioPerformance($userId),
             'getting portfolio performance',
             'Performance data not found'
         );
@@ -88,14 +85,19 @@ class PortfolioController
      */
     public function getHoldings(Request $request, Response $response): Response
     {
-        // Use default user ID since authentication is disabled
-        $defaultUserId = 'default_user';
+        $userId = $this->getUserId($request);
 
         return $this->handleApiAction(
             $response,
-            fn() => $this->portfolioActions->getHoldings($defaultUserId),
+            fn() => $this->portfolioActions->getCurrentHoldings($userId),
             'getting portfolio holdings',
             'Holdings not found'
         );
+    }
+
+    private function getUserId(Request $request): string|int
+    {
+        $authUser = $request->getAttribute('auth_user');
+        return $authUser['id'] ?? $request->getAttribute('user_id') ?? '';
     }
 }

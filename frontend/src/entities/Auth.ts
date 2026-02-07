@@ -7,10 +7,11 @@
  */
 export interface AuthUser {
   id: string;
-  email: string;
-  username: string;
-  token: string;
+  email?: string | null;
+  username?: string | null;
+  token?: string;
   avatarUrl?: string;
+  roles?: string[];
 }
 
 /**

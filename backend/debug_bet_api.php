@@ -7,14 +7,11 @@ define('TEST_MODE', true);
 
 require_once __DIR__ . '/vendor/autoload.php';
 
-use Slim\Factory\AppFactory;
 use Dotenv\Dotenv;
 use App\External\DatabaseService;
 use App\Controllers\BettingController;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Psr\Http\Message\ResponseInterface as Response;
-use Slim\Psr7\Factory\ServerRequestFactory;
-use Slim\Psr7\Response as SlimResponse;
 
 // Load environment variables
 $dotenv = Dotenv::createImmutable(__DIR__);

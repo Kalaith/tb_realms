@@ -1,5 +1,9 @@
 RewriteEngine On
 
+# Forward Authorization header to PHP
+RewriteCond %{HTTP:Authorization} .
+RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
+
 # Handle frontend assets and files (let them be served directly)
 RewriteCond %{REQUEST_FILENAME} -f
 RewriteRule .* - [L]

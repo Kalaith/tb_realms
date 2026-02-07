@@ -2,7 +2,7 @@
 
 namespace App\Traits;
 
-use Psr\Http\Message\ResponseInterface as Response;
+use App\Http\Response;
 use App\Exceptions\ResourceNotFoundException;
 
 trait ApiResponseTrait

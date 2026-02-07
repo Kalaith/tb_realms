@@ -29,6 +29,17 @@ const defaultOptions = {
   },
 };
 
+const getAuthToken = (): string | null => {
+  try {
+    const raw = localStorage.getItem('auth-storage');
+    if (!raw) return null;
+    const parsed = JSON.parse(raw) as { state?: { token?: string | null } };
+    return parsed.state?.token ?? null;
+  } catch {
+    return null;
+  }
+};
+
 // Helper to build URLs
 const buildUrl = (endpoint: string): string => {
   // Remove leading slash if present
@@ -77,6 +88,10 @@ const apiClient = {
     const response = await fetch(buildUrl(endpoint), {
       ...buildRequestOptions(options),
       method: 'GET',
+      headers: {
+        ...buildRequestOptions(options).headers,
+        ...(getAuthToken() ? { Authorization: `Bearer ${getAuthToken()}` } : {}),
+      },
     });
 
     const data = await handleResponse(response);
@@ -97,6 +112,10 @@ const apiClient = {
       ...buildRequestOptions(options),
       method: 'POST',
       body: JSON.stringify(data),
+      headers: {
+        ...buildRequestOptions(options).headers,
+        ...(getAuthToken() ? { Authorization: `Bearer ${getAuthToken()}` } : {}),
+      },
     });
     
     return handleResponse(response);
@@ -110,6 +129,10 @@ const apiClient = {
       ...buildRequestOptions(options),
       method: 'PUT',
       body: JSON.stringify(data),
+      headers: {
+        ...buildRequestOptions(options).headers,
+        ...(getAuthToken() ? { Authorization: `Bearer ${getAuthToken()}` } : {}),
+      },
     });
     
     return handleResponse(response);
@@ -122,6 +145,10 @@ const apiClient = {
     const response = await fetch(buildUrl(endpoint), {
       ...buildRequestOptions(options),
       method: 'DELETE',
+      headers: {
+        ...buildRequestOptions(options).headers,
+        ...(getAuthToken() ? { Authorization: `Bearer ${getAuthToken()}` } : {}),
+      },
     });
     
     return handleResponse(response);
@@ -135,6 +162,10 @@ const apiClient = {
       ...buildRequestOptions(options),
       method: 'PATCH',
       body: JSON.stringify(data),
+      headers: {
+        ...buildRequestOptions(options).headers,
+        ...(getAuthToken() ? { Authorization: `Bearer ${getAuthToken()}` } : {}),
+      },
     });
     
     return handleResponse(response);

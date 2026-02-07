@@ -2,8 +2,8 @@
 
 namespace App\Controllers;
 
-use Psr\Http\Message\ResponseInterface as Response;
-use Psr\Http\Message\ServerRequestInterface as Request;
+use App\Http\Response;
+use App\Http\Request;
 use App\Actions\StockActions;
 use App\Traits\ApiResponseTrait;
 
@@ -49,9 +49,12 @@ class StockController
      */
     public function getStockHistory(Request $request, Response $response, array $args): Response
     {
+        $query = $request->getQueryParams();
+        $days = isset($query['days']) ? (int) $query['days'] : null;
+
         return $this->handleApiAction(
             $response,
-            fn() => $this->stockActions->getStockHistory((int)$args['id'], $request->getQueryParams()),
+            fn() => $this->stockActions->getStockHistory((string) $args['id'], $days ?? 30),
             'fetching stock history',
             'Failed to fetch stock history'
         );
@@ -65,7 +68,7 @@ class StockController
     {
         return $this->handleApiAction(
             $response,
-            fn() => $this->stockActions->searchStocks($args['term'], $request->getQueryParams()),
+            fn() => $this->stockActions->searchStocks($args['term']),
             'searching stocks',
             'Failed to search stocks'
         );
@@ -79,7 +82,7 @@ class StockController
     {
         return $this->handleApiAction(
             $response,
-            fn() => $this->stockActions->getStocksByCategory($args['category'], $request->getQueryParams()),
+            fn() => $this->stockActions->getStocksByCategory($args['category']),
             'fetching stocks by category',
             'Failed to fetch stocks by category'
         );
@@ -93,7 +96,7 @@ class StockController
     {
         return $this->handleApiAction(
             $response,
-            fn() => $this->stockActions->getStocksByGuild($args['guild'], $request->getQueryParams()),
+            fn() => $this->stockActions->getStocksByGuild($args['guild']),
             'fetching stocks by guild',
             'Failed to fetch stocks by guild'
         );

@@ -2,70 +2,37 @@
 
 namespace App\Controllers;
 
-use Psr\Http\Message\ResponseInterface as Response;
-use Psr\Http\Message\ServerRequestInterface as Request;
-use App\Actions\AuthActions;
-use App\Traits\ApiResponseTrait;
+use App\Http\Response;
+use App\Http\Request;
 
 class AuthController
 {
-    use ApiResponseTrait;
-
-    public function __construct(
-        private AuthActions $authActions
-    ) {}
-
-    /**
-     * Register a new user
-     * POST /api/auth/register
-     */
-    public function register(Request $request, Response $response): Response
+    public static function session(Request $request, Response $response): Response
     {
-        return $this->handleApiAction(
-            $response,
-            fn() => $this->authActions->registerUser($request->getParsedBody()),
-            'registering user',
-            'Registration failed',
-            201
-        );
-    }
+        $authUser = $request->getAttribute('auth_user');
+        if (!$authUser || empty($authUser['id'])) {
+            $response->getBody()->write(json_encode([
+                'success' => false,
+                'error' => 'Authentication required',
+                'message' => 'Unauthorized',
+                'login_url' => $_ENV['WEB_HATCHERY_LOGIN_URL'] ?? ''
+            ]));
+            return $response->withStatus(401)->withHeader('Content-Type', 'application/json');
+        }
 
-    /**
-     * Login user
-     * POST /api/auth/login
-     */
-    public function login(Request $request, Response $response): Response
-    {
-        return $this->handleApiAction(
-            $response,
-            fn() => $this->authActions->loginUser($request->getParsedBody()),
-            'logging in user',
-            'Invalid credentials'
-        );
-    }
+        $payload = [
+            'success' => true,
+            'data' => [
+                'user' => [
+                    'id' => (int) $authUser['id'],
+                    'email' => $authUser['email'] ?? null,
+                    'username' => $authUser['username'] ?? null,
+                    'roles' => $authUser['roles'] ?? [],
+                ]
+            ]
+        ];
 
-    /**
-     * Get current authenticated user
-     * GET /api/auth/me
-     */
-    public function getCurrentUser(Request $request, Response $response): Response
-    {
-        return $this->handleApiAction(
-            $response,
-            fn() => $this->authActions->getCurrentUser($request->getAttribute('user_id')),
-            'getting current user',
-            'User not found'
-        );
-    }
-
-    /**
-     * Logout user (placeholder for future token invalidation)
-     * POST /api/auth/logout
-     */
-    public function logout(Request $request, Response $response): Response
-    {
-        return $this->successResponse($response, [
-            'message' => 'Successfully logged out'
-        ]);
+        $response->getBody()->write(json_encode($payload));
+        return $response->withHeader('Content-Type', 'application/json');
     }
 }

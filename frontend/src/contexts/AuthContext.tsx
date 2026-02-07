@@ -1,16 +1,14 @@
 /**
- * User Context
- * Manages user state with local storage (no authentication required)
+ * Auth Context
+ * Web Hatchery handles authentication; this app reads shared auth state.
  */
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 
-// Simple user interface for local storage
-interface LocalUser {
-  id: string;
-  username: string;
-  email: string;
-  startingBalance: number;
-  createdAt: string;
+interface AuthUser {
+  id: string | number;
+  username?: string | null;
+  email?: string | null;
+  roles?: string[];
 }
 
 /**
@@ -18,12 +16,11 @@ interface LocalUser {
  */
 interface UserContextType {
   // State
-  user: LocalUser | null;
+  user: AuthUser | null;
   isAuthenticated: boolean;
   isLoading: boolean;
 
   // Methods
-  createUser: (username: string, email: string) => void;
   logout: () => void;
 }
 
@@ -40,32 +37,28 @@ interface UserProviderProps {
  */
 export const AuthProvider: React.FC<UserProviderProps> = ({ children }) => {
   // User state
-  const [user, setUser] = useState<LocalUser | null>(null);
+  const [user, setUser] = useState<AuthUser | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
   // Derived authentication status (always true if user exists)
   const isAuthenticated = !!user;
 
   /**
-   * Load user from localStorage on mount
+   * Load user from shared auth storage on mount
    */
   useEffect(() => {
     const initUser = () => {
       try {
-        // Check if there's a user in localStorage
-        const storedUser = localStorage.getItem('tb_realms_user');
-
-        if (storedUser) {
-          const userData = JSON.parse(storedUser);
-          setUser(userData);
-        } else {
-          // Create a default user if none exists
-          createDefaultUser();
+        const storedAuth = localStorage.getItem('auth-storage');
+        if (!storedAuth) {
+          setUser(null);
+          return;
         }
+        const parsed = JSON.parse(storedAuth) as { state?: { user?: AuthUser | null } };
+        setUser(parsed.state?.user ?? null);
       } catch (err) {
         console.error('User initialization error:', err);
-        // Create a default user on error
-        createDefaultUser();
+        setUser(null);
       } finally {
         setIsLoading(false);
       }
@@ -75,45 +68,10 @@ export const AuthProvider: React.FC<UserProviderProps> = ({ children }) => {
   }, []);
 
   /**
-   * Create a default user
-   */
-  const createDefaultUser = () => {
-    const defaultUser: LocalUser = {
-      id: 'user_' + Date.now(),
-      username: 'Player' + Math.floor(Math.random() * 1000),
-      email: 'player@example.com',
-      startingBalance: 10000,
-      createdAt: new Date().toISOString()
-    };
-
-    setUser(defaultUser);
-    localStorage.setItem('tb_realms_user', JSON.stringify(defaultUser));
-  };
-
-  /**
-   * Create a new user
-   */
-  const createUser = (username: string, email: string): void => {
-    const newUser: LocalUser = {
-      id: 'user_' + Date.now(),
-      username,
-      email,
-      startingBalance: 10000,
-      createdAt: new Date().toISOString()
-    };
-
-    setUser(newUser);
-    localStorage.setItem('tb_realms_user', JSON.stringify(newUser));
-  };
-
-  /**
-   * Logout (clear user)
+   * Logout (handled by Web Hatchery)
    */
   const logout = (): void => {
-    localStorage.removeItem('tb_realms_user');
-    setUser(null);
-    // Create a new default user
-    createDefaultUser();
+    // No-op: Web Hatchery manages auth state.
   };
 
   // Create context value
@@ -121,7 +79,6 @@ export const AuthProvider: React.FC<UserProviderProps> = ({ children }) => {
     user,
     isAuthenticated,
     isLoading,
-    createUser,
     logout
   };
 

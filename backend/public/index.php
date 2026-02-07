@@ -2,14 +2,24 @@
 
 require_once __DIR__ . '/../vendor/autoload.php';
 
-use Slim\Factory\AppFactory;
 use Dotenv\Dotenv;
+use App\Core\Router;
 use App\External\DatabaseService;
-use App\Utils\ContainerConfig;
-use App\Middleware\CorsMiddleware;
-
-// Determine if we're in test mode
-$isTestMode = defined('TEST_MODE') && TEST_MODE === true;
+use App\Controllers\PortfolioController;
+use App\Controllers\StockController;
+use App\Controllers\TransactionController;
+use App\Controllers\UserController;
+use App\Controllers\WatchlistController;
+use App\Actions\PortfolioActions;
+use App\Actions\StockActions;
+use App\Actions\TransactionActions;
+use App\Actions\UserActions;
+use App\Actions\WatchlistActions;
+use App\External\UserRepository;
+use App\External\PortfolioRepository;
+use App\External\StockRepository;
+use App\External\TransactionRepository;
+use App\External\WatchlistRepository;
 
 // Load environment variables first
 $dotenv = Dotenv::createImmutable(__DIR__ . '/..');
@@ -23,54 +33,72 @@ foreach ($required_env_vars as $var) {
     }
 }
 
-// Create DI Container
-$container = ContainerConfig::createContainer();
-
 // Initialize database service after environment variables are loaded
 $db = DatabaseService::getInstance();
 
-// Create app with DI container
-AppFactory::setContainer($container);
-global $app;
-$app = AppFactory::create();
+// Repositories
+$userRepository = new UserRepository();
+$portfolioRepository = new PortfolioRepository();
+$stockRepository = new StockRepository();
+$transactionRepository = new TransactionRepository();
+$watchlistRepository = new WatchlistRepository();
+
+// Actions
+$portfolioActions = new PortfolioActions($portfolioRepository, $transactionRepository, $stockRepository, $userRepository);
+$stockActions = new StockActions($stockRepository, $transactionRepository, $portfolioRepository);
+$transactionActions = new TransactionActions($transactionRepository, $portfolioRepository, $stockRepository, $userRepository);
+$userActions = new UserActions($userRepository);
+$watchlistActions = new WatchlistActions($watchlistRepository, $stockRepository, $userRepository);
+
+// Controllers
+$portfolioController = new PortfolioController($portfolioActions);
+$stockController = new StockController($stockActions);
+$transactionController = new TransactionController($transactionActions);
+$userController = new UserController($userActions);
+$watchlistController = new WatchlistController($watchlistActions);
+
+// Router
+$router = new Router();
 
 // Set base path for subdirectory deployment (preview environment)
 if (isset($_ENV['APP_ENV']) && $_ENV['APP_ENV'] === 'preview') {
-    $app->setBasePath('/tradeborn_realms');
+    $router->setBasePath('/tradeborn_realms');
+} else {
+    $requestPath = $_SERVER['REQUEST_URI'] ?? '';
+    $requestPath = parse_url($requestPath, PHP_URL_PATH) ?? '';
+    $apiPos = strpos($requestPath, '/api');
+    if ($apiPos !== false) {
+        $basePath = substr($requestPath, 0, $apiPos);
+        if ($basePath !== '') {
+            $router->setBasePath($basePath);
+        }
+    } elseif (isset($_SERVER['SCRIPT_NAME'])) {
+        $scriptName = $_SERVER['SCRIPT_NAME'];
+        $basePath = str_replace('/public/index.php', '', $scriptName);
+        if ($basePath !== $scriptName && $basePath !== '') {
+            $router->setBasePath($basePath);
+        }
+    }
 }
 
-// Add middleware
-$app->add(new CorsMiddleware());
-$app->addRoutingMiddleware();
-$app->addBodyParsingMiddleware();
-
-// Custom error handling
-$errorMiddleware = $app->addErrorMiddleware(true, true, true);
-$errorHandler = $errorMiddleware->getDefaultErrorHandler();
-$errorHandler->forceContentType('application/json');
-
-// Set custom error renderer
-$errorHandler->registerErrorRenderer('application/json', function ($exception, $displayErrorDetails) {
-    $error = [
-        'success' => false,
-        'message' => $exception->getMessage()
-    ];
-    
-    if ($displayErrorDetails) {
-        $error['details'] = [
-            'type' => get_class($exception),
-            'code' => $exception->getCode(),
-            'file' => $exception->getFile(),
-            'line' => $exception->getLine(),
-            'trace' => $exception->getTraceAsString()
-        ];
-    }
-    
-    return json_encode($error, JSON_PRETTY_PRINT);
-});
+// Handle CORS preflight
+if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'OPTIONS') {
+    header('Access-Control-Allow-Origin: *');
+    header('Access-Control-Allow-Headers: Content-Type, Accept, Origin, Authorization');
+    header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS');
+    http_response_code(200);
+    exit;
+}
 
 // Load routes
-require_once __DIR__ . '/../src/Routes/api.php';
+(require __DIR__ . '/../src/Routes/router.php')(
+    $router,
+    $portfolioController,
+    $stockController,
+    $transactionController,
+    $userController,
+    $watchlistController
+);
 
-// Run app
-$app->run();
+// Run router
+$router->handle();
