@@ -250,3 +250,9 @@ For questions, bug reports, or feature requests:
 ---
 
 **Ready to become the richest merchant in the realm? Start trading in Tradeborn Realms today!** 🏰✨
+
+## License
+
+This project is licensed under the MIT License - see the individual component README files for details.
+
+Part of the WebHatchery game collection.
