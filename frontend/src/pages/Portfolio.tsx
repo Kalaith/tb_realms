@@ -50,7 +50,7 @@ const Portfolio = () => {
         setLoading(true);
         setError(null);
         
-        // Fetch portfolio data for the current user        const response = await portfolioService.getUserPortfolio(userId);
+        // Fetch portfolio data for the current user
         const response = await portfolioService.getUserPortfolio(userId);
         
         if (response.success && response.data) {
@@ -58,7 +58,8 @@ const Portfolio = () => {
         } else {
           // Show a more informative error message
           setError(response.error?.message || 'Failed to load portfolio data');
-        }      } catch (err) {
+        }
+      } catch {
         setError('An error occurred while fetching portfolio data');
       } finally {
         setLoading(false);
@@ -145,10 +146,12 @@ const Portfolio = () => {
         // Close modal after a delay
         setTimeout(() => {
           closeModal();
-        }, 2000);      } else {
+        }, 2000);
+      } else {
         setTransactionStatus('error');
         setTransactionMessage(response.error?.message || 'Transaction failed');
-      }    } catch (err) {
+      }
+    } catch {
       setTransactionStatus('error');
       setTransactionMessage('An error occurred during the transaction');
     }

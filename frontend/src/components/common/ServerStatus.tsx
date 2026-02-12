@@ -24,7 +24,7 @@ const ServerStatus: React.FC<ServerStatusProps> = ({ onStatusChange }) => {
       if (onStatusChange) {
         onStatusChange(connected);
       }
-    } catch (error) {
+    } catch {
       setIsConnected(false);
       if (onStatusChange) {
         onStatusChange(false);

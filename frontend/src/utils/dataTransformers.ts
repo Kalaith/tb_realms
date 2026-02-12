@@ -3,7 +3,7 @@
  * Handles the mapping between snake_case (backend) and camelCase (frontend) conventions
  */
 
-import { Stock, PricePoint } from '../entities/Stock';
+import { Stock } from '../entities/Stock';
 import { AuthUser } from '../entities/Auth';
 import { Portfolio, Position, Transaction } from '../entities/Portfolio';
 

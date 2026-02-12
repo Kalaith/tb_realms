@@ -3,7 +3,7 @@
  * Handles all authentication-related API requests
  */
 import axios from 'axios';
-import { AuthUser, LoginRequest, RegisterRequest, ApiResponse } from '../entities/Auth';
+import { AuthUser, ApiResponse } from '../entities/Auth';
 
 // Base API URL from environment variables - required
 // IMPORTANT: Make sure this matches your backend server address and port
@@ -117,7 +117,7 @@ const handleApiError = (error: unknown): never => {
  * @param credentials - User email and password
  * @returns AuthUser data with token
  */
-export const login = async (credentials: LoginRequest): Promise<AuthUser> => {
+export const login = async (): Promise<AuthUser> => {
   return handleApiError({
     code: 'UNSUPPORTED',
     message: 'Login is handled by Web Hatchery.'
@@ -129,7 +129,7 @@ export const login = async (credentials: LoginRequest): Promise<AuthUser> => {
  * @param userData - User registration data
  * @returns AuthUser data with token
  */
-export const register = async (userData: RegisterRequest): Promise<AuthUser> => {
+export const register = async (): Promise<AuthUser> => {
   return handleApiError({
     code: 'UNSUPPORTED',
     message: 'Registration is handled by Web Hatchery.'
@@ -170,7 +170,7 @@ export const checkServerConnectivity = async (): Promise<boolean> => {
     // Use a simple endpoint that doesn't require authentication
     await axios.get(`${API_URL}/health`, { timeout: 5000 });
     return true;
-  } catch (error) {
+  } catch {
     return false;
   }
 };
