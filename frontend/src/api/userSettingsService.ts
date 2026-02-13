@@ -1,3 +1,4 @@
+
 import { BaseApiService } from "./baseApiService";
 import { UserSettings, defaultUserSettings } from "../entities/UserSettings";
 import { ApiResponse } from "../entities/api";
@@ -34,9 +35,11 @@ class UserSettingsService extends BaseApiService<UserSettings> {
 
       // Apply any defaults for missing properties
       const settings = {
+        id: "local-settings",
+        userId: "local-user",
         ...defaultUserSettings,
         ...(unwrapData<Partial<UserSettings>>(response) ?? {}),
-      };
+      } satisfies UserSettings;
 
       return {
         success: true,

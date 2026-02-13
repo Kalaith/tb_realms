@@ -100,7 +100,7 @@ export const validateTradeAmount = (
 export const validateTrade = (
   shares: number,
   tradeAmount: number,
-  tradeType: "BUY" | "SELL",
+  tradeType: TransactionType,
   availableCash?: number,
   availableShares?: number,
 ): TradeValidationResult => {
@@ -109,14 +109,14 @@ export const validateTrade = (
   // Validate shares
   const sharesValidation = validateShares(
     shares,
-    tradeType === "SELL" ? availableShares : undefined,
+    tradeType === TransactionType.SELL ? availableShares : undefined,
   );
   allErrors.push(...sharesValidation.errors);
 
   // Validate trade amount
   const amountValidation = validateTradeAmount(
     tradeAmount,
-    tradeType === "BUY" ? availableCash : undefined,
+    tradeType === TransactionType.BUY ? availableCash : undefined,
   );
   allErrors.push(...amountValidation.errors);
 
@@ -130,3 +130,4 @@ export const validateTrade = (
     errors: allErrors,
   };
 };
+import { TransactionType } from "../entities/Portfolio";

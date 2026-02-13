@@ -33,7 +33,16 @@ export class PortfolioService extends BaseApiService<Portfolio> {
         timestamp: new Date(tx.timestamp),
       })),
       performance: {
-        ...p.performance,
+        dailyChange: p.performance?.dailyChange ?? 0,
+        dailyChangePercent: p.performance?.dailyChangePercent ?? 0,
+        weeklyChange: p.performance?.weeklyChange ?? 0,
+        weeklyChangePercent: p.performance?.weeklyChangePercent ?? 0,
+        monthlyChange: p.performance?.monthlyChange ?? 0,
+        monthlyChangePercent: p.performance?.monthlyChangePercent ?? 0,
+        yearlyChange: p.performance?.yearlyChange ?? 0,
+        yearlyChangePercent: p.performance?.yearlyChangePercent ?? 0,
+        allTimeChange: p.performance?.allTimeChange ?? 0,
+        allTimeChangePercent: p.performance?.allTimeChangePercent ?? 0,
         history: (p.performance?.history ?? []).map((point) => ({
           ...point,
           timestamp: new Date(point.timestamp),

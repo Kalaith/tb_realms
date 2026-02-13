@@ -1,3 +1,4 @@
+
 /**
  * Navigation Component
  * Main navigation bar for the application
@@ -49,7 +50,7 @@ const Navigation: React.FC = () => {
                 Welcome, {user.username}
               </span>
               <span className="text-sm text-green-600 dark:text-green-400 font-medium">
-                ${user.startingBalance.toLocaleString()}
+                ${(0).toLocaleString()}
               </span>
             </div>
           )}

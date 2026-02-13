@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useCallback } from "react";
 import { stockService } from "../api/stockService";
 import { portfolioService } from "../api/portfolioService";
@@ -137,7 +138,7 @@ const Trade: React.FC = () => {
       const position = userPortfolio.positions.find(
         (p: Position) => p.stockId === selectedStock.id,
       );
-      return position && position.shares >= tradeShares;
+      return !!position && position.shares >= tradeShares;
     }
   }, [selectedStock, userPortfolio, tradeType, tradeAmount, tradeShares]);
 

@@ -38,7 +38,7 @@ export interface TradeResult {
  */
 export interface TradeFormProps {
   stock: Stock | null;
-  userPortfolio: Portfolio;
+  userPortfolio: Portfolio | null;
   tradeShares: number;
   tradeType: TransactionType;
   tradeAmount: number;
@@ -73,6 +73,6 @@ export interface TradeConfirmationProps {
  * Props interface for the TradeNotification component
  */
 export interface TradeNotificationProps {
-  tradeResult: TradeResult;
+  tradeResult: TradeResult | null;
   visible: boolean;
 }

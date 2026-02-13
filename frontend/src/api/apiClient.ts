@@ -1,3 +1,4 @@
+
 /**
  * API Client for making HTTP requests to the backend
  * Provides a wrapper around fetch API with common functionality
@@ -71,7 +72,7 @@ const getBodyApiError = (body: unknown): ApiError | undefined => {
   const code = err["code"];
   const message = err["message"];
   if (typeof code !== "string" || typeof message !== "string") return undefined;
-  return err as ApiError;
+  return err as unknown as ApiError;
 };
 
 const handleResponse = async <T = unknown>(response: Response): Promise<T> => {

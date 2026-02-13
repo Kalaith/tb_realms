@@ -1,3 +1,4 @@
+
 import apiClient from "./apiClient";
 
 export interface LeaderboardUser {
@@ -23,8 +24,10 @@ export interface LeaderboardUser {
  */
 export const fetchLeaderboardData = async (): Promise<LeaderboardUser[]> => {
   try {
-    const response = await apiClient.get("leaderboard");
-    return response.data || response;
+    const response = await apiClient.get<
+      { data?: LeaderboardUser[] } | LeaderboardUser[]
+    >("leaderboard");
+    return Array.isArray(response) ? response : (response.data ?? []);
   } catch (error) {
     console.error("Error fetching leaderboard data:", error);
     return [];
@@ -38,8 +41,13 @@ export const fetchUserRanking = async (
   userId: string,
 ): Promise<LeaderboardUser | undefined> => {
   try {
-    const response = await apiClient.get(`leaderboard/user/${userId}`);
-    return response.data || response;
+    const response = await apiClient.get<
+      { data?: LeaderboardUser } | LeaderboardUser
+    >(`leaderboard/user/${userId}`);
+    if (response && typeof response === "object" && "data" in response) {
+      return response.data;
+    }
+    return response as LeaderboardUser;
   } catch (error) {
     console.error("Error fetching user ranking:", error);
     return undefined;

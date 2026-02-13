@@ -1,3 +1,4 @@
+
 /**
  * Data transformation utilities for converting between API responses and frontend models
  * Handles the mapping between snake_case (backend) and camelCase (frontend) conventions
@@ -5,7 +6,12 @@
 
 import { Stock } from "../entities/Stock";
 import { AuthUser } from "../entities/Auth";
-import { Portfolio, Position, Transaction } from "../entities/Portfolio";
+import {
+  Portfolio,
+  Position,
+  Transaction,
+  TransactionType,
+} from "../entities/Portfolio";
 
 // API response interfaces (snake_case)
 export interface StockApiResponse {
@@ -139,6 +145,20 @@ export class PortfolioTransformer {
       dayChange: apiPortfolio.day_change,
       dayChangePercentage: apiPortfolio.day_change_percentage,
       positions: apiPortfolio.positions.map(PositionTransformer.fromApi),
+      transactionHistory: [],
+      performance: {
+        dailyChange: apiPortfolio.day_change,
+        dailyChangePercent: apiPortfolio.day_change_percentage,
+        weeklyChange: 0,
+        weeklyChangePercent: 0,
+        monthlyChange: 0,
+        monthlyChangePercent: 0,
+        yearlyChange: 0,
+        yearlyChangePercent: 0,
+        allTimeChange: 0,
+        allTimeChangePercent: 0,
+        history: [],
+      },
       updatedAt: new Date(apiPortfolio.updated_at),
     };
   }
@@ -151,7 +171,9 @@ export class PortfolioTransformer {
       total_value: portfolio.totalValue,
       day_change: portfolio.dayChange,
       day_change_percentage: portfolio.dayChangePercentage,
-      positions: portfolio.positions?.map(PositionTransformer.toApi),
+      positions: portfolio.positions?.map(
+        PositionTransformer.toApi,
+      ) as unknown as PositionApiResponse[] | undefined,
       updated_at: portfolio.updatedAt?.toISOString(),
     };
   }
@@ -166,8 +188,27 @@ export class PositionTransformer {
       id: apiPosition.id,
       stockId: apiPosition.stock_id,
       symbol: apiPosition.symbol,
+      stock: {
+        id: apiPosition.stock_id,
+        symbol: apiPosition.symbol,
+        name: apiPosition.symbol,
+        currentPrice: 0,
+        previousClose: 0,
+        change: 0,
+        changePercent: 0,
+        sector: "Unknown",
+        volume: 0,
+        marketCap: 0,
+        priceHistory: [],
+        yearLow: 0,
+        yearHigh: 0,
+        peRatio: 0,
+        dividendYield: 0,
+        beta: 0,
+      },
       shares: apiPosition.shares,
       averageCost: apiPosition.average_cost,
+      averageBuyPrice: apiPosition.average_cost,
       currentValue: apiPosition.current_value,
       totalReturn: apiPosition.total_return,
       totalReturnPercentage: apiPosition.total_return_percentage,
@@ -180,7 +221,7 @@ export class PositionTransformer {
       stock_id: position.stockId,
       symbol: position.symbol,
       shares: position.shares,
-      average_cost: position.averageCost,
+      average_cost: position.averageCost ?? position.averageBuyPrice,
       current_value: position.currentValue,
       total_return: position.totalReturn,
       total_return_percentage: position.totalReturnPercentage,
@@ -197,13 +238,20 @@ export class TransactionTransformer {
       id: apiTransaction.id,
       userId: apiTransaction.user_id,
       stockId: apiTransaction.stock_id,
+      stockSymbol: apiTransaction.symbol,
+      stockName: apiTransaction.symbol,
       symbol: apiTransaction.symbol,
-      type: apiTransaction.type,
+      type:
+        apiTransaction.type === "BUY"
+          ? TransactionType.BUY
+          : TransactionType.SELL,
       shares: apiTransaction.shares,
       price: apiTransaction.price,
       totalAmount: apiTransaction.total_amount,
+      total: apiTransaction.total_amount,
       fee: apiTransaction.fee,
       createdAt: new Date(apiTransaction.created_at),
+      timestamp: new Date(apiTransaction.created_at),
     };
   }
 
@@ -221,12 +269,14 @@ export class TransactionTransformer {
       user_id: transaction.userId,
       stock_id: transaction.stockId,
       symbol: transaction.symbol,
-      type: transaction.type,
+      type:
+        transaction.type === TransactionType.BUY ? "BUY" : "SELL",
       shares: transaction.shares,
       price: transaction.price,
-      total_amount: transaction.totalAmount,
+      total_amount: transaction.totalAmount ?? transaction.total,
       fee: transaction.fee,
-      created_at: transaction.createdAt?.toISOString(),
+      created_at: transaction.createdAt?.toISOString() ??
+        transaction.timestamp?.toISOString(),
     };
   }
 }
@@ -254,13 +304,13 @@ export class UserTransformer {
   static toApi(user: Partial<AuthUser>): Partial<UserApiResponse> {
     return {
       id: user.id,
-      email: user.email,
+      email: user.email ?? undefined,
       first_name: user.firstName,
       last_name: user.lastName,
       display_name: user.displayName,
-      avatar_url: user.avatarUrl,
-      created_at: user.createdAt?.toISOString(),
-      updated_at: user.updatedAt?.toISOString(),
+      avatar_url: user.avatarUrl ?? undefined,
+      created_at: user.createdAt?.toISOString() ?? new Date().toISOString(),
+      updated_at: user.updatedAt?.toISOString() ?? new Date().toISOString(),
     };
   }
 }

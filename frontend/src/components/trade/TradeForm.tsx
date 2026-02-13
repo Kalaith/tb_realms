@@ -1,3 +1,4 @@
+
 import React, { useCallback, useState } from "react";
 import { TradeFormProps } from "../../entities/Trade";
 import { formatCurrency } from "../../utils/formatUtils";
@@ -222,3 +223,4 @@ const TradeForm: React.FC<TradeFormProps> = ({
 };
 
 export default TradeForm;
+

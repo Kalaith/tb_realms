@@ -9,8 +9,14 @@ export interface AuthUser {
   id: string;
   email?: string | null;
   username?: string | null;
+  firstName?: string;
+  lastName?: string;
+  displayName?: string;
   token?: string;
-  avatarUrl?: string;
+  avatarUrl?: string | null;
+  createdAt?: Date;
+  updatedAt?: Date;
+  startingBalance?: number;
   roles?: string[];
 }
 
