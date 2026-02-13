@@ -1,4 +1,4 @@
-import React, { Component, ReactNode } from 'react';
+import React, { Component, ReactNode } from "react";
 
 interface ErrorBoundaryState {
   hasError: boolean;
@@ -26,7 +26,7 @@ class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
   }
 
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
-    console.error('Application error caught by boundary:', error, errorInfo);
+    console.error("Application error caught by boundary:", error, errorInfo);
     this.setState({ error, errorInfo });
 
     // In production, you might want to send this to an error reporting service
@@ -44,11 +44,21 @@ class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
       // Custom fallback UI if provided
       if (this.props.fallback) {
         const FallbackComponent = this.props.fallback;
-        return <FallbackComponent error={this.state.error} resetError={this.resetError} />;
+        return (
+          <FallbackComponent
+            error={this.state.error}
+            resetError={this.resetError}
+          />
+        );
       }
 
       // Default fallback UI
-      return <DefaultErrorFallback error={this.state.error} resetError={this.resetError} />;
+      return (
+        <DefaultErrorFallback
+          error={this.state.error}
+          resetError={this.resetError}
+        />
+      );
     }
 
     return this.props.children;
@@ -58,10 +68,10 @@ class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
 /**
  * Default error fallback component
  */
-const DefaultErrorFallback: React.FC<{ error?: Error; resetError: () => void }> = ({
-  error,
-  resetError
-}) => {
+const DefaultErrorFallback: React.FC<{
+  error?: Error;
+  resetError: () => void;
+}> = ({ error, resetError }) => {
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900">
       <div className="max-w-md w-full bg-white dark:bg-gray-800 shadow-lg rounded-lg p-6">
@@ -84,7 +94,8 @@ const DefaultErrorFallback: React.FC<{ error?: Error; resetError: () => void }> 
         </h1>
 
         <p className="text-gray-600 dark:text-gray-400 text-center mb-6">
-          We encountered an unexpected error. Please try refreshing the page or contact support if the problem persists.
+          We encountered an unexpected error. Please try refreshing the page or
+          contact support if the problem persists.
         </p>
 
         {import.meta.env.DEV && error && (

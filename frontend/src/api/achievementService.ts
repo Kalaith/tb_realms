@@ -1,25 +1,33 @@
-import { BaseApiService } from './baseApiService';
-import { Achievement, UserAchievement, UserAchievementStats } from '../entities/Achievement';
-import { ApiResponse } from '../entities/api';
-import apiClient from './apiClient';
-import { toApiError } from './apiErrorUtils';
-import { unwrapData } from './apiResponseUtils';
+import { BaseApiService } from "./baseApiService";
+import {
+  Achievement,
+  UserAchievement,
+  UserAchievementStats,
+} from "../entities/Achievement";
+import { ApiResponse } from "../entities/api";
+import apiClient from "./apiClient";
+import { toApiError } from "./apiErrorUtils";
+import { unwrapData } from "./apiResponseUtils";
 
 /**
  * Service for managing achievements data
  */
 export class AchievementService extends BaseApiService<Achievement> {
   constructor() {
-    super('achievements');
+    super("achievements");
   }
 
   /**
    * Convert achievement data to proper Achievement type with date objects
    */
-  private normalizeUserAchievementData(achievement: UserAchievement): UserAchievement {
+  private normalizeUserAchievementData(
+    achievement: UserAchievement,
+  ): UserAchievement {
     return {
       ...achievement,
-      unlockedAt: achievement.unlockedAt ? new Date(achievement.unlockedAt) : undefined
+      unlockedAt: achievement.unlockedAt
+        ? new Date(achievement.unlockedAt)
+        : undefined,
     };
   }
 
@@ -30,17 +38,23 @@ export class AchievementService extends BaseApiService<Achievement> {
     if (this.useMockData) {
       // Mock implementation code kept for reference
       // ...existing mock implementation...
-      return { success: false, error: { code: "NOT_IMPLEMENTED", message: "Mock implementation not used" } };
+      return {
+        success: false,
+        error: {
+          code: "NOT_IMPLEMENTED",
+          message: "Mock implementation not used",
+        },
+      };
     }
-    
+
     try {
       const response = await apiClient.get<unknown>(this.endpoint);
       return {
         success: true,
-        data: unwrapData<Achievement[]>(response)
+        data: unwrapData<Achievement[]>(response),
       };
     } catch (error: unknown) {
-      const apiError = toApiError(error, 'Failed to fetch achievements');
+      const apiError = toApiError(error, "Failed to fetch achievements");
       return {
         success: false,
         error: {
@@ -54,28 +68,38 @@ export class AchievementService extends BaseApiService<Achievement> {
   /**
    * Get user's achievements with progress
    */
-  async getUserAchievements(userId: string): Promise<ApiResponse<UserAchievement[]>> {
+  async getUserAchievements(
+    userId: string,
+  ): Promise<ApiResponse<UserAchievement[]>> {
     if (this.useMockData) {
       // Mock implementation code kept for reference
       // ...existing mock implementation...
-      return { success: false, error: { code: "NOT_IMPLEMENTED", message: "Mock implementation not used" } };
+      return {
+        success: false,
+        error: {
+          code: "NOT_IMPLEMENTED",
+          message: "Mock implementation not used",
+        },
+      };
     }
-    
+
     try {
-      const response = await apiClient.get<unknown>(`${this.endpoint}/user/${userId}`);
+      const response = await apiClient.get<unknown>(
+        `${this.endpoint}/user/${userId}`,
+      );
       const achievements = unwrapData<unknown[]>(response);
-       
+
       // Normalize the achievement data with proper date objects
       const normalizedAchievements = achievements.map((achievement) =>
-        this.normalizeUserAchievementData(achievement as UserAchievement)
+        this.normalizeUserAchievementData(achievement as UserAchievement),
       );
-      
+
       return {
         success: true,
-        data: normalizedAchievements
+        data: normalizedAchievements,
       };
     } catch (error: unknown) {
-      const apiError = toApiError(error, 'Failed to fetch user achievements');
+      const apiError = toApiError(error, "Failed to fetch user achievements");
       return {
         success: false,
         error: {
@@ -89,21 +113,31 @@ export class AchievementService extends BaseApiService<Achievement> {
   /**
    * Get user's achievement stats
    */
-  async getUserAchievementStats(userId: string): Promise<ApiResponse<UserAchievementStats>> {
+  async getUserAchievementStats(
+    userId: string,
+  ): Promise<ApiResponse<UserAchievementStats>> {
     if (this.useMockData) {
       // Mock implementation code kept for reference
       // ...existing mock implementation...
-      return { success: false, error: { code: "NOT_IMPLEMENTED", message: "Mock implementation not used" } };
+      return {
+        success: false,
+        error: {
+          code: "NOT_IMPLEMENTED",
+          message: "Mock implementation not used",
+        },
+      };
     }
-    
+
     try {
-      const response = await apiClient.get<unknown>(`${this.endpoint}/user/${userId}/stats`);
+      const response = await apiClient.get<unknown>(
+        `${this.endpoint}/user/${userId}/stats`,
+      );
       return {
         success: true,
-        data: unwrapData<UserAchievementStats>(response)
+        data: unwrapData<UserAchievementStats>(response),
       };
     } catch (error: unknown) {
-      const apiError = toApiError(error, 'Failed to fetch achievement stats');
+      const apiError = toApiError(error, "Failed to fetch achievement stats");
       return {
         success: false,
         error: {
@@ -117,28 +151,42 @@ export class AchievementService extends BaseApiService<Achievement> {
   /**
    * Get achievements by category
    */
-  async getAchievementsByCategory(userId: string, category: string): Promise<ApiResponse<UserAchievement[]>> {
+  async getAchievementsByCategory(
+    userId: string,
+    category: string,
+  ): Promise<ApiResponse<UserAchievement[]>> {
     if (this.useMockData) {
       // Mock implementation code kept for reference
       // ...existing mock implementation...
-      return { success: false, error: { code: "NOT_IMPLEMENTED", message: "Mock implementation not used" } };
+      return {
+        success: false,
+        error: {
+          code: "NOT_IMPLEMENTED",
+          message: "Mock implementation not used",
+        },
+      };
     }
-    
+
     try {
-      const response = await apiClient.get<unknown>(`${this.endpoint}/user/${userId}/category/${category}`);
+      const response = await apiClient.get<unknown>(
+        `${this.endpoint}/user/${userId}/category/${category}`,
+      );
       const achievements = unwrapData<unknown[]>(response);
-       
+
       // Normalize the achievement data with proper date objects
       const normalizedAchievements = achievements.map((achievement) =>
-        this.normalizeUserAchievementData(achievement as UserAchievement)
+        this.normalizeUserAchievementData(achievement as UserAchievement),
       );
-      
+
       return {
         success: true,
-        data: normalizedAchievements
+        data: normalizedAchievements,
       };
     } catch (error: unknown) {
-      const apiError = toApiError(error, 'Failed to fetch achievements by category');
+      const apiError = toApiError(
+        error,
+        "Failed to fetch achievements by category",
+      );
       return {
         success: false,
         error: {
@@ -152,23 +200,34 @@ export class AchievementService extends BaseApiService<Achievement> {
   /**
    * Get achievement by ID
    */
-  async getAchievementById(userId: string, achievementId: string): Promise<ApiResponse<UserAchievement>> {
+  async getAchievementById(
+    userId: string,
+    achievementId: string,
+  ): Promise<ApiResponse<UserAchievement>> {
     if (this.useMockData) {
       // Mock implementation code kept for reference
       // ...existing mock implementation...
-      return { success: false, error: { code: "NOT_IMPLEMENTED", message: "Mock implementation not used" } };
+      return {
+        success: false,
+        error: {
+          code: "NOT_IMPLEMENTED",
+          message: "Mock implementation not used",
+        },
+      };
     }
-    
+
     try {
-      const response = await apiClient.get<unknown>(`${this.endpoint}/user/${userId}/${achievementId}`);
+      const response = await apiClient.get<unknown>(
+        `${this.endpoint}/user/${userId}/${achievementId}`,
+      );
       const achievement = unwrapData<unknown>(response);
-       
+
       return {
         success: true,
-        data: this.normalizeUserAchievementData(achievement as UserAchievement)
+        data: this.normalizeUserAchievementData(achievement as UserAchievement),
       };
     } catch (error: unknown) {
-      const apiError = toApiError(error, 'Failed to fetch achievement');
+      const apiError = toApiError(error, "Failed to fetch achievement");
       return {
         success: false,
         error: {

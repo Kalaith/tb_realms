@@ -2,7 +2,13 @@
  * Auth Context
  * Web Hatchery handles authentication; this app reads shared auth state.
  */
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import React, {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  ReactNode,
+} from "react";
 
 interface AuthUser {
   id: string | number;
@@ -49,15 +55,17 @@ export const AuthProvider: React.FC<UserProviderProps> = ({ children }) => {
   useEffect(() => {
     const initUser = () => {
       try {
-        const storedAuth = localStorage.getItem('auth-storage');
+        const storedAuth = localStorage.getItem("auth-storage");
         if (!storedAuth) {
           setUser(null);
           return;
         }
-        const parsed = JSON.parse(storedAuth) as { state?: { user?: AuthUser | null } };
+        const parsed = JSON.parse(storedAuth) as {
+          state?: { user?: AuthUser | null };
+        };
         setUser(parsed.state?.user ?? null);
       } catch (err) {
-        console.error('User initialization error:', err);
+        console.error("User initialization error:", err);
         setUser(null);
       } finally {
         setIsLoading(false);
@@ -79,13 +87,11 @@ export const AuthProvider: React.FC<UserProviderProps> = ({ children }) => {
     user,
     isAuthenticated,
     isLoading,
-    logout
+    logout,
   };
 
   return (
-    <UserContext.Provider value={contextValue}>
-      {children}
-    </UserContext.Provider>
+    <UserContext.Provider value={contextValue}>{children}</UserContext.Provider>
   );
 };
 
@@ -97,7 +103,7 @@ export const useAuth = (): UserContextType => {
   const context = useContext(UserContext);
 
   if (context === undefined) {
-    throw new Error('useAuth must be used within an AuthProvider');
+    throw new Error("useAuth must be used within an AuthProvider");
   }
 
   return context;

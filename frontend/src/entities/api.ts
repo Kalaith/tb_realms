@@ -29,11 +29,11 @@ export interface StockFilters {
   priceMax?: number;
   marketCapMin?: number;
   marketCapMax?: number;
-  sortBy?: 'name' | 'price' | 'change' | 'volume' | 'marketCap';
-  sortDirection?: 'asc' | 'desc';
+  sortBy?: "name" | "price" | "change" | "volume" | "marketCap";
+  sortDirection?: "asc" | "desc";
 }
 
 export interface TimeSimulationParams {
-  days: number; 
-  speed: 'normal' | 'fast' | 'ultra';
+  days: number;
+  speed: "normal" | "fast" | "ultra";
 }

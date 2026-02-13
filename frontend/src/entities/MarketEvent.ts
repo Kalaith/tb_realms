@@ -1,4 +1,4 @@
-import { Stock } from './Stock';
+import { Stock } from "./Stock";
 
 export interface MarketEvent {
   id: string;
@@ -14,27 +14,27 @@ export interface MarketEvent {
 }
 
 export enum MarketEventType {
-  EarningsReport = 'earnings_report',
-  ProductLaunch = 'product_launch',
-  MergerAcquisition = 'merger_acquisition',
-  ExecutiveChange = 'executive_change',
-  RegulatoryNews = 'regulatory_news',
-  IndustryTrend = 'industry_trend',
-  EconomicIndicator = 'economic_indicator',
-  GlobalEvent = 'global_event',
+  EarningsReport = "earnings_report",
+  ProductLaunch = "product_launch",
+  MergerAcquisition = "merger_acquisition",
+  ExecutiveChange = "executive_change",
+  RegulatoryNews = "regulatory_news",
+  IndustryTrend = "industry_trend",
+  EconomicIndicator = "economic_indicator",
+  GlobalEvent = "global_event",
 }
 
 export enum EventSeverity {
-  Low = 'low',
-  Medium = 'medium',
-  High = 'high',
-  Critical = 'critical',
+  Low = "low",
+  Medium = "medium",
+  High = "high",
+  Critical = "critical",
 }
 
 export interface AffectedStock {
   stockId: string;
   stock?: Stock;
-  impactDirection: 'positive' | 'negative' | 'mixed' | 'neutral';
+  impactDirection: "positive" | "negative" | "mixed" | "neutral";
   impactMagnitude: number; // 0-100 scale
   priceChangePercent?: number;
 }

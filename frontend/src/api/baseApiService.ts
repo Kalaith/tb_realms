@@ -1,6 +1,6 @@
-import { ApiResponse } from '../entities/api';
-import apiClient from './apiClient';
-import { ApiResponseError } from '../entities/errors';
+import { ApiResponse } from "../entities/api";
+import apiClient from "./apiClient";
+import { ApiResponseError } from "../entities/errors";
 
 /**
  * Base class for all API services
@@ -17,14 +17,15 @@ export abstract class BaseApiService<T> {
   private static toApiError(error: unknown): { code: string; message: string } {
     if (error instanceof ApiResponseError) {
       return {
-        code: error.status !== undefined ? String(error.status) : 'ERROR',
-        message: error.apiError?.message || error.message || 'An error occurred',
+        code: error.status !== undefined ? String(error.status) : "ERROR",
+        message:
+          error.apiError?.message || error.message || "An error occurred",
       };
     }
     if (error instanceof Error) {
-      return { code: 'ERROR', message: error.message };
+      return { code: "ERROR", message: error.message };
     }
-    return { code: 'ERROR', message: 'An error occurred' };
+    return { code: "ERROR", message: "An error occurred" };
   }
 
   /**
@@ -33,10 +34,14 @@ export abstract class BaseApiService<T> {
   async getAll(): Promise<ApiResponse<T[]>> {
     try {
       const response = await apiClient.get<unknown>(this.endpoint);
-      const responseRecord = (typeof response === 'object' && response !== null)
-        ? (response as Record<string, unknown>)
-        : null;
-      const data = responseRecord && 'data' in responseRecord ? responseRecord['data'] : response;
+      const responseRecord =
+        typeof response === "object" && response !== null
+          ? (response as Record<string, unknown>)
+          : null;
+      const data =
+        responseRecord && "data" in responseRecord
+          ? responseRecord["data"]
+          : response;
       return {
         success: true,
         data: (data as T[]) || ([] as T[]), // Handle both { data: [] } and direct array responses
@@ -59,10 +64,14 @@ export abstract class BaseApiService<T> {
   async getById(id: string): Promise<ApiResponse<T>> {
     try {
       const response = await apiClient.get<unknown>(`${this.endpoint}/${id}`);
-      const responseRecord = (typeof response === 'object' && response !== null)
-        ? (response as Record<string, unknown>)
-        : null;
-      const data = responseRecord && 'data' in responseRecord ? responseRecord['data'] : response;
+      const responseRecord =
+        typeof response === "object" && response !== null
+          ? (response as Record<string, unknown>)
+          : null;
+      const data =
+        responseRecord && "data" in responseRecord
+          ? responseRecord["data"]
+          : response;
       return {
         success: true,
         data: data as T,
@@ -84,11 +93,18 @@ export abstract class BaseApiService<T> {
    */
   async create(item: Partial<T>): Promise<ApiResponse<T>> {
     try {
-      const response = await apiClient.post<unknown, Partial<T>>(this.endpoint, item);
-      const responseRecord = (typeof response === 'object' && response !== null)
-        ? (response as Record<string, unknown>)
-        : null;
-      const data = responseRecord && 'data' in responseRecord ? responseRecord['data'] : response;
+      const response = await apiClient.post<unknown, Partial<T>>(
+        this.endpoint,
+        item,
+      );
+      const responseRecord =
+        typeof response === "object" && response !== null
+          ? (response as Record<string, unknown>)
+          : null;
+      const data =
+        responseRecord && "data" in responseRecord
+          ? responseRecord["data"]
+          : response;
       return {
         success: true,
         data: data as T,
@@ -110,11 +126,18 @@ export abstract class BaseApiService<T> {
    */
   async update(id: string, item: Partial<T>): Promise<ApiResponse<T>> {
     try {
-      const response = await apiClient.put<unknown, Partial<T>>(`${this.endpoint}/${id}`, item);
-      const responseRecord = (typeof response === 'object' && response !== null)
-        ? (response as Record<string, unknown>)
-        : null;
-      const data = responseRecord && 'data' in responseRecord ? responseRecord['data'] : response;
+      const response = await apiClient.put<unknown, Partial<T>>(
+        `${this.endpoint}/${id}`,
+        item,
+      );
+      const responseRecord =
+        typeof response === "object" && response !== null
+          ? (response as Record<string, unknown>)
+          : null;
+      const data =
+        responseRecord && "data" in responseRecord
+          ? responseRecord["data"]
+          : response;
       return {
         success: true,
         data: data as T,

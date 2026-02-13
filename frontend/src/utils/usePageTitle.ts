@@ -1,6 +1,6 @@
-import { useEffect } from 'react';
-import { useLocation } from 'react-router-dom';
-import { setPageTitle, getPageTitleFromPath } from './titleUtils';
+import { useEffect } from "react";
+import { useLocation } from "react-router-dom";
+import { setPageTitle, getPageTitleFromPath } from "./titleUtils";
 
 /**
  * Custom hook that updates the page title based on the current route
@@ -12,7 +12,7 @@ const usePageTitle = (): void => {
   useEffect(() => {
     // Get the title based on the current path
     const pageTitle = getPageTitleFromPath(location.pathname);
-    
+
     // Set the document title
     setPageTitle(pageTitle);
   }, [location.pathname]);

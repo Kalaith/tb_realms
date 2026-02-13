@@ -1,8 +1,12 @@
-import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
-import { marketEventService } from '../api/marketEventService';
-import { MarketEvent, MarketEventType, EventSeverity } from '../entities/MarketEvent';
-import { LoadingSpinner } from '../components/utility';
+import React, { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
+import { marketEventService } from "../api/marketEventService";
+import {
+  MarketEvent,
+  MarketEventType,
+  EventSeverity,
+} from "../entities/MarketEvent";
+import { LoadingSpinner } from "../components/utility";
 
 /**
  * News page component - Displays market events and news with filtering options
@@ -24,19 +28,29 @@ const News: React.FC = () => {
 
         if (!activeFilter) {
           response = await marketEventService.getAll();
-        } else if (Object.values(MarketEventType).includes(activeFilter as MarketEventType)) {
-          response = await marketEventService.getByType(activeFilter as MarketEventType);
-        } else if (Object.values(EventSeverity).includes(activeFilter as EventSeverity)) {
-          response = await marketEventService.getBySeverity(activeFilter as EventSeverity);
+        } else if (
+          Object.values(MarketEventType).includes(
+            activeFilter as MarketEventType,
+          )
+        ) {
+          response = await marketEventService.getByType(
+            activeFilter as MarketEventType,
+          );
+        } else if (
+          Object.values(EventSeverity).includes(activeFilter as EventSeverity)
+        ) {
+          response = await marketEventService.getBySeverity(
+            activeFilter as EventSeverity,
+          );
         }
 
         if (response?.success && response.data) {
           setEvents(response.data);
         } else {
-          setError('Failed to load market events');
+          setError("Failed to load market events");
         }
       } catch (err) {
-        setError('An error occurred while fetching market events');
+        setError("An error occurred while fetching market events");
         console.error(err);
       } finally {
         setLoading(false);
@@ -47,32 +61,36 @@ const News: React.FC = () => {
   }, [activeFilter]);
 
   const formatEventDate = (date: Date) => {
-    return new Intl.DateTimeFormat('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-      hour: 'numeric',
-      minute: 'numeric'
+    return new Intl.DateTimeFormat("en-US", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+      hour: "numeric",
+      minute: "numeric",
     }).format(new Date(date));
   };
 
   const getSeverityClasses = (severity: EventSeverity) => {
     switch (severity) {
       case EventSeverity.Low:
-        return 'border-l-4 border-l-cyan-500';
+        return "border-l-4 border-l-cyan-500";
       case EventSeverity.Medium:
-        return 'border-l-4 border-l-blue-500';
+        return "border-l-4 border-l-blue-500";
       case EventSeverity.High:
-        return 'border-l-4 border-l-orange-500';
+        return "border-l-4 border-l-orange-500";
       case EventSeverity.Critical:
-        return 'border-l-4 border-l-red-500';
+        return "border-l-4 border-l-red-500";
       default:
-        return 'border-l-4 border-l-gray-300';
+        return "border-l-4 border-l-gray-300";
     }
   };
 
-  const getSeverityButtonClasses = (severity: EventSeverity, isActive: boolean) => {
-    const baseClasses = "px-3 py-1.5 rounded-full text-sm font-medium transition-colors";
+  const getSeverityButtonClasses = (
+    severity: EventSeverity,
+    isActive: boolean,
+  ) => {
+    const baseClasses =
+      "px-3 py-1.5 rounded-full text-sm font-medium transition-colors";
 
     if (isActive) {
       switch (severity) {
@@ -104,9 +122,10 @@ const News: React.FC = () => {
   };
 
   const getEventTypeName = (type: MarketEventType) => {
-    return type.split('_').map(word =>
-      word.charAt(0).toUpperCase() + word.slice(1)
-    ).join(' ');
+    return type
+      .split("_")
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(" ");
   };
 
   const handleFilterChange = (filter: string | null) => {
@@ -117,33 +136,46 @@ const News: React.FC = () => {
     return (
       <div className="flex flex-wrap gap-2 mt-4">
         {event.affectedStocks.map((affectedStock) => {
-          const changeSymbol = affectedStock.priceChangePercent &&
-                             affectedStock.priceChangePercent > 0 ? '+' : '';
+          const changeSymbol =
+            affectedStock.priceChangePercent &&
+            affectedStock.priceChangePercent > 0
+              ? "+"
+              : "";
 
-          let impactClasses = "inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-medium rounded-full";
+          let impactClasses =
+            "inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-medium rounded-full";
 
-          switch(affectedStock.impactDirection) {
-            case 'positive':
-              impactClasses += " bg-green-100 text-green-800 border border-green-300";
+          switch (affectedStock.impactDirection) {
+            case "positive":
+              impactClasses +=
+                " bg-green-100 text-green-800 border border-green-300";
               break;
-            case 'negative':
+            case "negative":
               impactClasses += " bg-red-100 text-red-800 border border-red-300";
               break;
-            case 'mixed':
-              impactClasses += " bg-orange-100 text-orange-800 border border-orange-300";
+            case "mixed":
+              impactClasses +=
+                " bg-orange-100 text-orange-800 border border-orange-300";
               break;
             default:
-              impactClasses += " bg-gray-100 text-gray-800 border border-gray-300";
+              impactClasses +=
+                " bg-gray-100 text-gray-800 border border-gray-300";
           }
 
           return (
-            <div key={`${event.id}-${affectedStock.stockId}`} className={impactClasses}>
+            <div
+              key={`${event.id}-${affectedStock.stockId}`}
+              className={impactClasses}
+            >
               <span className="font-semibold">
-                {affectedStock.stock ? affectedStock.stock.symbol : `Stock #${affectedStock.stockId}`}
+                {affectedStock.stock
+                  ? affectedStock.stock.symbol
+                  : `Stock #${affectedStock.stockId}`}
               </span>
               {affectedStock.priceChangePercent && (
                 <span className="font-bold">
-                  {changeSymbol}{affectedStock.priceChangePercent.toFixed(2)}%
+                  {changeSymbol}
+                  {affectedStock.priceChangePercent.toFixed(2)}%
                 </span>
               )}
             </div>
@@ -175,19 +207,20 @@ const News: React.FC = () => {
 
   return (
     <div className="space-y-6">
-      
       <section className="p-6 bg-white rounded-lg shadow-md dark:bg-gray-800">
         <div className="flex flex-wrap gap-5">
           <div className="flex-1 min-w-[250px]">
-            <h3 className="text-lg font-medium text-gray-700 dark:text-gray-300 mb-3">Event Types</h3>
+            <h3 className="text-lg font-medium text-gray-700 dark:text-gray-300 mb-3">
+              Event Types
+            </h3>
             <div className="flex flex-wrap gap-2">
-              {Object.values(MarketEventType).map(type => (
+              {Object.values(MarketEventType).map((type) => (
                 <button
                   key={type}
                   className={`px-3 py-1.5 rounded-full text-sm font-medium transition-colors ${
-                    activeFilter === type 
-                      ? 'bg-gray-800 dark:bg-gray-200 text-white dark:text-gray-800' 
-                      : 'bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 hover:bg-gray-300 dark:hover:bg-gray-600'
+                    activeFilter === type
+                      ? "bg-gray-800 dark:bg-gray-200 text-white dark:text-gray-800"
+                      : "bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 hover:bg-gray-300 dark:hover:bg-gray-600"
                   }`}
                   onClick={() => handleFilterChange(type)}
                 >
@@ -196,14 +229,19 @@ const News: React.FC = () => {
               ))}
             </div>
           </div>
-          
+
           <div className="flex-1 min-w-[250px]">
-            <h3 className="text-lg font-medium text-gray-700 dark:text-gray-300 mb-3">Severity</h3>
+            <h3 className="text-lg font-medium text-gray-700 dark:text-gray-300 mb-3">
+              Severity
+            </h3>
             <div className="flex flex-wrap gap-2">
-              {Object.values(EventSeverity).map(severity => (
+              {Object.values(EventSeverity).map((severity) => (
                 <button
                   key={severity}
-                  className={getSeverityButtonClasses(severity as EventSeverity, activeFilter === severity)}
+                  className={getSeverityButtonClasses(
+                    severity as EventSeverity,
+                    activeFilter === severity,
+                  )}
                   onClick={() => handleFilterChange(severity)}
                 >
                   {severity.charAt(0).toUpperCase() + severity.slice(1)}
@@ -217,35 +255,46 @@ const News: React.FC = () => {
       {events.length === 0 ? (
         <section className="p-6 bg-white rounded-lg shadow-md dark:bg-gray-800">
           <div className="text-center py-10">
-            <p className="text-gray-600 dark:text-gray-400">No events found matching the selected filters.</p>
+            <p className="text-gray-600 dark:text-gray-400">
+              No events found matching the selected filters.
+            </p>
           </div>
         </section>
       ) : (
         <section className="space-y-4">
-          {events.map(event => (
-            <div key={event.id} className={`${getSeverityClasses(event.severity)} p-6 bg-white rounded-lg shadow-md dark:bg-gray-800 overflow-hidden`}>
+          {events.map((event) => (
+            <div
+              key={event.id}
+              className={`${getSeverityClasses(event.severity)} p-6 bg-white rounded-lg shadow-md dark:bg-gray-800 overflow-hidden`}
+            >
               <div className="mb-3">
-                <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-200">{event.title}</h2>
+                <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-200">
+                  {event.title}
+                </h2>
                 <div className="flex flex-wrap gap-3 text-sm text-gray-500 dark:text-gray-400 mt-1">
                   <span className="inline-flex items-center">
-                    <span className="mr-1.5">🕒</span> {formatEventDate(event.date)}
+                    <span className="mr-1.5">🕒</span>{" "}
+                    {formatEventDate(event.date)}
                   </span>
                   <span className="inline-flex items-center">
                     <span className="mr-1.5">📰</span> {event.source}
                   </span>
                   <span className="inline-flex items-center">
-                    <span className="mr-1.5">🏷️</span> {getEventTypeName(event.type)}
+                    <span className="mr-1.5">🏷️</span>{" "}
+                    {getEventTypeName(event.type)}
                   </span>
                 </div>
               </div>
-              
-              <p className="my-4 text-gray-700 dark:text-gray-300 leading-relaxed">{event.description}</p>
-              
+
+              <p className="my-4 text-gray-700 dark:text-gray-300 leading-relaxed">
+                {event.description}
+              </p>
+
               {renderStockImpact(event)}
-              
+
               <div className="mt-4 pt-3 border-t border-gray-200 dark:border-gray-700 flex justify-end">
-                <Link 
-                  to={`/market`} 
+                <Link
+                  to={`/market`}
                   className="inline-flex items-center px-4 py-2 bg-indigo-700 text-white font-bold rounded-md hover:bg-indigo-800 transition-colors shadow-md focus:ring-2 focus:ring-indigo-300 dark:focus:ring-indigo-500"
                   aria-label="View market details"
                 >

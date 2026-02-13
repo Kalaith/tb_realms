@@ -1,9 +1,9 @@
 /**
  * Navigation API Service for frontend
  */
-import { ApiResponse } from '../entities/api';
-import { NavigationItem, AccountNavItem } from '../entities/navigation';
-import apiClient from './apiClient';
+import { ApiResponse } from "../entities/api";
+import { NavigationItem, AccountNavItem } from "../entities/navigation";
+import apiClient from "./apiClient";
 
 interface AppBranding {
   name: string;
@@ -17,9 +17,9 @@ class NavigationService {
    */
   async getMainNavigation(): Promise<ApiResponse<NavigationItem[]>> {
     try {
-      return await apiClient.get('navigation');
+      return await apiClient.get("navigation");
     } catch (error) {
-      console.error('Error fetching navigation items:', error);
+      console.error("Error fetching navigation items:", error);
       throw error;
     }
   }
@@ -29,9 +29,9 @@ class NavigationService {
    */
   async getAccountNavigation(): Promise<ApiResponse<AccountNavItem[]>> {
     try {
-      return await apiClient.get('navigation/account');
+      return await apiClient.get("navigation/account");
     } catch (error) {
-      console.error('Error fetching account navigation items:', error);
+      console.error("Error fetching account navigation items:", error);
       throw error;
     }
   }
@@ -41,9 +41,9 @@ class NavigationService {
    */
   async getAppBranding(): Promise<ApiResponse<AppBranding>> {
     try {
-      return await apiClient.get('navigation/branding');
+      return await apiClient.get("navigation/branding");
     } catch (error) {
-      console.error('Error fetching app branding:', error);
+      console.error("Error fetching app branding:", error);
       throw error;
     }
   }

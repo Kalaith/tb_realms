@@ -12,7 +12,8 @@ export class ApiCache {
   private cache = new Map<string, CacheEntry<unknown>>();
   private cleanupInterval: NodeJS.Timeout;
 
-  constructor(cleanupIntervalMs: number = 300000) { // 5 minutes
+  constructor(cleanupIntervalMs: number = 300000) {
+    // 5 minutes
     // Set up periodic cleanup of expired entries
     this.cleanupInterval = setInterval(() => {
       this.cleanup();
@@ -22,10 +23,11 @@ export class ApiCache {
   /**
    * Store data in cache with TTL
    */
-  set<T>(key: string, data: T, ttlMs: number = 300000): void { // 5 minutes default
+  set<T>(key: string, data: T, ttlMs: number = 300000): void {
+    // 5 minutes default
     this.cache.set(key, {
       data,
-      expiry: Date.now() + ttlMs
+      expiry: Date.now() + ttlMs,
     });
   }
 
@@ -96,7 +98,7 @@ export class ApiCache {
 
     return {
       size: this.cache.size,
-      expired
+      expired,
     };
   }
 
@@ -119,7 +121,7 @@ export const apiCache = new ApiCache();
  */
 export class CacheKeys {
   static stocks(filters?: Record<string, unknown>): string {
-    const filterStr = filters ? JSON.stringify(filters) : '';
+    const filterStr = filters ? JSON.stringify(filters) : "";
     return `stocks:${filterStr}`;
   }
 
@@ -140,7 +142,7 @@ export class CacheKeys {
   }
 
   static marketSummary(): string {
-    return 'market:summary';
+    return "market:summary";
   }
 
   static user(userId: string): string {
@@ -152,11 +154,11 @@ export class CacheKeys {
  * Cache TTL constants (in milliseconds)
  */
 export const CacheTTL = {
-  STOCKS_LIST: 60000,      // 1 minute - stock prices change frequently
-  STOCK_DETAILS: 60000,    // 1 minute
-  STOCK_HISTORY: 300000,   // 5 minutes - historical data changes less frequently
-  PORTFOLIO: 30000,        // 30 seconds - user's portfolio should be fresh
-  TRANSACTIONS: 300000,    // 5 minutes - transaction history doesn't change often
-  MARKET_SUMMARY: 60000,   // 1 minute
-  USER_PROFILE: 1800000,   // 30 minutes - user profile changes rarely
+  STOCKS_LIST: 60000, // 1 minute - stock prices change frequently
+  STOCK_DETAILS: 60000, // 1 minute
+  STOCK_HISTORY: 300000, // 5 minutes - historical data changes less frequently
+  PORTFOLIO: 30000, // 30 seconds - user's portfolio should be fresh
+  TRANSACTIONS: 300000, // 5 minutes - transaction history doesn't change often
+  MARKET_SUMMARY: 60000, // 1 minute
+  USER_PROFILE: 1800000, // 30 minutes - user profile changes rarely
 } as const;

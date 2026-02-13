@@ -13,23 +13,23 @@
 export const formatCurrency = (
   value: number | undefined | null,
   minimumFractionDigits = 2,
-  maximumFractionDigits = 2
+  maximumFractionDigits = 2,
 ): string => {
   // Handle undefined or null values
   if (value === undefined || value === null) {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
+    return new Intl.NumberFormat("en-US", {
+      style: "currency",
+      currency: "USD",
       minimumFractionDigits,
-      maximumFractionDigits
+      maximumFractionDigits,
     }).format(0);
   }
 
-  return new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: 'USD',
+  return new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: "USD",
     minimumFractionDigits,
-    maximumFractionDigits
+    maximumFractionDigits,
   }).format(value);
 };
 
@@ -47,25 +47,25 @@ export const formatPercentage = (
   showSign = true,
   minimumFractionDigits = 2,
   maximumFractionDigits = 2,
-  divideByHundred = true
+  divideByHundred = true,
 ): string => {
   // Handle undefined or null values
   if (value === undefined || value === null) {
-    return '0.00%';
+    return "0.00%";
   }
 
-  const signDisplay = showSign ? 'exceptZero' : 'auto';
-  
+  const signDisplay = showSign ? "exceptZero" : "auto";
+
   if (divideByHundred) {
-    return new Intl.NumberFormat('en-US', {
-      style: 'percent',
+    return new Intl.NumberFormat("en-US", {
+      style: "percent",
       minimumFractionDigits,
       maximumFractionDigits,
-      signDisplay
+      signDisplay,
     }).format(value / 100);
   }
-  
-  return `${value >= 0 && showSign ? '+' : ''}${value.toFixed(minimumFractionDigits)}%`;
+
+  return `${value >= 0 && showSign ? "+" : ""}${value.toFixed(minimumFractionDigits)}%`;
 };
 
 /**
@@ -77,13 +77,13 @@ export const formatPercentage = (
 export const formatDate = (
   date: Date | string,
   options: Intl.DateTimeFormatOptions = {
-    year: 'numeric',
-    month: 'short',
-    day: 'numeric',
-  }
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+  },
 ): string => {
-  const dateObj = typeof date === 'string' ? new Date(date) : date;
-  return new Intl.DateTimeFormat('en-US', options).format(dateObj);
+  const dateObj = typeof date === "string" ? new Date(date) : date;
+  return new Intl.DateTimeFormat("en-US", options).format(dateObj);
 };
 
 /**
@@ -93,13 +93,13 @@ export const formatDate = (
  */
 export const formatDateTime = (date: Date | string): string => {
   const options: Intl.DateTimeFormatOptions = {
-    year: 'numeric',
-    month: 'short',
-    day: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit'
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
   };
-  
+
   return formatDate(date, options);
 };
 
@@ -133,5 +133,5 @@ export const formatMarketCap = (marketCap: number): string => {
  * @returns CSS class name based on sign
  */
 export const getTrendClass = (value: number): string => {
-  return value >= 0 ? 'positive' : 'negative';
+  return value >= 0 ? "positive" : "negative";
 };

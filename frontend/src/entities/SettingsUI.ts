@@ -5,11 +5,11 @@
 /**
  * Possible setting value types
  */
-export type SettingValueType = 
-  | boolean 
-  | string 
-  | number 
-  | string[] 
+export type SettingValueType =
+  | boolean
+  | string
+  | number
+  | string[]
   | Record<string, unknown>;
 
 /**
@@ -19,7 +19,7 @@ export interface VisualSetting {
   id: string;
   label: string;
   description?: string;
-  type: 'toggle' | 'select' | 'color' | 'slider';
+  type: "toggle" | "select" | "color" | "slider";
   options?: Array<{ value: string; label: string }>;
   defaultValue: SettingValueType;
 }

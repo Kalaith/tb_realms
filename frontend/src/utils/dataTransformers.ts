@@ -3,9 +3,9 @@
  * Handles the mapping between snake_case (backend) and camelCase (frontend) conventions
  */
 
-import { Stock } from '../entities/Stock';
-import { AuthUser } from '../entities/Auth';
-import { Portfolio, Position, Transaction } from '../entities/Portfolio';
+import { Stock } from "../entities/Stock";
+import { AuthUser } from "../entities/Auth";
+import { Portfolio, Position, Transaction } from "../entities/Portfolio";
 
 // API response interfaces (snake_case)
 export interface StockApiResponse {
@@ -55,7 +55,7 @@ export interface TransactionApiResponse {
   user_id: string;
   stock_id: string;
   symbol: string;
-  type: 'BUY' | 'SELL';
+  type: "BUY" | "SELL";
   shares: number;
   price: number;
   total_amount: number;
@@ -87,7 +87,7 @@ export class StockTransformer {
       previousClose: apiStock.previous_close,
       change: apiStock.day_change,
       changePercent: apiStock.day_change_percentage,
-      sector: apiStock.sector || 'Unknown',
+      sector: apiStock.sector || "Unknown",
       volume: apiStock.volume,
       marketCap: apiStock.market_cap,
       description: apiStock.description,
@@ -207,11 +207,15 @@ export class TransactionTransformer {
     };
   }
 
-  static fromApiArray(apiTransactions: TransactionApiResponse[]): Transaction[] {
+  static fromApiArray(
+    apiTransactions: TransactionApiResponse[],
+  ): Transaction[] {
     return apiTransactions.map(this.fromApi);
   }
 
-  static toApi(transaction: Partial<Transaction>): Partial<TransactionApiResponse> {
+  static toApi(
+    transaction: Partial<Transaction>,
+  ): Partial<TransactionApiResponse> {
     return {
       id: transaction.id,
       user_id: transaction.userId,
@@ -237,12 +241,13 @@ export class UserTransformer {
       email: apiUser.email,
       firstName: apiUser.first_name,
       lastName: apiUser.last_name,
-      displayName: apiUser.display_name || `${apiUser.first_name} ${apiUser.last_name}`,
+      displayName:
+        apiUser.display_name || `${apiUser.first_name} ${apiUser.last_name}`,
       avatarUrl: apiUser.avatar_url,
       createdAt: new Date(apiUser.created_at),
       updatedAt: new Date(apiUser.updated_at),
       // Note: token will be added separately during authentication
-      token: '',
+      token: "",
     };
   }
 
@@ -268,17 +273,19 @@ export class GenericTransformer {
    * Converts snake_case keys to camelCase recursively
    */
   static snakeToCamel<T = unknown>(obj: unknown): T {
-    if (obj === null || typeof obj !== 'object') {
+    if (obj === null || typeof obj !== "object") {
       return obj as T;
     }
 
     if (Array.isArray(obj)) {
-      return obj.map(item => this.snakeToCamel(item)) as T;
+      return obj.map((item) => this.snakeToCamel(item)) as T;
     }
 
     const camelObj: Record<string, unknown> = {};
     for (const [key, value] of Object.entries(obj)) {
-      const camelKey = key.replace(/_([a-z])/g, (_, letter) => letter.toUpperCase());
+      const camelKey = key.replace(/_([a-z])/g, (_, letter) =>
+        letter.toUpperCase(),
+      );
       camelObj[camelKey] = this.snakeToCamel(value);
     }
 
@@ -289,17 +296,20 @@ export class GenericTransformer {
    * Converts camelCase keys to snake_case recursively
    */
   static camelToSnake<T = unknown>(obj: unknown): T {
-    if (obj === null || typeof obj !== 'object') {
+    if (obj === null || typeof obj !== "object") {
       return obj as T;
     }
 
     if (Array.isArray(obj)) {
-      return obj.map(item => this.camelToSnake(item)) as T;
+      return obj.map((item) => this.camelToSnake(item)) as T;
     }
 
     const snakeObj: Record<string, unknown> = {};
     for (const [key, value] of Object.entries(obj)) {
-      const snakeKey = key.replace(/[A-Z]/g, letter => `_${letter.toLowerCase()}`);
+      const snakeKey = key.replace(
+        /[A-Z]/g,
+        (letter) => `_${letter.toLowerCase()}`,
+      );
       snakeObj[snakeKey] = this.camelToSnake(value);
     }
 

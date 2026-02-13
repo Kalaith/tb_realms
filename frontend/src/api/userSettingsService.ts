@@ -1,18 +1,18 @@
-import { BaseApiService } from './baseApiService';
-import { UserSettings, defaultUserSettings } from '../entities/UserSettings';
-import { ApiResponse } from '../entities/api';
-import apiClient from './apiClient';
-import { toApiError } from './apiErrorUtils';
-import { unwrapData } from './apiResponseUtils';
+import { BaseApiService } from "./baseApiService";
+import { UserSettings, defaultUserSettings } from "../entities/UserSettings";
+import { ApiResponse } from "../entities/api";
+import apiClient from "./apiClient";
+import { toApiError } from "./apiErrorUtils";
+import { unwrapData } from "./apiResponseUtils";
 
 /**
  * Service for managing user settings
  */
 class UserSettingsService extends BaseApiService<UserSettings> {
   constructor() {
-    super('settings');
+    super("settings");
   }
-  
+
   /**
    * Get user settings for the current user
    */
@@ -20,24 +20,30 @@ class UserSettingsService extends BaseApiService<UserSettings> {
     if (this.useMockData) {
       // Mock implementation code kept for reference
       // ...existing mock implementation...
-      return { success: false, error: { code: "NOT_IMPLEMENTED", message: "Mock implementation not used" } };
+      return {
+        success: false,
+        error: {
+          code: "NOT_IMPLEMENTED",
+          message: "Mock implementation not used",
+        },
+      };
     }
-    
+
     try {
       const response = await apiClient.get<unknown>(`${this.endpoint}/user`);
-       
+
       // Apply any defaults for missing properties
       const settings = {
         ...defaultUserSettings,
-        ...(unwrapData<Partial<UserSettings>>(response) ?? {})
+        ...(unwrapData<Partial<UserSettings>>(response) ?? {}),
       };
-      
+
       return {
         success: true,
-        data: settings
+        data: settings,
       };
     } catch (error: unknown) {
-      const apiError = toApiError(error, 'Failed to fetch user settings');
+      const apiError = toApiError(error, "Failed to fetch user settings");
       return {
         success: false,
         error: {
@@ -47,26 +53,37 @@ class UserSettingsService extends BaseApiService<UserSettings> {
       };
     }
   }
-  
+
   /**
    * Save user settings
    */
-  async saveUserSettings(settings: Partial<UserSettings>): Promise<ApiResponse<UserSettings>> {
+  async saveUserSettings(
+    settings: Partial<UserSettings>,
+  ): Promise<ApiResponse<UserSettings>> {
     if (this.useMockData) {
       // Mock implementation code kept for reference
       // ...existing mock implementation...
-      return { success: false, error: { code: "NOT_IMPLEMENTED", message: "Mock implementation not used" } };
+      return {
+        success: false,
+        error: {
+          code: "NOT_IMPLEMENTED",
+          message: "Mock implementation not used",
+        },
+      };
     }
-    
+
     try {
-      const response = await apiClient.put<unknown, Partial<UserSettings>>(this.endpoint, settings);
-       
+      const response = await apiClient.put<unknown, Partial<UserSettings>>(
+        this.endpoint,
+        settings,
+      );
+
       return {
         success: true,
-        data: unwrapData<UserSettings>(response)
+        data: unwrapData<UserSettings>(response),
       };
     } catch (error: unknown) {
-      const apiError = toApiError(error, 'Failed to save user settings');
+      const apiError = toApiError(error, "Failed to save user settings");
       return {
         success: false,
         error: {
@@ -76,7 +93,7 @@ class UserSettingsService extends BaseApiService<UserSettings> {
       };
     }
   }
-  
+
   /**
    * Reset user settings to defaults
    */
@@ -84,18 +101,27 @@ class UserSettingsService extends BaseApiService<UserSettings> {
     if (this.useMockData) {
       // Mock implementation code kept for reference
       // ...existing mock implementation...
-      return { success: false, error: { code: "NOT_IMPLEMENTED", message: "Mock implementation not used" } };
+      return {
+        success: false,
+        error: {
+          code: "NOT_IMPLEMENTED",
+          message: "Mock implementation not used",
+        },
+      };
     }
-    
+
     try {
-      const response = await apiClient.post<unknown, Record<string, never>>(`${this.endpoint}/reset`, {});
-       
+      const response = await apiClient.post<unknown, Record<string, never>>(
+        `${this.endpoint}/reset`,
+        {},
+      );
+
       return {
         success: true,
-        data: unwrapData<UserSettings>(response)
+        data: unwrapData<UserSettings>(response),
       };
     } catch (error: unknown) {
-      const apiError = toApiError(error, 'Failed to reset user settings');
+      const apiError = toApiError(error, "Failed to reset user settings");
       return {
         success: false,
         error: {
@@ -111,7 +137,7 @@ class UserSettingsService extends BaseApiService<UserSettings> {
    */
   loadFromLocalStorage(): UserSettings | null {
     try {
-      const stored = localStorage.getItem('userSettings');
+      const stored = localStorage.getItem("userSettings");
       if (stored) {
         const parsedSettings = JSON.parse(stored);
         // Ensure required fields are present
@@ -120,7 +146,7 @@ class UserSettingsService extends BaseApiService<UserSettings> {
         }
       }
     } catch (error) {
-      console.error('Error loading settings from localStorage:', error);
+      console.error("Error loading settings from localStorage:", error);
     }
     return null;
   }
@@ -130,13 +156,11 @@ class UserSettingsService extends BaseApiService<UserSettings> {
    */
   saveToLocalStorage(settings: Partial<UserSettings>): void {
     try {
-      localStorage.setItem('userSettings', JSON.stringify(settings));
+      localStorage.setItem("userSettings", JSON.stringify(settings));
     } catch (error) {
-      console.error('Error saving settings to localStorage:', error);
+      console.error("Error saving settings to localStorage:", error);
     }
   }
-
- 
 }
 
 export default new UserSettingsService();

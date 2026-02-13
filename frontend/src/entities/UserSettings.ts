@@ -25,33 +25,37 @@ export interface UserSettings {
 /**
  * Theme options for the application UI
  */
-export type ThemeOption = 'light' | 'dark' | 'system';
+export type ThemeOption = "light" | "dark" | "system";
 
 /**
  * Supported application languages
  */
 export enum Language {
-  ENGLISH = 'en',
-  SPANISH = 'es',
-  FRENCH = 'fr',
-  GERMAN = 'de',
-  JAPANESE = 'ja'
+  ENGLISH = "en",
+  SPANISH = "es",
+  FRENCH = "fr",
+  GERMAN = "de",
+  JAPANESE = "ja",
 }
 
 /**
  * Animation speed options for UI elements
  */
-export type AnimationSpeed = 'off' | 'slow' | 'normal' | 'fast';
+export type AnimationSpeed = "off" | "slow" | "normal" | "fast";
 
 /**
  * Chart detail level options
  */
-export type ChartDetailLevel = 'low' | 'medium' | 'high';
+export type ChartDetailLevel = "low" | "medium" | "high";
 
 /**
  * Notification position options in the UI
  */
-export type NotificationPosition = 'top-right' | 'top-left' | 'bottom-right' | 'bottom-left';
+export type NotificationPosition =
+  | "top-right"
+  | "top-left"
+  | "bottom-right"
+  | "bottom-left";
 
 /**
  * Notification settings for different alert types
@@ -75,16 +79,16 @@ export interface PrivacySettings {
 /**
  * Default user settings to use when no settings are found
  */
-export const defaultUserSettings: Omit<UserSettings, 'id' | 'userId'> = {
-  theme: 'system',
+export const defaultUserSettings: Omit<UserSettings, "id" | "userId"> = {
+  theme: "system",
   realTimeUpdates: true,
   priceChangeIndicators: true,
-  animationSpeed: 'normal',
+  animationSpeed: "normal",
   colorBlindMode: false,
-  chartDetail: 'medium',
+  chartDetail: "medium",
   showGridLines: true,
   playerHighlighting: true,
-  notificationPosition: 'bottom-right',
+  notificationPosition: "bottom-right",
   soundEffects: true,
   focusMode: false,
   stockChangeThreshold: 5,
@@ -92,11 +96,11 @@ export const defaultUserSettings: Omit<UserSettings, 'id' | 'userId'> = {
     marketAlerts: true,
     priceAlerts: true,
     newsAlerts: true,
-    achievementAlerts: true
+    achievementAlerts: true,
   },
   privacy: {
     showProfilePublicly: true,
     showPortfolioPublicly: false,
-    showAchievementsPublicly: true
-  }
+    showAchievementsPublicly: true,
+  },
 };

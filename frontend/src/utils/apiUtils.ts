@@ -1,5 +1,5 @@
-import { ApiResponse } from '../entities/api';
-import type { PricePoint } from '../entities/Stock';
+import { ApiResponse } from "../entities/api";
+import type { PricePoint } from "../entities/Stock";
 
 /**
  * Simulates API delay (legacy - kept for fallback to mock data if needed)
@@ -16,22 +16,22 @@ export function generateMockPriceHistory(basePrice: number): PricePoint[] {
   const today = new Date();
   const priceHistory: PricePoint[] = [];
   let price = basePrice;
-  
+
   for (let i = 30; i >= 0; i--) {
     const date = new Date();
     date.setDate(today.getDate() - i);
-    
+
     // Create some random price variation
-    const priceChange = (Math.random() * 6) - 3; // Random change between -3% and +3%
-    price = price * (1 + (priceChange / 100));
-    
+    const priceChange = Math.random() * 6 - 3; // Random change between -3% and +3%
+    price = price * (1 + priceChange / 100);
+
     priceHistory.push({
       timestamp: new Date(date),
       price: parseFloat(price.toFixed(2)),
-      volume: Math.floor(Math.random() * 10000000) + 10000000
+      volume: Math.floor(Math.random() * 10000000) + 10000000,
     });
   }
-  
+
   return priceHistory;
 }
 
@@ -42,7 +42,7 @@ export function generateMockPriceHistory(basePrice: number): PricePoint[] {
 export function createSuccessResponse<T>(data: T): ApiResponse<T> {
   return {
     success: true,
-    data
+    data,
   };
 }
 
@@ -50,13 +50,16 @@ export function createSuccessResponse<T>(data: T): ApiResponse<T> {
  * Creates an error API response
  * Used for formatting error responses consistently
  */
-export function createErrorResponse(code: string, message: string): ApiResponse<never> {
+export function createErrorResponse(
+  code: string,
+  message: string,
+): ApiResponse<never> {
   return {
     success: false,
     error: {
       code,
-      message
-    }
+      message,
+    },
   };
 }
 
@@ -71,13 +74,21 @@ export function generateId(prefix: string): string {
  * Handle API errors in a consistent way
  * Formats error responses from API calls
  */
-export function handleApiError(error: unknown, entityName: string, actionDescription: string): ApiResponse<never> {
+export function handleApiError(
+  error: unknown,
+  entityName: string,
+  actionDescription: string,
+): ApiResponse<never> {
   console.error(`Error ${actionDescription} for ${entityName}:`, error);
-  
+
   // Extract error info
-  const err = error as { data?: { message?: string; code?: string }; statusText?: string };
-  const message = err.data?.message || err.statusText || `Failed ${actionDescription}`;
+  const err = error as {
+    data?: { message?: string; code?: string };
+    statusText?: string;
+  };
+  const message =
+    err.data?.message || err.statusText || `Failed ${actionDescription}`;
   const errorCode = err.data?.code || `${entityName.toUpperCase()}_ERROR`;
-  
+
   return createErrorResponse(errorCode, message);
 }

@@ -1,4 +1,4 @@
-import { Stock } from './Stock';
+import { Stock } from "./Stock";
 
 export interface Portfolio {
   id: string;
@@ -34,8 +34,8 @@ export interface Transaction {
 }
 
 export enum TransactionType {
-  BUY = 'buy',
-  SELL = 'sell',
+  BUY = "buy",
+  SELL = "sell",
 }
 
 export interface PortfolioPerformance {

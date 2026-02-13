@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 
 interface MarketFiltersProps {
   searchQuery: string;
@@ -17,13 +17,15 @@ const MarketFilters: React.FC<MarketFiltersProps> = ({
   selectedSector,
   sectors,
   onSearchChange,
-  onSectorChange
+  onSectorChange,
 }) => {
   return (
     <div className="bg-white rounded-lg shadow-md dark:bg-gray-800 p-4">
       <div className="flex flex-col md:flex-row justify-between space-y-4 md:space-y-0 md:space-x-4">
         <div className="w-full md:w-1/3">
-          <label htmlFor="stock-search" className="sr-only">Search stocks</label>
+          <label htmlFor="stock-search" className="sr-only">
+            Search stocks
+          </label>
           <input
             id="stock-search"
             type="text"
@@ -36,24 +38,34 @@ const MarketFilters: React.FC<MarketFiltersProps> = ({
         </div>
 
         <div className="flex-grow">
-          <div className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Sector:</div>
-          <div className="flex flex-wrap gap-2" role="radiogroup" aria-label="Filter stocks by sector">
+          <div className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            Sector:
+          </div>
+          <div
+            className="flex flex-wrap gap-2"
+            role="radiogroup"
+            aria-label="Filter stocks by sector"
+          >
             <button
-              className={`px-3 py-1 text-sm rounded-full ${selectedSector === null ? 
-                'bg-blue-600 text-white dark:bg-blue-700' : 
-                'bg-gray-100 text-gray-800 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600'}`}
+              className={`px-3 py-1 text-sm rounded-full ${
+                selectedSector === null
+                  ? "bg-blue-600 text-white dark:bg-blue-700"
+                  : "bg-gray-100 text-gray-800 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600"
+              }`}
               onClick={() => onSectorChange(null)}
               aria-pressed={selectedSector === null}
               role="radio"
             >
               All
             </button>
-            {sectors.map(sector => (
+            {sectors.map((sector) => (
               <button
                 key={sector}
-                className={`px-3 py-1 text-sm rounded-full ${selectedSector === sector ? 
-                  'bg-blue-600 text-white dark:bg-blue-700' : 
-                  'bg-gray-100 text-gray-800 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600'}`}
+                className={`px-3 py-1 text-sm rounded-full ${
+                  selectedSector === sector
+                    ? "bg-blue-600 text-white dark:bg-blue-700"
+                    : "bg-gray-100 text-gray-800 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600"
+                }`}
                 onClick={() => onSectorChange(sector)}
                 aria-pressed={selectedSector === sector}
                 role="radio"

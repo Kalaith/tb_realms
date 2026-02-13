@@ -2,15 +2,15 @@
  * User Menu Component
  * Displays user information and authentication options
  */
-import React, { useState, useRef, useEffect } from 'react';
-import { Link } from 'react-router-dom';
-import { useAuth } from '../../contexts/AuthContext';
+import React, { useState, useRef, useEffect } from "react";
+import { Link } from "react-router-dom";
+import { useAuth } from "../../contexts/AuthContext";
 
 const UserMenu: React.FC = () => {
   const { user, logout } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
-  
+
   // Close menu when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -18,27 +18,27 @@ const UserMenu: React.FC = () => {
         setIsOpen(false);
       }
     };
-    
-    document.addEventListener('mousedown', handleClickOutside);
+
+    document.addEventListener("mousedown", handleClickOutside);
     return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener("mousedown", handleClickOutside);
     };
   }, []);
-  
+
   // Toggle menu open/closed
   const toggleMenu = () => {
     setIsOpen(!isOpen);
   };
-  
+
   // Handle logout
   const handleLogout = () => {
     logout();
     setIsOpen(false);
   };
-  
+
   // Default avatar if user doesn't have one
-  const defaultAvatar = `https://ui-avatars.com/api/?name=${user?.username || 'User'}&background=random`;
-  
+  const defaultAvatar = `https://ui-avatars.com/api/?name=${user?.username || "User"}&background=random`;
+
   return (
     <div className="relative" ref={menuRef}>
       {user ? (
@@ -99,9 +99,7 @@ const UserMenu: React.FC = () => {
           )}
         </>
       ) : (
-        <div className="text-sm text-gray-500">
-          Loading...
-        </div>
+        <div className="text-sm text-gray-500">Loading...</div>
       )}
     </div>
   );

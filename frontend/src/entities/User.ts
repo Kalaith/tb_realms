@@ -1,4 +1,4 @@
-import { UserSettings } from './UserSettings';
+import { UserSettings } from "./UserSettings";
 
 export interface User {
   id: string;
