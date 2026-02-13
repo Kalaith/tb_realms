@@ -1,4 +1,3 @@
-
 import { BaseApiService } from "./baseApiService";
 import { UserSettings, defaultUserSettings } from "../entities/UserSettings";
 import { ApiResponse } from "../entities/api";

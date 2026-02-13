@@ -1,4 +1,3 @@
-
 /**
  * Data transformation utilities for converting between API responses and frontend models
  * Handles the mapping between snake_case (backend) and camelCase (frontend) conventions
@@ -269,13 +268,13 @@ export class TransactionTransformer {
       user_id: transaction.userId,
       stock_id: transaction.stockId,
       symbol: transaction.symbol,
-      type:
-        transaction.type === TransactionType.BUY ? "BUY" : "SELL",
+      type: transaction.type === TransactionType.BUY ? "BUY" : "SELL",
       shares: transaction.shares,
       price: transaction.price,
       total_amount: transaction.totalAmount ?? transaction.total,
       fee: transaction.fee,
-      created_at: transaction.createdAt?.toISOString() ??
+      created_at:
+        transaction.createdAt?.toISOString() ??
         transaction.timestamp?.toISOString(),
     };
   }

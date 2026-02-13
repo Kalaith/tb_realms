@@ -1,4 +1,3 @@
-
 /**
  * Navigation Component
  * Main navigation bar for the application

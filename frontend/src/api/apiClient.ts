@@ -1,4 +1,3 @@
-
 /**
  * API Client for making HTTP requests to the backend
  * Provides a wrapper around fetch API with common functionality

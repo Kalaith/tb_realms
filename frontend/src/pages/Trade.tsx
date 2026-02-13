@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useCallback } from "react";
 import { stockService } from "../api/stockService";
 import { portfolioService } from "../api/portfolioService";
