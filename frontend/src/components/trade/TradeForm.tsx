@@ -2,7 +2,7 @@ import React, { useCallback, useState } from 'react';
 import { TradeFormProps } from '../../entities/Trade';
 import { formatCurrency } from '../../utils/formatUtils';
 import { TransactionType, Position } from '../../entities/Portfolio';
-import { validateTrade, TRADE_CONSTRAINTS } from '../../utils/tradeValidation';
+import { validateTrade, tradeConstraints } from '../../utils/tradeValidation';
 
 /**
  * TradeForm component - Provides interface for buying and selling stocks
@@ -51,7 +51,7 @@ const TradeForm: React.FC<TradeFormProps> = ({
 
     // Basic client-side validation
     if (numericValue < 0) return;
-    if (numericValue > TRADE_CONSTRAINTS.MAX_SHARES_PER_TRADE) return;
+    if (numericValue > tradeConstraints.MAX_SHARES_PER_TRADE) return;
 
     onSharesChange(numericValue);
 
@@ -112,8 +112,8 @@ const TradeForm: React.FC<TradeFormProps> = ({
           id="shares"
           value={tradeShares}
           onChange={(e) => handleSharesChange(e.target.value)}
-          min={TRADE_CONSTRAINTS.MIN_SHARES}
-          max={TRADE_CONSTRAINTS.MAX_SHARES_PER_TRADE}
+          min={tradeConstraints.MIN_SHARES}
+          max={tradeConstraints.MAX_SHARES_PER_TRADE}
           step="1"
           className={`w-full px-3 py-2 bg-white dark:bg-gray-700 border rounded-md text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 ${
             validationErrors.length > 0

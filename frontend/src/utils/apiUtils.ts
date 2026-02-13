@@ -1,4 +1,5 @@
 import { ApiResponse } from '../entities/api';
+import type { PricePoint } from '../entities/Stock';
 
 /**
  * Simulates API delay (legacy - kept for fallback to mock data if needed)
@@ -11,9 +12,9 @@ export async function mockDelay(minMs = 300, maxMs = 800): Promise<void> {
 /**
  * Generate mock price history for a stock (legacy - kept for fallback to mock data if needed)
  */
-export function generateMockPriceHistory(basePrice: number): any[] {
+export function generateMockPriceHistory(basePrice: number): PricePoint[] {
   const today = new Date();
-  const priceHistory = [];
+  const priceHistory: PricePoint[] = [];
   let price = basePrice;
   
   for (let i = 30; i >= 0; i--) {
@@ -49,7 +50,7 @@ export function createSuccessResponse<T>(data: T): ApiResponse<T> {
  * Creates an error API response
  * Used for formatting error responses consistently
  */
-export function createErrorResponse(code: string, message: string): ApiResponse<any> {
+export function createErrorResponse(code: string, message: string): ApiResponse<never> {
   return {
     success: false,
     error: {
@@ -70,12 +71,13 @@ export function generateId(prefix: string): string {
  * Handle API errors in a consistent way
  * Formats error responses from API calls
  */
-export function handleApiError(error: any, entityName: string, actionDescription: string): ApiResponse<any> {
+export function handleApiError(error: unknown, entityName: string, actionDescription: string): ApiResponse<never> {
   console.error(`Error ${actionDescription} for ${entityName}:`, error);
   
   // Extract error info
-  const message = error?.data?.message || error?.statusText || `Failed ${actionDescription}`;
-  const errorCode = error?.data?.code || `${entityName.toUpperCase()}_ERROR`;
+  const err = error as { data?: { message?: string; code?: string }; statusText?: string };
+  const message = err.data?.message || err.statusText || `Failed ${actionDescription}`;
+  const errorCode = err.data?.code || `${entityName.toUpperCase()}_ERROR`;
   
   return createErrorResponse(errorCode, message);
 }

@@ -9,7 +9,7 @@ interface CacheEntry<T> {
 }
 
 export class ApiCache {
-  private cache = new Map<string, CacheEntry<any>>();
+  private cache = new Map<string, CacheEntry<unknown>>();
   private cleanupInterval: NodeJS.Timeout;
 
   constructor(cleanupIntervalMs: number = 300000) { // 5 minutes
@@ -118,7 +118,7 @@ export const apiCache = new ApiCache();
  * Cache key generation utilities
  */
 export class CacheKeys {
-  static stocks(filters?: Record<string, any>): string {
+  static stocks(filters?: Record<string, unknown>): string {
     const filterStr = filters ? JSON.stringify(filters) : '';
     return `stocks:${filterStr}`;
   }

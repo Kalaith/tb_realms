@@ -2,6 +2,8 @@ import { BaseApiService } from './baseApiService';
 import { Portfolio, Transaction, TransactionType } from '../entities/Portfolio';
 import { ApiResponse } from '../entities/api';
 import apiClient from './apiClient';
+import { toApiError } from './apiErrorUtils';
+import { unwrapData } from './apiResponseUtils';
 
 /**
  * Service for managing portfolio data
@@ -14,20 +16,28 @@ export class PortfolioService extends BaseApiService<Portfolio> {
   /**
    * Convert portfolio timestamps to proper Date objects
    */
-  private normalizePortfolioData(portfolio: any): Portfolio {
+  private normalizePortfolioData(portfolio: unknown): Portfolio {
+    const p = portfolio as Portfolio & {
+      createdAt?: string | Date;
+      transactionHistory?: Array<Transaction & { timestamp: string | Date }>;
+      performance?: {
+        history?: Array<{ timestamp: string | Date; value: number }>;
+      };
+    };
+
     return {
-      ...portfolio,
-      createdAt: portfolio.createdAt ? new Date(portfolio.createdAt) : new Date(),
-      transactionHistory: portfolio.transactionHistory?.map((tx: any) => ({
+      ...p,
+      createdAt: p.createdAt ? new Date(p.createdAt) : new Date(),
+      transactionHistory: (p.transactionHistory ?? []).map((tx) => ({
         ...tx,
-        timestamp: new Date(tx.timestamp)
-      })) || [],
+        timestamp: new Date(tx.timestamp),
+      })),
       performance: {
-        ...portfolio.performance,
-        history: portfolio.performance?.history?.map((point: any) => ({
+        ...p.performance,
+        history: (p.performance?.history ?? []).map((point) => ({
           ...point,
-          timestamp: new Date(point.timestamp)
-        })) || []
+          timestamp: new Date(point.timestamp),
+        })),
       }
     };
   }
@@ -43,8 +53,8 @@ export class PortfolioService extends BaseApiService<Portfolio> {
     }
     
     try {
-      const response = await apiClient.get(`${this.endpoint}/user/${userId}`);
-      const portfolioData = response.data || response;
+      const response = await apiClient.get<unknown>(`${this.endpoint}/user/${userId}`);
+      const portfolioData = unwrapData<unknown>(response);
       
       // Normalize the portfolio data with proper date objects
       const normalizedPortfolio = this.normalizePortfolioData(portfolioData);
@@ -53,12 +63,13 @@ export class PortfolioService extends BaseApiService<Portfolio> {
         success: true,
         data: normalizedPortfolio
       };
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const apiError = toApiError(error, 'Failed to fetch user portfolio');
       return {
         success: false,
         error: {
-          code: error.status || 'ERROR',
-          message: error.data?.message || error.statusText || 'Failed to fetch user portfolio',
+          code: apiError.code,
+          message: apiError.message,
         },
       };
     }
@@ -80,30 +91,35 @@ export class PortfolioService extends BaseApiService<Portfolio> {
     }
     
     try {
-      const response = await apiClient.post(`${this.endpoint}/${portfolioId}/transaction`, {
+      const response = await apiClient.post<unknown, {
+        stockId: string;
+        shares: number;
+        price: number;
+        type: TransactionType;
+      }>(`${this.endpoint}/${portfolioId}/transaction`, {
         stockId,
         shares,
         price,
         type: TransactionType.BUY
       });
       
-      const transaction = response.data || response;
-      
-      // Convert timestamp to Date object
-      if (transaction.timestamp) {
-        transaction.timestamp = new Date(transaction.timestamp);
-      }
+      const rawTransaction = unwrapData<Transaction & { timestamp: string | Date }>(response);
+      const transaction: Transaction = {
+        ...rawTransaction,
+        timestamp: new Date(rawTransaction.timestamp),
+      };
       
       return {
         success: true,
         data: transaction
       };
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const apiError = toApiError(error, 'Failed to process buy transaction');
       return {
         success: false,
         error: {
-          code: error.status || 'ERROR',
-          message: error.data?.message || error.statusText || 'Failed to process buy transaction',
+          code: apiError.code,
+          message: apiError.message,
         },
       };
     }
@@ -125,30 +141,35 @@ export class PortfolioService extends BaseApiService<Portfolio> {
     }
     
     try {
-      const response = await apiClient.post(`${this.endpoint}/${portfolioId}/transaction`, {
+      const response = await apiClient.post<unknown, {
+        stockId: string;
+        shares: number;
+        price: number;
+        type: TransactionType;
+      }>(`${this.endpoint}/${portfolioId}/transaction`, {
         stockId,
         shares,
         price,
         type: TransactionType.SELL
       });
       
-      const transaction = response.data || response;
-      
-      // Convert timestamp to Date object
-      if (transaction.timestamp) {
-        transaction.timestamp = new Date(transaction.timestamp);
-      }
+      const rawTransaction = unwrapData<Transaction & { timestamp: string | Date }>(response);
+      const transaction: Transaction = {
+        ...rawTransaction,
+        timestamp: new Date(rawTransaction.timestamp),
+      };
       
       return {
         success: true,
         data: transaction
       };
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const apiError = toApiError(error, 'Failed to process sell transaction');
       return {
         success: false,
         error: {
-          code: error.status || 'ERROR',
-          message: error.data?.message || error.statusText || 'Failed to process sell transaction',
+          code: apiError.code,
+          message: apiError.message,
         },
       };
     }
@@ -167,25 +188,26 @@ export class PortfolioService extends BaseApiService<Portfolio> {
     }
     
     try {
-      const response = await apiClient.get(`${this.endpoint}/${portfolioId}/transactions`);
-      const transactions = response.data || response;
+      const response = await apiClient.get<unknown>(`${this.endpoint}/${portfolioId}/transactions`);
+      const transactions = unwrapData<unknown[]>(response);
       
       // Normalize transaction timestamps
-      const normalizedTransactions = transactions.map((tx: any) => ({
-        ...tx,
-        timestamp: new Date(tx.timestamp)
-      }));
+      const normalizedTransactions = transactions.map((tx) => {
+        const raw = tx as Transaction & { timestamp: string | Date };
+        return { ...raw, timestamp: new Date(raw.timestamp) } as Transaction;
+      });
       
       return {
         success: true,
         data: normalizedTransactions
       };
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const apiError = toApiError(error, 'Failed to fetch transaction history');
       return {
         success: false,
         error: {
-          code: error.status || 'ERROR',
-          message: error.data?.message || error.statusText || 'Failed to fetch transaction history',
+          code: apiError.code,
+          message: apiError.message,
         },
       };
     }

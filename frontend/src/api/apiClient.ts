@@ -5,24 +5,27 @@
  */
 
 import { apiCache, CacheTTL } from '../utils/apiCache';
+import type { ApiError } from '../entities/api';
 
 // Base API URL - required environment variable
-const API_BASE_URL = import.meta.env.VITE_API_URL;
+const apiBaseUrl = import.meta.env.VITE_API_URL;
 
-if (!API_BASE_URL) {
+if (!apiBaseUrl) {
   throw new Error('VITE_API_URL environment variable is required');
 }
 
 // Helper to build request options (no authentication needed)
-const buildRequestOptions = (options = {}) => {
-  return {
-    ...defaultOptions,
-    ...options,
-  };
-};
+const buildRequestOptions = (options: RequestInit = {}): RequestInit => ({
+  ...defaultOptions,
+  ...options,
+  headers: {
+    ...(defaultOptions.headers ?? {}),
+    ...(options.headers ?? {}),
+  },
+});
 
 // Default request options
-const defaultOptions = {
+const defaultOptions: RequestInit = {
   headers: {
     'Content-Type': 'application/json',
     'Accept': 'application/json',
@@ -47,26 +50,52 @@ const buildUrl = (endpoint: string): string => {
     ? endpoint.substring(1) 
     : endpoint;
     
-  return `${API_BASE_URL}/${normalizedEndpoint}`;
+  return `${apiBaseUrl}/${normalizedEndpoint}`;
 };
 
 // Helper to handle response
-const handleResponse = async (response: Response) => {
+const isRecord = (v: unknown): v is Record<string, unknown> =>
+  typeof v === 'object' && v !== null;
+
+const getBodyMessage = (body: unknown): string | undefined => {
+  if (!isRecord(body)) return undefined;
+  const message = body['message'];
+  return typeof message === 'string' ? message : undefined;
+};
+
+const getBodyApiError = (body: unknown): ApiError | undefined => {
+  if (!isRecord(body)) return undefined;
+  const err = body['error'];
+  // ApiError is structural; validate minimally.
+  if (!isRecord(err)) return undefined;
+  const code = err['code'];
+  const message = err['message'];
+  if (typeof code !== 'string' || typeof message !== 'string') return undefined;
+  return err as ApiError;
+};
+
+const handleResponse = async <T = unknown>(response: Response): Promise<T> => {
   // Parse JSON response
-  const data = await response.json().catch(() => ({}));
+  const body: unknown = await response.json().catch(() => ({}));
 
   // Handle error responses
   if (!response.ok) {
     const { ApiResponseError } = await import('../entities/errors');
     throw new ApiResponseError(
-      data.message || `HTTP ${response.status}: ${response.statusText}`,
+      getBodyMessage(body) || `HTTP ${response.status}: ${response.statusText}`,
       response.status,
       response.statusText,
-      data.error
+      getBodyApiError(body)
     );
   }
 
-  return data;
+  return body as T;
+};
+
+type ApiClientOptions = RequestInit & {
+  cache?: boolean;
+  cacheKey?: string;
+  cacheTTL?: number;
 };
 
 // API client with common HTTP methods
@@ -74,27 +103,27 @@ const apiClient = {
   /**
    * Send a GET request with optional caching
    */
-  async get(endpoint: string, options: { cache?: boolean; cacheKey?: string; cacheTTL?: number } = {}) {
-    const { cache = false, cacheKey, cacheTTL = CacheTTL.STOCKS_LIST } = options;
+  async get<T = unknown>(endpoint: string, options: ApiClientOptions = {}): Promise<T> {
+    const { cache = false, cacheKey, cacheTTL = CacheTTL.STOCKS_LIST, ...fetchOptions } = options;
 
     // Check cache first if caching is enabled
     if (cache && cacheKey) {
-      const cachedData = apiCache.get(cacheKey);
+      const cachedData = apiCache.get<T>(cacheKey);
       if (cachedData) {
         return cachedData;
       }
     }
 
     const response = await fetch(buildUrl(endpoint), {
-      ...buildRequestOptions(options),
+      ...buildRequestOptions(fetchOptions),
       method: 'GET',
       headers: {
-        ...buildRequestOptions(options).headers,
+        ...(buildRequestOptions(fetchOptions).headers ?? {}),
         ...(getAuthToken() ? { Authorization: `Bearer ${getAuthToken()}` } : {}),
       },
     });
 
-    const data = await handleResponse(response);
+    const data = await handleResponse<T>(response);
 
     // Store in cache if caching is enabled
     if (cache && cacheKey) {
@@ -107,7 +136,11 @@ const apiClient = {
   /**
    * Send a POST request with JSON body
    */
-  async post(endpoint: string, data: any = {}, options = {}) {
+  async post<TResponse = unknown, TBody = unknown>(
+    endpoint: string,
+    data: TBody,
+    options: RequestInit = {}
+  ): Promise<TResponse> {
     const response = await fetch(buildUrl(endpoint), {
       ...buildRequestOptions(options),
       method: 'POST',
@@ -118,13 +151,17 @@ const apiClient = {
       },
     });
     
-    return handleResponse(response);
+    return handleResponse<TResponse>(response);
   },
   
   /**
    * Send a PUT request with JSON body
    */
-  async put(endpoint: string, data: any = {}, options = {}) {
+  async put<TResponse = unknown, TBody = unknown>(
+    endpoint: string,
+    data: TBody,
+    options: RequestInit = {}
+  ): Promise<TResponse> {
     const response = await fetch(buildUrl(endpoint), {
       ...buildRequestOptions(options),
       method: 'PUT',
@@ -135,29 +172,33 @@ const apiClient = {
       },
     });
     
-    return handleResponse(response);
+    return handleResponse<TResponse>(response);
   },
   
   /**
    * Send a DELETE request
    */
-  async delete(endpoint: string, options = {}) {
+  async delete<TResponse = unknown>(endpoint: string, options: RequestInit = {}): Promise<TResponse> {
     const response = await fetch(buildUrl(endpoint), {
       ...buildRequestOptions(options),
       method: 'DELETE',
       headers: {
-        ...buildRequestOptions(options).headers,
+        ...(buildRequestOptions(options).headers ?? {}),
         ...(getAuthToken() ? { Authorization: `Bearer ${getAuthToken()}` } : {}),
       },
     });
     
-    return handleResponse(response);
+    return handleResponse<TResponse>(response);
   },
   
   /**
    * Send a PATCH request with JSON body
    */
-  async patch(endpoint: string, data: any = {}, options = {}) {
+  async patch<TResponse = unknown, TBody = unknown>(
+    endpoint: string,
+    data: TBody,
+    options: RequestInit = {}
+  ): Promise<TResponse> {
     const response = await fetch(buildUrl(endpoint), {
       ...buildRequestOptions(options),
       method: 'PATCH',
@@ -168,7 +209,7 @@ const apiClient = {
       },
     });
     
-    return handleResponse(response);
+    return handleResponse<TResponse>(response);
   },
 };
 

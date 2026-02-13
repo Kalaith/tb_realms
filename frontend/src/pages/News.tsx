@@ -58,13 +58,13 @@ const News: React.FC = () => {
 
   const getSeverityClasses = (severity: EventSeverity) => {
     switch (severity) {
-      case EventSeverity.LOW:
+      case EventSeverity.Low:
         return 'border-l-4 border-l-cyan-500';
-      case EventSeverity.MEDIUM:
+      case EventSeverity.Medium:
         return 'border-l-4 border-l-blue-500';
-      case EventSeverity.HIGH:
+      case EventSeverity.High:
         return 'border-l-4 border-l-orange-500';
-      case EventSeverity.CRITICAL:
+      case EventSeverity.Critical:
         return 'border-l-4 border-l-red-500';
       default:
         return 'border-l-4 border-l-gray-300';
@@ -76,26 +76,26 @@ const News: React.FC = () => {
 
     if (isActive) {
       switch (severity) {
-        case EventSeverity.LOW:
+        case EventSeverity.Low:
           return `${baseClasses} bg-cyan-600 text-white font-bold shadow-sm`;
-        case EventSeverity.MEDIUM:
+        case EventSeverity.Medium:
           return `${baseClasses} bg-blue-600 text-white font-bold shadow-sm`;
-        case EventSeverity.HIGH:
+        case EventSeverity.High:
           return `${baseClasses} bg-orange-600 text-white font-bold shadow-sm`;
-        case EventSeverity.CRITICAL:
+        case EventSeverity.Critical:
           return `${baseClasses} bg-red-600 text-white font-bold shadow-sm`;
         default:
           return `${baseClasses} bg-gray-700 text-white font-bold shadow-sm`;
       }
     } else {
       switch (severity) {
-        case EventSeverity.LOW:
+        case EventSeverity.Low:
           return `${baseClasses} bg-cyan-200 text-cyan-900 border border-cyan-400 font-bold hover:bg-cyan-300 hover:text-cyan-950`;
-        case EventSeverity.MEDIUM:
+        case EventSeverity.Medium:
           return `${baseClasses} bg-blue-200 text-blue-900 border border-blue-400 font-bold hover:bg-blue-300 hover:text-blue-950`;
-        case EventSeverity.HIGH:
+        case EventSeverity.High:
           return `${baseClasses} bg-orange-200 text-orange-900 border border-orange-400 font-bold hover:bg-orange-300 hover:text-orange-950`;
-        case EventSeverity.CRITICAL:
+        case EventSeverity.Critical:
           return `${baseClasses} bg-red-200 text-red-900 border border-red-400 font-bold hover:bg-red-300 hover:text-red-950`;
         default:
           return `${baseClasses} bg-gray-200 text-gray-900 border border-gray-400 font-bold hover:bg-gray-300 hover:text-gray-950`;

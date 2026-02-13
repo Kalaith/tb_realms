@@ -3,6 +3,9 @@ import { stockService } from '../api/stockService';
 import { portfolioService } from '../api/portfolioService';
 import { Stock, TimeFrame } from '../entities/Stock';
 import { Transaction, TransactionType, Position } from '../entities/Portfolio';
+import type { Portfolio } from '../entities/Portfolio';
+import type { TradeResult } from '../entities/Trade';
+import type { ApiResponse } from '../entities/api';
 import { formatCurrency } from '../utils/formatUtils';
 import {
   StockList,
@@ -22,19 +25,19 @@ const Trade: React.FC = () => {
   // State variables
   const [stocks, setStocks] = useState<Stock[]>([]);
   const [selectedStock, setSelectedStock] = useState<Stock | null>(null);
-  const [timeFrame, setTimeFrame] = useState<TimeFrame>(TimeFrame.DAY);
+  const [timeFrame, setTimeFrame] = useState<TimeFrame>(TimeFrame.Day);
   const [loading, setLoading] = useState<boolean>(true);
   const [loadingTrade, setLoadingTrade] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const [tradeAmount, setTradeAmount] = useState<number>(0);
   const [tradeShares, setTradeShares] = useState<number>(1);
   const [tradeType, setTradeType] = useState<TransactionType>(TransactionType.BUY);
-  const [userPortfolio, setUserPortfolio] = useState<any>(null);
+  const [userPortfolio, setUserPortfolio] = useState<Portfolio | null>(null);
   const [confirmTrade, setConfirmTrade] = useState<boolean>(false);
   const [recentTransactions, setRecentTransactions] = useState<Transaction[]>([]);
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [tradeComplete, setTradeComplete] = useState<boolean>(false);
-  const [tradeResult, setTradeResult] = useState<any>(null);
+  const [tradeResult, setTradeResult] = useState<TradeResult | null>(null);
 
   // Mock user ID - in a real app, this would come from authentication
   const userId = 'user1';
@@ -126,8 +129,8 @@ const Trade: React.FC = () => {
       setLoadingTrade(true);
       setError(null);
       
-      let response;
-      
+      let response: ApiResponse<Transaction>;
+       
       if (tradeType === TransactionType.BUY) {
         response = await portfolioService.buyStock(
           userPortfolio.id, 
@@ -147,8 +150,13 @@ const Trade: React.FC = () => {
       if (!response.success) {
         throw new Error(response.error?.message || 'Transaction failed');
       }
-      
-      setTradeResult(response);
+
+      const tx = response.data;
+      setTradeResult({
+        success: true,
+        transactionId: tx?.id,
+        transaction: tx,
+      });
       setTradeComplete(true);
       setConfirmTrade(false);
       
@@ -164,7 +172,8 @@ const Trade: React.FC = () => {
       setError(`Failed to execute trade: ${errorMessage}. Please try again.`);
       setTradeResult({
         success: false,
-        error: { message: errorMessage }
+        message: errorMessage,
+        errorCode: 'TRADE_ERROR',
       });
       setTradeComplete(true);
       setLoadingTrade(false);

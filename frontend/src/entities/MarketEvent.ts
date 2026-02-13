@@ -14,21 +14,21 @@ export interface MarketEvent {
 }
 
 export enum MarketEventType {
-  EARNINGS_REPORT = 'earnings_report',
-  PRODUCT_LAUNCH = 'product_launch',
-  MERGER_ACQUISITION = 'merger_acquisition',
-  EXECUTIVE_CHANGE = 'executive_change',
-  REGULATORY_NEWS = 'regulatory_news',
-  INDUSTRY_TREND = 'industry_trend',
-  ECONOMIC_INDICATOR = 'economic_indicator',
-  GLOBAL_EVENT = 'global_event',
+  EarningsReport = 'earnings_report',
+  ProductLaunch = 'product_launch',
+  MergerAcquisition = 'merger_acquisition',
+  ExecutiveChange = 'executive_change',
+  RegulatoryNews = 'regulatory_news',
+  IndustryTrend = 'industry_trend',
+  EconomicIndicator = 'economic_indicator',
+  GlobalEvent = 'global_event',
 }
 
 export enum EventSeverity {
-  LOW = 'low',
-  MEDIUM = 'medium',
-  HIGH = 'high',
-  CRITICAL = 'critical',
+  Low = 'low',
+  Medium = 'medium',
+  High = 'high',
+  Critical = 'critical',
 }
 
 export interface AffectedStock {

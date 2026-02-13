@@ -267,16 +267,16 @@ export class GenericTransformer {
   /**
    * Converts snake_case keys to camelCase recursively
    */
-  static snakeToCamel<T = any>(obj: any): T {
+  static snakeToCamel<T = unknown>(obj: unknown): T {
     if (obj === null || typeof obj !== 'object') {
-      return obj;
+      return obj as T;
     }
 
     if (Array.isArray(obj)) {
       return obj.map(item => this.snakeToCamel(item)) as T;
     }
 
-    const camelObj: any = {};
+    const camelObj: Record<string, unknown> = {};
     for (const [key, value] of Object.entries(obj)) {
       const camelKey = key.replace(/_([a-z])/g, (_, letter) => letter.toUpperCase());
       camelObj[camelKey] = this.snakeToCamel(value);
@@ -288,16 +288,16 @@ export class GenericTransformer {
   /**
    * Converts camelCase keys to snake_case recursively
    */
-  static camelToSnake<T = any>(obj: any): T {
+  static camelToSnake<T = unknown>(obj: unknown): T {
     if (obj === null || typeof obj !== 'object') {
-      return obj;
+      return obj as T;
     }
 
     if (Array.isArray(obj)) {
       return obj.map(item => this.camelToSnake(item)) as T;
     }
 
-    const snakeObj: any = {};
+    const snakeObj: Record<string, unknown> = {};
     for (const [key, value] of Object.entries(obj)) {
       const snakeKey = key.replace(/[A-Z]/g, letter => `_${letter.toLowerCase()}`);
       snakeObj[snakeKey] = this.camelToSnake(value);

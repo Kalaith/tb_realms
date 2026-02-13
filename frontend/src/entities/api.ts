@@ -1,4 +1,4 @@
-export class ApiResponse<T = any> {
+export class ApiResponse<T = unknown> {
   success!: boolean;
   data?: T;
   error?: ApiError;

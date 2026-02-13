@@ -3,6 +3,8 @@ import { MarketEvent, EventSeverity, MarketEventType } from '../entities/MarketE
 import { ApiResponse } from '../entities/api';
 import apiClient from './apiClient';
 import { stockService } from './stockService';
+import { toApiError } from './apiErrorUtils';
+import { unwrapData } from './apiResponseUtils';
 
 /**
  * Service for managing market events and news
@@ -15,7 +17,7 @@ export class MarketEventService extends BaseApiService<MarketEvent> {
   /**
    * Convert raw event data to proper MarketEvent type with date objects
    */
-  private normalizeEventData(event: any): MarketEvent {
+  private normalizeEventData(event: MarketEvent): MarketEvent {
     return {
       ...event,
       date: new Date(event.date),
@@ -34,11 +36,11 @@ export class MarketEventService extends BaseApiService<MarketEvent> {
     }
 
     try {
-      const response = await apiClient.get(this.endpoint);
-      const events = response.data || response;
+      const response = await apiClient.get<unknown>(this.endpoint);
+      const events = unwrapData<unknown[]>(response);
       
       // Normalize the event data with proper date objects
-      const normalizedEvents = events.map((event: any) => this.normalizeEventData(event));
+      const normalizedEvents = events.map((event) => this.normalizeEventData(event as MarketEvent));
       
       return {
         success: true,
@@ -46,12 +48,13 @@ export class MarketEventService extends BaseApiService<MarketEvent> {
           b.date.getTime() - a.date.getTime()
         )
       };
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const apiError = toApiError(error, 'Failed to fetch market events');
       return {
         success: false,
         error: {
-          code: error.status || 'ERROR',
-          message: error.data?.message || error.statusText || 'Failed to fetch market events',
+          code: apiError.code,
+          message: apiError.message,
         },
       };
     }
@@ -68,11 +71,11 @@ export class MarketEventService extends BaseApiService<MarketEvent> {
     }
 
     try {
-      const response = await apiClient.get(`${this.endpoint}/type/${eventType}`);
-      const events = response.data || response;
+      const response = await apiClient.get<unknown>(`${this.endpoint}/type/${eventType}`);
+      const events = unwrapData<unknown[]>(response);
       
       // Normalize the event data with proper date objects
-      const normalizedEvents = events.map((event: any) => this.normalizeEventData(event));
+      const normalizedEvents = events.map((event) => this.normalizeEventData(event as MarketEvent));
       
       return {
         success: true,
@@ -80,12 +83,13 @@ export class MarketEventService extends BaseApiService<MarketEvent> {
           b.date.getTime() - a.date.getTime()
         )
       };
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const apiError = toApiError(error, 'Failed to fetch market events by type');
       return {
         success: false,
         error: {
-          code: error.status || 'ERROR',
-          message: error.data?.message || error.statusText || 'Failed to fetch market events by type',
+          code: apiError.code,
+          message: apiError.message,
         },
       };
     }
@@ -102,11 +106,11 @@ export class MarketEventService extends BaseApiService<MarketEvent> {
     }
 
     try {
-      const response = await apiClient.get(`${this.endpoint}/severity/${severity}`);
-      const events = response.data || response;
+      const response = await apiClient.get<unknown>(`${this.endpoint}/severity/${severity}`);
+      const events = unwrapData<unknown[]>(response);
       
       // Normalize the event data with proper date objects
-      const normalizedEvents = events.map((event: any) => this.normalizeEventData(event));
+      const normalizedEvents = events.map((event) => this.normalizeEventData(event as MarketEvent));
       
       return {
         success: true,
@@ -114,12 +118,13 @@ export class MarketEventService extends BaseApiService<MarketEvent> {
           b.date.getTime() - a.date.getTime()
         )
       };
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const apiError = toApiError(error, 'Failed to fetch market events by severity');
       return {
         success: false,
         error: {
-          code: error.status || 'ERROR',
-          message: error.data?.message || error.statusText || 'Failed to fetch market events by severity',
+          code: apiError.code,
+          message: apiError.message,
         },
       };
     }
@@ -136,11 +141,11 @@ export class MarketEventService extends BaseApiService<MarketEvent> {
     }
 
     try {
-      const response = await apiClient.get(`${this.endpoint}/stock/${stockId}`);
-      const events = response.data || response;
+      const response = await apiClient.get<unknown>(`${this.endpoint}/stock/${stockId}`);
+      const events = unwrapData<unknown[]>(response);
       
       // Normalize the event data with proper date objects
-      const normalizedEvents = events.map((event: any) => this.normalizeEventData(event));
+      const normalizedEvents = events.map((event) => this.normalizeEventData(event as MarketEvent));
       
       // Enrich with stock data if needed
       const enrichedEvents = await this.enrichEventsWithStockData(normalizedEvents);
@@ -151,12 +156,13 @@ export class MarketEventService extends BaseApiService<MarketEvent> {
           b.date.getTime() - a.date.getTime()
         )
       };
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const apiError = toApiError(error, 'Failed to fetch market events by stock');
       return {
         success: false,
         error: {
-          code: error.status || 'ERROR',
-          message: error.data?.message || error.statusText || 'Failed to fetch market events by stock',
+          code: apiError.code,
+          message: apiError.message,
         },
       };
     }

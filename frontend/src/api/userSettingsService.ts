@@ -1,7 +1,9 @@
 import { BaseApiService } from './baseApiService';
-import { UserSettings, DEFAULT_USER_SETTINGS } from '../entities/UserSettings';
+import { UserSettings, defaultUserSettings } from '../entities/UserSettings';
 import { ApiResponse } from '../entities/api';
 import apiClient from './apiClient';
+import { toApiError } from './apiErrorUtils';
+import { unwrapData } from './apiResponseUtils';
 
 /**
  * Service for managing user settings
@@ -22,24 +24,25 @@ class UserSettingsService extends BaseApiService<UserSettings> {
     }
     
     try {
-      const response = await apiClient.get(`${this.endpoint}/user`);
-      
+      const response = await apiClient.get<unknown>(`${this.endpoint}/user`);
+       
       // Apply any defaults for missing properties
       const settings = {
-        ...DEFAULT_USER_SETTINGS,
-        ...response.data
+        ...defaultUserSettings,
+        ...(unwrapData<Partial<UserSettings>>(response) ?? {})
       };
       
       return {
         success: true,
         data: settings
       };
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const apiError = toApiError(error, 'Failed to fetch user settings');
       return {
         success: false,
         error: {
-          code: error.status || 'ERROR',
-          message: error.data?.message || error.statusText || 'Failed to fetch user settings',
+          code: apiError.code,
+          message: apiError.message,
         },
       };
     }
@@ -56,18 +59,19 @@ class UserSettingsService extends BaseApiService<UserSettings> {
     }
     
     try {
-      const response = await apiClient.put(this.endpoint, settings);
-      
+      const response = await apiClient.put<unknown, Partial<UserSettings>>(this.endpoint, settings);
+       
       return {
         success: true,
-        data: response.data || response
+        data: unwrapData<UserSettings>(response)
       };
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const apiError = toApiError(error, 'Failed to save user settings');
       return {
         success: false,
         error: {
-          code: error.status || 'ERROR',
-          message: error.data?.message || error.statusText || 'Failed to save user settings',
+          code: apiError.code,
+          message: apiError.message,
         },
       };
     }
@@ -84,18 +88,19 @@ class UserSettingsService extends BaseApiService<UserSettings> {
     }
     
     try {
-      const response = await apiClient.post(`${this.endpoint}/reset`);
-      
+      const response = await apiClient.post<unknown, Record<string, never>>(`${this.endpoint}/reset`, {});
+       
       return {
         success: true,
-        data: response.data || response
+        data: unwrapData<UserSettings>(response)
       };
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const apiError = toApiError(error, 'Failed to reset user settings');
       return {
         success: false,
         error: {
-          code: error.status || 'ERROR',
-          message: error.data?.message || error.statusText || 'Failed to reset user settings',
+          code: apiError.code,
+          message: apiError.message,
         },
       };
     }
@@ -111,7 +116,7 @@ class UserSettingsService extends BaseApiService<UserSettings> {
         const parsedSettings = JSON.parse(stored);
         // Ensure required fields are present
         if (parsedSettings.id && parsedSettings.userId) {
-          return { ...DEFAULT_USER_SETTINGS, ...parsedSettings };
+          return { ...defaultUserSettings, ...parsedSettings };
         }
       }
     } catch (error) {

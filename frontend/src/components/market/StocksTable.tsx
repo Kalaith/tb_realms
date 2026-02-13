@@ -12,7 +12,7 @@ interface StocksTableProps {
 }
 
 // Table column configuration
-const TABLE_COLUMNS = [
+const tableColumns = [
   { key: 'name', label: 'Symbol / Name' },
   { key: 'price', label: 'Price' },
   { key: 'change', label: 'Change' },
@@ -172,7 +172,7 @@ const StocksTable: React.FC<StocksTableProps> = ({
             ))}
             {stocks.length === 0 && (
               <tr>
-                <td colSpan={TABLE_COLUMNS.length} className="px-4 py-8 text-center text-gray-500 dark:text-gray-400">
+                <td colSpan={tableColumns.length} className="px-4 py-8 text-center text-gray-500 dark:text-gray-400">
                   No stocks found matching your criteria
                 </td>
               </tr>

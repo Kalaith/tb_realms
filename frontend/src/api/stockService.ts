@@ -2,6 +2,8 @@ import { BaseApiService } from './baseApiService';
 import { Stock, PricePoint, TimeFrame } from '../entities/Stock';
 import { ApiResponse, StockFilters } from '../entities/api';
 import apiClient from './apiClient';
+import { toApiError } from './apiErrorUtils';
+import { unwrapData } from './apiResponseUtils';
 
 /**
  * Service for managing stock data
@@ -30,18 +32,19 @@ export class StockService extends BaseApiService<Stock> {
       const queryString = queryParams.toString();
       const endpoint = queryString ? `${this.endpoint}/filter?${queryString}` : `${this.endpoint}/filter`;
       
-      const response = await apiClient.get(endpoint);
-      
+      const response = await apiClient.get<unknown>(endpoint);
+       
       return {
         success: true,
-        data: response.data || response,
+        data: unwrapData<Stock[]>(response),
       };
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const apiError = toApiError(error, 'Failed to fetch filtered stocks');
       return {
         success: false,
         error: {
-          code: error.status || 'ERROR',
-          message: error.data?.message || error.statusText || 'Failed to fetch filtered stocks',
+          code: apiError.code,
+          message: apiError.message,
         },
       };
     }
@@ -52,18 +55,19 @@ export class StockService extends BaseApiService<Stock> {
    */
   async getPriceHistory(stockId: string, timeFrame: TimeFrame): Promise<ApiResponse<PricePoint[]>> {
     try {
-      const response = await apiClient.get(`${this.endpoint}/${stockId}/prices?timeFrame=${timeFrame}`);
-      
+      const response = await apiClient.get<unknown>(`${this.endpoint}/${stockId}/prices?timeFrame=${timeFrame}`);
+       
       return {
         success: true,
-        data: response.data || response,
+        data: unwrapData<PricePoint[]>(response),
       };
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const apiError = toApiError(error, 'Failed to fetch price history');
       return {
         success: false,
         error: {
-          code: error.status || 'ERROR',
-          message: error.data?.message || error.statusText || 'Failed to fetch price history',
+          code: apiError.code,
+          message: apiError.message,
         },
       };
     }

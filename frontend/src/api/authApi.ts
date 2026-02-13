@@ -7,9 +7,9 @@ import { AuthUser, ApiResponse } from '../entities/Auth';
 
 // Base API URL from environment variables - required
 // IMPORTANT: Make sure this matches your backend server address and port
-const API_URL = import.meta.env.VITE_API_URL;
+const apiUrl = import.meta.env.VITE_API_URL;
 
-if (!API_URL) {
+if (!apiUrl) {
   throw new Error('VITE_API_URL environment variable is required');
 }
 
@@ -17,7 +17,7 @@ if (!API_URL) {
  * Axios instance with base configuration
  */
 const apiClient = axios.create({
-  baseURL: API_URL,
+  baseURL: apiUrl,
   headers: {
     'Content-Type': 'application/json',
   },
@@ -168,7 +168,7 @@ export const getCurrentUser = async (): Promise<AuthUser | null> => {
 export const checkServerConnectivity = async (): Promise<boolean> => {
   try {
     // Use a simple endpoint that doesn't require authentication
-    await axios.get(`${API_URL}/health`, { timeout: 5000 });
+    await axios.get(`${apiUrl}/health`, { timeout: 5000 });
     return true;
   } catch {
     return false;

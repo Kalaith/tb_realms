@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { UserSettings, DEFAULT_USER_SETTINGS } from '../entities/UserSettings';
+import { UserSettings, defaultUserSettings } from '../entities/UserSettings';
 import userSettingsService from '../api/userSettingsService';
 
 /**
@@ -106,7 +106,7 @@ export function useUserSettings() {
     }
     
     // Fall back to default if setting not loaded yet
-    return DEFAULT_USER_SETTINGS[key as keyof typeof DEFAULT_USER_SETTINGS] as UserSettings[K];
+    return defaultUserSettings[key as keyof typeof defaultUserSettings] as UserSettings[K];
   }, [settings]);
 
   return {

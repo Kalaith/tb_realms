@@ -75,7 +75,7 @@ export interface PrivacySettings {
 /**
  * Default user settings to use when no settings are found
  */
-export const DEFAULT_USER_SETTINGS: Omit<UserSettings, 'id' | 'userId'> = {
+export const defaultUserSettings: Omit<UserSettings, 'id' | 'userId'> = {
   theme: 'system',
   realTimeUpdates: true,
   priceChangeIndicators: true,

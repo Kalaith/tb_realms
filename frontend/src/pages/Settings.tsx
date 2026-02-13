@@ -65,11 +65,11 @@ const Settings: React.FC = () => {
   }, []);
 
   // Handle setting change
-  const handleSettingChange = (id: string, value: any) => {
+  const handleSettingChange = (id: string, value: unknown) => {
     setSettings({
       ...settings,
       [id]: value
-    });
+    } as Partial<UserSettings>);
     setSaveStatus(null); // Clear previous save status
   };
 

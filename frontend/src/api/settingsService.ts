@@ -1,6 +1,7 @@
 import { ApiResponse } from '../entities/api';
 import { SettingsCategory } from '../entities/SettingsUI';
 import apiClient from './apiClient';
+import { unwrapData } from './apiResponseUtils';
 
 /**
  * Service for handling user settings-related API calls
@@ -12,10 +13,10 @@ export const settingsService = {
    */
   getSettingsCategories: async (): Promise<ApiResponse<SettingsCategory[]>> => {
     try {
-      const response = await apiClient.get('/settings/categories');
+      const response = await apiClient.get<unknown>('/settings/categories');
       return {
         success: true,
-        data: response.data
+        data: unwrapData<SettingsCategory[]>(response)
       };
     } catch (error) {
       console.error('Error fetching settings categories:', error);
@@ -34,12 +35,12 @@ export const settingsService = {
    * @param settingsData Settings data to update
    * @returns Promise with updated settings data
    */
-  updateUserSettings: async (settingsData: Record<string, any>): Promise<ApiResponse<Record<string, any>>> => {
+  updateUserSettings: async (settingsData: Record<string, unknown>): Promise<ApiResponse<Record<string, unknown>>> => {
     try {
-      const response = await apiClient.put('/settings', settingsData);
+      const response = await apiClient.put<unknown, Record<string, unknown>>('/settings', settingsData);
       return {
         success: true,
-        data: response.data
+        data: unwrapData<Record<string, unknown>>(response)
       };
     } catch (error) {
       console.error('Error updating user settings:', error);
@@ -57,12 +58,12 @@ export const settingsService = {
    * Fetches current user settings from the backend
    * @returns Promise with user settings data
    */
-  getUserSettings: async (): Promise<ApiResponse<Record<string, any>>> => {
+  getUserSettings: async (): Promise<ApiResponse<Record<string, unknown>>> => {
     try {
-      const response = await apiClient.get('/settings');
+      const response = await apiClient.get<unknown>('/settings');
       return {
         success: true,
-        data: response.data
+        data: unwrapData<Record<string, unknown>>(response)
       };
     } catch (error) {
       console.error('Error fetching user settings:', error);

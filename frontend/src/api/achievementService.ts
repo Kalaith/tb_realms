@@ -2,6 +2,8 @@ import { BaseApiService } from './baseApiService';
 import { Achievement, UserAchievement, UserAchievementStats } from '../entities/Achievement';
 import { ApiResponse } from '../entities/api';
 import apiClient from './apiClient';
+import { toApiError } from './apiErrorUtils';
+import { unwrapData } from './apiResponseUtils';
 
 /**
  * Service for managing achievements data
@@ -14,7 +16,7 @@ export class AchievementService extends BaseApiService<Achievement> {
   /**
    * Convert achievement data to proper Achievement type with date objects
    */
-  private normalizeUserAchievementData(achievement: any): UserAchievement {
+  private normalizeUserAchievementData(achievement: UserAchievement): UserAchievement {
     return {
       ...achievement,
       unlockedAt: achievement.unlockedAt ? new Date(achievement.unlockedAt) : undefined
@@ -32,17 +34,18 @@ export class AchievementService extends BaseApiService<Achievement> {
     }
     
     try {
-      const response = await apiClient.get(this.endpoint);
+      const response = await apiClient.get<unknown>(this.endpoint);
       return {
         success: true,
-        data: response.data || response
+        data: unwrapData<Achievement[]>(response)
       };
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const apiError = toApiError(error, 'Failed to fetch achievements');
       return {
         success: false,
         error: {
-          code: error.status || 'ERROR',
-          message: error.data?.message || error.statusText || 'Failed to fetch achievements',
+          code: apiError.code,
+          message: apiError.message,
         },
       };
     }
@@ -59,24 +62,25 @@ export class AchievementService extends BaseApiService<Achievement> {
     }
     
     try {
-      const response = await apiClient.get(`${this.endpoint}/user/${userId}`);
-      const achievements = response.data || response;
-      
+      const response = await apiClient.get<unknown>(`${this.endpoint}/user/${userId}`);
+      const achievements = unwrapData<unknown[]>(response);
+       
       // Normalize the achievement data with proper date objects
-      const normalizedAchievements = achievements.map((achievement: any) => 
-        this.normalizeUserAchievementData(achievement)
+      const normalizedAchievements = achievements.map((achievement) =>
+        this.normalizeUserAchievementData(achievement as UserAchievement)
       );
       
       return {
         success: true,
         data: normalizedAchievements
       };
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const apiError = toApiError(error, 'Failed to fetch user achievements');
       return {
         success: false,
         error: {
-          code: error.status || 'ERROR',
-          message: error.data?.message || error.statusText || 'Failed to fetch user achievements',
+          code: apiError.code,
+          message: apiError.message,
         },
       };
     }
@@ -93,17 +97,18 @@ export class AchievementService extends BaseApiService<Achievement> {
     }
     
     try {
-      const response = await apiClient.get(`${this.endpoint}/user/${userId}/stats`);
+      const response = await apiClient.get<unknown>(`${this.endpoint}/user/${userId}/stats`);
       return {
         success: true,
-        data: response.data || response
+        data: unwrapData<UserAchievementStats>(response)
       };
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const apiError = toApiError(error, 'Failed to fetch achievement stats');
       return {
         success: false,
         error: {
-          code: error.status || 'ERROR',
-          message: error.data?.message || error.statusText || 'Failed to fetch achievement stats',
+          code: apiError.code,
+          message: apiError.message,
         },
       };
     }
@@ -120,24 +125,25 @@ export class AchievementService extends BaseApiService<Achievement> {
     }
     
     try {
-      const response = await apiClient.get(`${this.endpoint}/user/${userId}/category/${category}`);
-      const achievements = response.data || response;
-      
+      const response = await apiClient.get<unknown>(`${this.endpoint}/user/${userId}/category/${category}`);
+      const achievements = unwrapData<unknown[]>(response);
+       
       // Normalize the achievement data with proper date objects
-      const normalizedAchievements = achievements.map((achievement: any) => 
-        this.normalizeUserAchievementData(achievement)
+      const normalizedAchievements = achievements.map((achievement) =>
+        this.normalizeUserAchievementData(achievement as UserAchievement)
       );
       
       return {
         success: true,
         data: normalizedAchievements
       };
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const apiError = toApiError(error, 'Failed to fetch achievements by category');
       return {
         success: false,
         error: {
-          code: error.status || 'ERROR',
-          message: error.data?.message || error.statusText || 'Failed to fetch achievements by category',
+          code: apiError.code,
+          message: apiError.message,
         },
       };
     }
@@ -154,19 +160,20 @@ export class AchievementService extends BaseApiService<Achievement> {
     }
     
     try {
-      const response = await apiClient.get(`${this.endpoint}/user/${userId}/${achievementId}`);
-      const achievement = response.data || response;
-      
+      const response = await apiClient.get<unknown>(`${this.endpoint}/user/${userId}/${achievementId}`);
+      const achievement = unwrapData<unknown>(response);
+       
       return {
         success: true,
-        data: this.normalizeUserAchievementData(achievement)
+        data: this.normalizeUserAchievementData(achievement as UserAchievement)
       };
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const apiError = toApiError(error, 'Failed to fetch achievement');
       return {
         success: false,
         error: {
-          code: error.status || 'ERROR',
-          message: error.data?.message || error.statusText || 'Failed to fetch achievement',
+          code: apiError.code,
+          message: apiError.message,
         },
       };
     }

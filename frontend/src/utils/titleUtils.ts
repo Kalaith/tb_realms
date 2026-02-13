@@ -3,7 +3,7 @@
  * Used to set and update the document title based on the current route
  */
 
-const APP_NAME = 'Tradeborn Realms';
+const appName = 'Tradeborn Realms';
 
 /**
  * Sets the document title with the provided page name
@@ -12,7 +12,7 @@ const APP_NAME = 'Tradeborn Realms';
  * @param pageName - The name of the current page
  */
 export const setPageTitle = (pageName: string): void => {
-  document.title = pageName ? `${pageName} | ${APP_NAME}` : APP_NAME;
+  document.title = pageName ? `${pageName} | ${appName}` : appName;
 };
 
 /**

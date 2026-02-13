@@ -28,7 +28,7 @@ interface UseAsyncOperationResult<T> extends AsyncOperationState {
  *   }
  * };
  */
-export const useAsyncOperation = <T = any>(): UseAsyncOperationResult<T> => {
+export const useAsyncOperation = <T = unknown>(): UseAsyncOperationResult<T> => {
   const [state, setState] = useState<AsyncOperationState>({
     loading: false,
     error: null,
@@ -83,12 +83,12 @@ export const useAsyncOperation = <T = any>(): UseAsyncOperationResult<T> => {
  */
 export const useMultipleAsyncOperations = <K extends string>(
   keys: readonly K[]
-): Record<K, UseAsyncOperationResult<any>> => {
-  const operations = {} as Record<K, UseAsyncOperationResult<any>>;
+): Record<K, UseAsyncOperationResult<unknown>> => {
+  const operations = {} as Record<K, UseAsyncOperationResult<unknown>>;
 
   keys.forEach(key => {
     // eslint-disable-next-line react-hooks/rules-of-hooks
-    operations[key] = useAsyncOperation();
+    operations[key] = useAsyncOperation<unknown>();
   });
 
   return operations;

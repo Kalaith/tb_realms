@@ -25,13 +25,13 @@ export interface PricePoint {
 }
 
 export enum TimeFrame {
-  DAY = '1D',
-  WEEK = '1W',
-  MONTH = '1M',
-  THREE_MONTHS = '3M',
-  SIX_MONTHS = '6M',
-  YEAR = '1Y',
-  FIVE_YEARS = '5Y',
+  Day = '1D',
+  Week = '1W',
+  Month = '1M',
+  ThreeMonths = '3M',
+  SixMonths = '6M',
+  Year = '1Y',
+  FiveYears = '5Y',
 }
 
 export type StockSector = 

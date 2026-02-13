@@ -1,5 +1,5 @@
 // Trading validation constants and utilities
-export const TRADE_CONSTRAINTS = {
+export const tradeConstraints = {
   MIN_SHARES: 1,
   MAX_SHARES_PER_TRADE: 10000,
   MIN_TRADE_AMOUNT: 0.01,
@@ -27,13 +27,13 @@ export const validateShares = (
   }
 
   // Check minimum shares
-  if (shares < TRADE_CONSTRAINTS.MIN_SHARES) {
-    errors.push(`Minimum ${TRADE_CONSTRAINTS.MIN_SHARES} share required`);
+  if (shares < tradeConstraints.MIN_SHARES) {
+    errors.push(`Minimum ${tradeConstraints.MIN_SHARES} share required`);
   }
 
   // Check maximum shares
-  if (shares > TRADE_CONSTRAINTS.MAX_SHARES_PER_TRADE) {
-    errors.push(`Maximum ${TRADE_CONSTRAINTS.MAX_SHARES_PER_TRADE.toLocaleString()} shares per trade`);
+  if (shares > tradeConstraints.MAX_SHARES_PER_TRADE) {
+    errors.push(`Maximum ${tradeConstraints.MAX_SHARES_PER_TRADE.toLocaleString()} shares per trade`);
   }
 
   // Check if shares is a whole number
@@ -68,13 +68,13 @@ export const validateTradeAmount = (
   }
 
   // Check minimum amount
-  if (amount < TRADE_CONSTRAINTS.MIN_TRADE_AMOUNT) {
-    errors.push(`Minimum trade amount is $${TRADE_CONSTRAINTS.MIN_TRADE_AMOUNT}`);
+  if (amount < tradeConstraints.MIN_TRADE_AMOUNT) {
+    errors.push(`Minimum trade amount is $${tradeConstraints.MIN_TRADE_AMOUNT}`);
   }
 
   // Check maximum amount
-  if (amount > TRADE_CONSTRAINTS.MAX_TRADE_AMOUNT) {
-    errors.push(`Maximum trade amount is $${TRADE_CONSTRAINTS.MAX_TRADE_AMOUNT.toLocaleString()}`);
+  if (amount > tradeConstraints.MAX_TRADE_AMOUNT) {
+    errors.push(`Maximum trade amount is $${tradeConstraints.MAX_TRADE_AMOUNT.toLocaleString()}`);
   }
 
   // Check available cash for buy orders
