@@ -2,9 +2,9 @@
  * User Menu Component
  * Displays user information and authentication options
  */
-import React, { useState, useRef, useEffect } from "react";
-import { Link } from "react-router-dom";
-import { useAuth } from "../../contexts/AuthContext";
+import React, { useState, useRef, useEffect } from 'react';
+import { Link } from 'react-router-dom';
+import { useAuth } from '../../contexts/AuthContext';
 
 const UserMenu: React.FC = () => {
   const { user, logout } = useAuth();
@@ -19,9 +19,9 @@ const UserMenu: React.FC = () => {
       }
     };
 
-    document.addEventListener("mousedown", handleClickOutside);
+    document.addEventListener('mousedown', handleClickOutside);
     return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener('mousedown', handleClickOutside);
     };
   }, []);
 
@@ -37,7 +37,7 @@ const UserMenu: React.FC = () => {
   };
 
   // Default avatar if user doesn't have one
-  const defaultAvatar = `https://ui-avatars.com/api/?name=${user?.username || "User"}&background=random`;
+  const defaultAvatar = `https://ui-avatars.com/api/?name=${user?.username || 'User'}&background=random`;
 
   return (
     <div className="relative" ref={menuRef}>
@@ -55,11 +55,7 @@ const UserMenu: React.FC = () => {
               {user.username}
             </span>
             <div className="w-8 h-8 overflow-hidden border-2 border-gray-200 rounded-full dark:border-gray-700">
-              <img
-                src={defaultAvatar}
-                alt="User avatar"
-                className="object-cover w-full h-full"
-              />
+              <img src={defaultAvatar} alt="User avatar" className="object-cover w-full h-full" />
             </div>
           </button>
 

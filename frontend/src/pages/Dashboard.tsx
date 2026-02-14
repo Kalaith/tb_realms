@@ -1,9 +1,9 @@
-import { useState, useEffect } from "react";
-import { Portfolio } from "../entities/Portfolio";
-import { portfolioService } from "../api/portfolioService";
-import { stockService } from "../api/stockService";
-import { Stock } from "../entities/Stock";
-import { LoadingSpinner } from "../components/utility";
+import { useState, useEffect } from 'react';
+import { Portfolio } from '../entities/Portfolio';
+import { portfolioService } from '../api/portfolioService';
+import { stockService } from '../api/stockService';
+import { Stock } from '../entities/Stock';
+import { LoadingSpinner } from '../components/utility';
 
 const Dashboard = () => {
   const [portfolio, setPortfolio] = useState<Portfolio | null>(null);
@@ -17,8 +17,7 @@ const Dashboard = () => {
         setLoading(true);
 
         // Fetch user portfolio
-        const portfolioResponse =
-          await portfolioService.getUserPortfolio("user1");
+        const portfolioResponse = await portfolioService.getUserPortfolio('user1');
         if (portfolioResponse.success && portfolioResponse.data) {
           setPortfolio(portfolioResponse.data);
         }
@@ -28,14 +27,14 @@ const Dashboard = () => {
         if (stocksResponse.success && stocksResponse.data) {
           // Sort by performance (change percent)
           const sortedStocks = [...stocksResponse.data].sort(
-            (a, b) => b.changePercent - a.changePercent,
+            (a, b) => b.changePercent - a.changePercent
           );
           setTopStocks(sortedStocks.slice(0, 5));
         }
 
         setLoading(false);
       } catch (err) {
-        setError("Failed to load dashboard data");
+        setError('Failed to load dashboard data');
         setLoading(false);
         console.error(err);
       }
@@ -93,10 +92,10 @@ const Dashboard = () => {
                 Daily Change
               </div>
               <div
-                className={`text-2xl font-bold ${portfolio.performance.dailyChangePercent >= 0 ? "text-green-600 dark:text-green-400" : "text-red-600 dark:text-red-400"}`}
+                className={`text-2xl font-bold ${portfolio.performance.dailyChangePercent >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}
               >
                 ${portfolio.performance.dailyChange.toLocaleString()}(
-                {portfolio.performance.dailyChangePercent >= 0 ? "+" : ""}
+                {portfolio.performance.dailyChangePercent >= 0 ? '+' : ''}
                 {portfolio.performance.dailyChangePercent.toFixed(2)}%)
               </div>
             </div>
@@ -154,7 +153,7 @@ const Dashboard = () => {
                     </tr>
                   </thead>
                   <tbody className="bg-white divide-y divide-gray-200 dark:bg-gray-800 dark:divide-gray-700">
-                    {portfolio.positions.map((position) => (
+                    {portfolio.positions.map(position => (
                       <tr
                         key={position.stockId}
                         className="hover:bg-gray-50 dark:hover:bg-gray-700"
@@ -175,9 +174,9 @@ const Dashboard = () => {
                           ${position.currentValue.toLocaleString()}
                         </td>
                         <td
-                          className={`px-4 py-3 font-medium whitespace-nowrap ${position.totalReturnPercentage >= 0 ? "text-green-600 dark:text-green-400" : "text-red-600 dark:text-red-400"}`}
+                          className={`px-4 py-3 font-medium whitespace-nowrap ${position.totalReturnPercentage >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}
                         >
-                          {position.totalReturnPercentage >= 0 ? "+" : ""}
+                          {position.totalReturnPercentage >= 0 ? '+' : ''}
                           {position.totalReturnPercentage.toFixed(2)}%
                         </td>
                       </tr>
@@ -200,7 +199,7 @@ const Dashboard = () => {
             Top Performing Stocks
           </h3>
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-5">
-            {topStocks.map((stock) => (
+            {topStocks.map(stock => (
               <div
                 key={stock.id}
                 className="p-4 transition-shadow bg-gray-50 rounded-lg hover:shadow-md dark:bg-gray-700"
@@ -219,9 +218,9 @@ const Dashboard = () => {
                   {/* Performance and price at the bottom */}
                   <div className="flex items-center justify-between w-full mt-auto">
                     <div
-                      className={`text-lg font-bold ${stock.changePercent >= 0 ? "text-green-600 dark:text-green-400" : "text-red-600 dark:text-red-400"}`}
+                      className={`text-lg font-bold ${stock.changePercent >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}
                     >
-                      {stock.changePercent >= 0 ? "+" : ""}
+                      {stock.changePercent >= 0 ? '+' : ''}
                       {stock.changePercent.toFixed(2)}%
                     </div>
                     <div className="text-base font-medium text-gray-800 dark:text-gray-200">
@@ -242,23 +241,21 @@ const Dashboard = () => {
             Recent Transactions
           </h2>
           {portfolio.transactionHistory.length === 0 ? (
-            <p className="text-gray-600 dark:text-gray-400">
-              No transactions yet
-            </p>
+            <p className="text-gray-600 dark:text-gray-400">No transactions yet</p>
           ) : (
             <div className="space-y-3">
               {portfolio.transactionHistory
                 .slice()
                 .sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime())
                 .slice(0, 5)
-                .map((tx) => (
+                .map(tx => (
                   <div
                     key={tx.id}
                     className="flex items-center justify-between p-3 border border-gray-200 rounded-lg dark:border-gray-700"
                   >
                     <div className="flex items-center">
                       <div
-                        className={`px-2 py-1 mr-3 text-xs font-medium rounded-md ${tx.type.toLowerCase() === "buy" ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200" : "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200"}`}
+                        className={`px-2 py-1 mr-3 text-xs font-medium rounded-md ${tx.type.toLowerCase() === 'buy' ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'}`}
                       >
                         {tx.type}
                       </div>

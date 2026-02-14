@@ -2,16 +2,8 @@
  * Achievement entity and related types
  */
 
-export type AchievementDifficulty =
-  | "beginner"
-  | "intermediate"
-  | "advanced"
-  | "expert";
-export type AchievementCategory =
-  | "trading"
-  | "portfolio"
-  | "performance"
-  | "strategy";
+export type AchievementDifficulty = 'beginner' | 'intermediate' | 'advanced' | 'expert';
+export type AchievementCategory = 'trading' | 'portfolio' | 'performance' | 'strategy';
 
 export interface AchievementRequirement {
   type: string;

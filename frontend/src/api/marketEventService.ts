@@ -1,21 +1,17 @@
-import { BaseApiService } from "./baseApiService";
-import {
-  MarketEvent,
-  EventSeverity,
-  MarketEventType,
-} from "../entities/MarketEvent";
-import { ApiResponse } from "../entities/api";
-import apiClient from "./apiClient";
-import { stockService } from "./stockService";
-import { toApiError } from "./apiErrorUtils";
-import { unwrapData } from "./apiResponseUtils";
+import { BaseApiService } from './baseApiService';
+import { MarketEvent, EventSeverity, MarketEventType } from '../entities/MarketEvent';
+import { ApiResponse } from '../entities/api';
+import apiClient from './apiClient';
+import { stockService } from './stockService';
+import { toApiError } from './apiErrorUtils';
+import { unwrapData } from './apiResponseUtils';
 
 /**
  * Service for managing market events and news
  */
 export class MarketEventService extends BaseApiService<MarketEvent> {
   constructor() {
-    super("events");
+    super('events');
   }
 
   /**
@@ -39,8 +35,8 @@ export class MarketEventService extends BaseApiService<MarketEvent> {
       return {
         success: false,
         error: {
-          code: "NOT_IMPLEMENTED",
-          message: "Mock implementation not used",
+          code: 'NOT_IMPLEMENTED',
+          message: 'Mock implementation not used',
         },
       };
     }
@@ -50,19 +46,16 @@ export class MarketEventService extends BaseApiService<MarketEvent> {
       const events = unwrapData<unknown[]>(response);
 
       // Normalize the event data with proper date objects
-      const normalizedEvents = events.map((event) =>
-        this.normalizeEventData(event as MarketEvent),
-      );
+      const normalizedEvents = events.map(event => this.normalizeEventData(event as MarketEvent));
 
       return {
         success: true,
         data: normalizedEvents.sort(
-          (a: MarketEvent, b: MarketEvent) =>
-            b.date.getTime() - a.date.getTime(),
+          (a: MarketEvent, b: MarketEvent) => b.date.getTime() - a.date.getTime()
         ),
       };
     } catch (error: unknown) {
-      const apiError = toApiError(error, "Failed to fetch market events");
+      const apiError = toApiError(error, 'Failed to fetch market events');
       return {
         success: false,
         error: {
@@ -76,44 +69,34 @@ export class MarketEventService extends BaseApiService<MarketEvent> {
   /**
    * Get market events by type
    */
-  async getByType(
-    eventType: MarketEventType,
-  ): Promise<ApiResponse<MarketEvent[]>> {
+  async getByType(eventType: MarketEventType): Promise<ApiResponse<MarketEvent[]>> {
     if (this.useMockData) {
       // Mock implementation code kept for reference
       // ...existing mock implementation...
       return {
         success: false,
         error: {
-          code: "NOT_IMPLEMENTED",
-          message: "Mock implementation not used",
+          code: 'NOT_IMPLEMENTED',
+          message: 'Mock implementation not used',
         },
       };
     }
 
     try {
-      const response = await apiClient.get<unknown>(
-        `${this.endpoint}/type/${eventType}`,
-      );
+      const response = await apiClient.get<unknown>(`${this.endpoint}/type/${eventType}`);
       const events = unwrapData<unknown[]>(response);
 
       // Normalize the event data with proper date objects
-      const normalizedEvents = events.map((event) =>
-        this.normalizeEventData(event as MarketEvent),
-      );
+      const normalizedEvents = events.map(event => this.normalizeEventData(event as MarketEvent));
 
       return {
         success: true,
         data: normalizedEvents.sort(
-          (a: MarketEvent, b: MarketEvent) =>
-            b.date.getTime() - a.date.getTime(),
+          (a: MarketEvent, b: MarketEvent) => b.date.getTime() - a.date.getTime()
         ),
       };
     } catch (error: unknown) {
-      const apiError = toApiError(
-        error,
-        "Failed to fetch market events by type",
-      );
+      const apiError = toApiError(error, 'Failed to fetch market events by type');
       return {
         success: false,
         error: {
@@ -127,44 +110,34 @@ export class MarketEventService extends BaseApiService<MarketEvent> {
   /**
    * Get market events by severity
    */
-  async getBySeverity(
-    severity: EventSeverity,
-  ): Promise<ApiResponse<MarketEvent[]>> {
+  async getBySeverity(severity: EventSeverity): Promise<ApiResponse<MarketEvent[]>> {
     if (this.useMockData) {
       // Mock implementation code kept for reference
       // ...existing mock implementation...
       return {
         success: false,
         error: {
-          code: "NOT_IMPLEMENTED",
-          message: "Mock implementation not used",
+          code: 'NOT_IMPLEMENTED',
+          message: 'Mock implementation not used',
         },
       };
     }
 
     try {
-      const response = await apiClient.get<unknown>(
-        `${this.endpoint}/severity/${severity}`,
-      );
+      const response = await apiClient.get<unknown>(`${this.endpoint}/severity/${severity}`);
       const events = unwrapData<unknown[]>(response);
 
       // Normalize the event data with proper date objects
-      const normalizedEvents = events.map((event) =>
-        this.normalizeEventData(event as MarketEvent),
-      );
+      const normalizedEvents = events.map(event => this.normalizeEventData(event as MarketEvent));
 
       return {
         success: true,
         data: normalizedEvents.sort(
-          (a: MarketEvent, b: MarketEvent) =>
-            b.date.getTime() - a.date.getTime(),
+          (a: MarketEvent, b: MarketEvent) => b.date.getTime() - a.date.getTime()
         ),
       };
     } catch (error: unknown) {
-      const apiError = toApiError(
-        error,
-        "Failed to fetch market events by severity",
-      );
+      const apiError = toApiError(error, 'Failed to fetch market events by severity');
       return {
         success: false,
         error: {
@@ -185,39 +158,30 @@ export class MarketEventService extends BaseApiService<MarketEvent> {
       return {
         success: false,
         error: {
-          code: "NOT_IMPLEMENTED",
-          message: "Mock implementation not used",
+          code: 'NOT_IMPLEMENTED',
+          message: 'Mock implementation not used',
         },
       };
     }
 
     try {
-      const response = await apiClient.get<unknown>(
-        `${this.endpoint}/stock/${stockId}`,
-      );
+      const response = await apiClient.get<unknown>(`${this.endpoint}/stock/${stockId}`);
       const events = unwrapData<unknown[]>(response);
 
       // Normalize the event data with proper date objects
-      const normalizedEvents = events.map((event) =>
-        this.normalizeEventData(event as MarketEvent),
-      );
+      const normalizedEvents = events.map(event => this.normalizeEventData(event as MarketEvent));
 
       // Enrich with stock data if needed
-      const enrichedEvents =
-        await this.enrichEventsWithStockData(normalizedEvents);
+      const enrichedEvents = await this.enrichEventsWithStockData(normalizedEvents);
 
       return {
         success: true,
         data: enrichedEvents.sort(
-          (a: MarketEvent, b: MarketEvent) =>
-            b.date.getTime() - a.date.getTime(),
+          (a: MarketEvent, b: MarketEvent) => b.date.getTime() - a.date.getTime()
         ),
       };
     } catch (error: unknown) {
-      const apiError = toApiError(
-        error,
-        "Failed to fetch market events by stock",
-      );
+      const apiError = toApiError(error, 'Failed to fetch market events by stock');
       return {
         success: false,
         error: {
@@ -231,9 +195,7 @@ export class MarketEventService extends BaseApiService<MarketEvent> {
   /**
    * Enrich events with stock data
    */
-  private async enrichEventsWithStockData(
-    events: MarketEvent[],
-  ): Promise<MarketEvent[]> {
+  private async enrichEventsWithStockData(events: MarketEvent[]): Promise<MarketEvent[]> {
     try {
       // Get all stocks
       const stocksResponse = await stockService.getAll();
@@ -244,18 +206,16 @@ export class MarketEventService extends BaseApiService<MarketEvent> {
       const stocks = stocksResponse.data;
 
       // Attach stock objects to affected stocks
-      return events.map((event) => {
+      return events.map(event => {
         if (!event.affectedStocks) return event;
 
-        const enrichedAffectedStocks = event.affectedStocks.map(
-          (affectedStock) => {
-            const stock = stocks.find((s) => s.id === affectedStock.stockId);
-            return {
-              ...affectedStock,
-              stock,
-            };
-          },
-        );
+        const enrichedAffectedStocks = event.affectedStocks.map(affectedStock => {
+          const stock = stocks.find(s => s.id === affectedStock.stockId);
+          return {
+            ...affectedStock,
+            stock,
+          };
+        });
 
         return {
           ...event,
@@ -263,7 +223,7 @@ export class MarketEventService extends BaseApiService<MarketEvent> {
         };
       });
     } catch (err) {
-      console.error("Error enriching event data with stocks:", err);
+      console.error('Error enriching event data with stocks:', err);
       return events;
     }
   }

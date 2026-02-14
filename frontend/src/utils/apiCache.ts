@@ -121,7 +121,7 @@ export const apiCache = new ApiCache();
  */
 export class CacheKeys {
   static stocks(filters?: Record<string, unknown>): string {
-    const filterStr = filters ? JSON.stringify(filters) : "";
+    const filterStr = filters ? JSON.stringify(filters) : '';
     return `stocks:${filterStr}`;
   }
 
@@ -142,7 +142,7 @@ export class CacheKeys {
   }
 
   static marketSummary(): string {
-    return "market:summary";
+    return 'market:summary';
   }
 
   static user(userId: string): string {

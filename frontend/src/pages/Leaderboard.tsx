@@ -1,14 +1,7 @@
-import { useState, useEffect } from "react";
-import {
-  LeaderboardUser,
-  fetchLeaderboardData,
-} from "../api/leaderboardService";
-import {
-  formatCurrency,
-  formatPercentage,
-  formatDate,
-} from "../utils/leaderboardUtils";
-import { LoadingSpinner } from "../components/utility";
+import { useState, useEffect } from 'react';
+import { LeaderboardUser, fetchLeaderboardData } from '../api/leaderboardService';
+import { formatCurrency, formatPercentage, formatDate } from '../utils/leaderboardUtils';
+import { LoadingSpinner } from '../components/utility';
 
 /**
  * Leaderboard component displays a table of top traders ranked by portfolio value
@@ -27,8 +20,8 @@ function Leaderboard() {
         setUsers(data);
         setError(null);
       } catch (err) {
-        setError("Failed to load leaderboard data. Please try again later.");
-        console.error("Error loading leaderboard data:", err);
+        setError('Failed to load leaderboard data. Please try again later.');
+        console.error('Error loading leaderboard data:', err);
       } finally {
         setLoading(false);
       }
@@ -39,21 +32,19 @@ function Leaderboard() {
 
   const getRankStyles = (rank: number) => {
     if (rank === 1)
-      return "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200 font-bold";
+      return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200 font-bold';
     if (rank === 2)
-      return "bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300 font-bold";
+      return 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300 font-bold';
     if (rank === 3)
-      return "bg-amber-100 text-amber-800 dark:bg-amber-900 dark:text-amber-200 font-bold";
-    return "";
+      return 'bg-amber-100 text-amber-800 dark:bg-amber-900 dark:text-amber-200 font-bold';
+    return '';
   };
 
   if (loading) {
     return (
       <div className="space-y-6">
         <div className="flex justify-between items-center mb-6">
-          <div className="flex gap-2">
-            {/* Add filters in the future if needed */}
-          </div>
+          <div className="flex gap-2">{/* Add filters in the future if needed */}</div>
         </div>
         <div className="flex justify-center">
           <LoadingSpinner />
@@ -67,9 +58,7 @@ function Leaderboard() {
       <div className="space-y-6">
         <div className="text-center mb-8">
           <div className="flex justify-between items-center mb-6">
-            <div className="flex gap-2">
-              {/* Add filters in the future if needed */}
-            </div>
+            <div className="flex gap-2">{/* Add filters in the future if needed */}</div>
           </div>
         </div>
         <div className="p-4 mt-4 text-red-700 bg-red-100 border border-red-200 rounded-lg dark:bg-red-900 dark:text-red-200 dark:border-red-800">
@@ -84,9 +73,7 @@ function Leaderboard() {
       <div className="space-y-6">
         <div className="text-center mb-8">
           <div className="flex justify-between items-center mb-6">
-            <div className="flex gap-2">
-              {/* Add filters in the future if needed */}
-            </div>
+            <div className="flex gap-2">{/* Add filters in the future if needed */}</div>
           </div>
         </div>
         <div className="p-8 text-center text-gray-500 dark:text-gray-400 bg-white dark:bg-gray-800 rounded-lg shadow-md">
@@ -99,9 +86,7 @@ function Leaderboard() {
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center mb-6">
-        <div className="flex gap-2">
-          {/* Add filters in the future if needed */}
-        </div>
+        <div className="flex gap-2">{/* Add filters in the future if needed */}</div>
       </div>
 
       <div className="overflow-x-auto bg-white rounded-lg shadow-md dark:bg-gray-800">
@@ -153,11 +138,8 @@ function Leaderboard() {
             </tr>
           </thead>
           <tbody className="bg-white divide-y divide-gray-200 dark:bg-gray-800 dark:divide-gray-700">
-            {users.map((user) => (
-              <tr
-                key={user.id}
-                className="hover:bg-gray-50 dark:hover:bg-gray-700"
-              >
+            {users.map(user => (
+              <tr key={user.id} className="hover:bg-gray-50 dark:hover:bg-gray-700">
                 <td className="px-4 py-4 whitespace-nowrap">
                   <span
                     className={`inline-flex items-center justify-center w-7 h-7 rounded-full ${getRankStyles(user.rank)}`}
@@ -168,7 +150,7 @@ function Leaderboard() {
                 <td className="px-4 py-4 whitespace-nowrap">
                   <div className="flex items-center">
                     <img
-                      src={user.avatarUrl || "https://via.placeholder.com/40"}
+                      src={user.avatarUrl || 'https://via.placeholder.com/40'}
                       alt={`${user.displayName}'s avatar`}
                       className="w-10 h-10 rounded-full mr-3 object-cover"
                     />
@@ -199,7 +181,7 @@ function Leaderboard() {
                 </td>
                 <td className="px-4 py-4 whitespace-nowrap">
                   <span
-                    className={`font-medium ${user.portfolioGrowth >= 0 ? "text-green-600 dark:text-green-400" : "text-red-600 dark:text-red-400"}`}
+                    className={`font-medium ${user.portfolioGrowth >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}
                   >
                     {formatPercentage(user.portfolioGrowth)}
                   </span>
@@ -214,7 +196,7 @@ function Leaderboard() {
                     </div>
                     <div className="flex items-center text-sm">
                       <span
-                        className={`mr-1 ${user.bestTrade.percentageGain >= 0 ? "text-green-600 dark:text-green-400" : "text-red-600 dark:text-red-400"}`}
+                        className={`mr-1 ${user.bestTrade.percentageGain >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}
                       >
                         {formatPercentage(user.bestTrade.percentageGain)}
                       </span>

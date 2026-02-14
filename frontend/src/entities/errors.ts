@@ -2,7 +2,7 @@
  * Common error types for application-wide use
  */
 
-import { ApiError } from "./api";
+import { ApiError } from './api';
 
 /**
  * Base application error
@@ -10,7 +10,7 @@ import { ApiError } from "./api";
 export class AppError extends Error {
   constructor(message: string) {
     super(message);
-    this.name = "AppError";
+    this.name = 'AppError';
   }
 }
 
@@ -22,14 +22,9 @@ export class ApiResponseError extends AppError {
   statusText?: string;
   apiError?: ApiError;
 
-  constructor(
-    message: string,
-    status?: number,
-    statusText?: string,
-    apiError?: ApiError,
-  ) {
+  constructor(message: string, status?: number, statusText?: string, apiError?: ApiError) {
     super(message);
-    this.name = "ApiResponseError";
+    this.name = 'ApiResponseError';
     this.status = status;
     this.statusText = statusText;
     this.apiError = apiError;
@@ -41,8 +36,8 @@ export class ApiResponseError extends AppError {
  */
 export class AuthenticationError extends ApiResponseError {
   constructor(message: string, status?: number, apiError?: ApiError) {
-    super(message, status, "Authentication Failed", apiError);
-    this.name = "AuthenticationError";
+    super(message, status, 'Authentication Failed', apiError);
+    this.name = 'AuthenticationError';
   }
 }
 
@@ -50,9 +45,9 @@ export class AuthenticationError extends ApiResponseError {
  * Error for network-related issues
  */
 export class NetworkError extends AppError {
-  constructor(message: string = "Network error occurred") {
+  constructor(message: string = 'Network error occurred') {
     super(message);
-    this.name = "NetworkError";
+    this.name = 'NetworkError';
   }
 }
 

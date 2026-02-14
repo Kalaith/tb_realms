@@ -11,8 +11,8 @@ const PortfolioPerformance = () => {
         <div className="text-center text-gray-500 dark:text-gray-400">
           <p>Chart will be implemented here</p>
           <p className="text-sm">
-            This would display the portfolio value changes over time using the
-            performance.history data
+            This would display the portfolio value changes over time using the performance.history
+            data
           </p>
         </div>
       </div>

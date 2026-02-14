@@ -3,13 +3,13 @@
  * Landing page for all users with market overview and top performing stocks
  * Acts as the primary entry point for both authenticated and unauthenticated users
  */
-import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
-import { stockService } from "../api/stockService";
-import { Stock } from "../entities/Stock";
-import { TopPerformingStocks, MarketOverview } from "../components/market";
-import { LoadingSpinner } from "../components/utility";
-import { useAuth } from "../contexts/AuthContext";
+import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
+import { stockService } from '../api/stockService';
+import { Stock } from '../entities/Stock';
+import { TopPerformingStocks, MarketOverview } from '../components/market';
+import { LoadingSpinner } from '../components/utility';
+import { useAuth } from '../contexts/AuthContext';
 
 const Home: React.FC = () => {
   const [stocks, setStocks] = useState<Stock[]>([]);
@@ -20,40 +20,40 @@ const Home: React.FC = () => {
   // Sample market data
   const marketData = [
     {
-      title: "Market Index",
+      title: 'Market Index',
       value: 4826.32,
       change: 1.12,
-      description: "Overall market performance",
+      description: 'Overall market performance',
     },
     {
-      title: "Trading Volume",
-      value: "2.3B",
+      title: 'Trading Volume',
+      value: '2.3B',
       change: 0.78,
-      description: "Total shares traded today",
+      description: 'Total shares traded today',
     },
     {
-      title: "Technology Sector",
+      title: 'Technology Sector',
       value: 1532.68,
       change: 1.56,
-      description: "Technology sector performance",
+      description: 'Technology sector performance',
     },
     {
-      title: "Financial Sector",
+      title: 'Financial Sector',
       value: 876.32,
       change: -0.32,
-      description: "Financial sector performance",
+      description: 'Financial sector performance',
     },
     {
-      title: "Energy Sector",
+      title: 'Energy Sector',
       value: 542.11,
       change: 2.45,
-      description: "Energy sector performance",
+      description: 'Energy sector performance',
     },
     {
-      title: "Healthcare Sector",
+      title: 'Healthcare Sector',
       value: 1243.78,
       change: 0.18,
-      description: "Healthcare sector performance",
+      description: 'Healthcare sector performance',
     },
   ];
 
@@ -64,17 +64,17 @@ const Home: React.FC = () => {
         setError(null);
         // Fetch stocks
         const response = await stockService.getByFilters({
-          sortBy: "change", // Use 'change' instead of 'changePercentage'
-          sortDirection: "desc",
+          sortBy: 'change', // Use 'change' instead of 'changePercentage'
+          sortDirection: 'desc',
         });
 
         if (response.success && response.data) {
           setStocks(response.data);
         } else {
-          setError("Failed to load stock data");
+          setError('Failed to load stock data');
         }
       } catch (err) {
-        setError("An error occurred while fetching stocks");
+        setError('An error occurred while fetching stocks');
         console.error(err);
       } finally {
         setLoading(false);
@@ -99,9 +99,7 @@ const Home: React.FC = () => {
   return (
     <div className="space-y-8">
       <div className="flex flex-col md:flex-row gap-4 items-center justify-between">
-        <h1 className="text-2xl font-bold text-gray-800 dark:text-white">
-          Market Dashboard
-        </h1>
+        <h1 className="text-2xl font-bold text-gray-800 dark:text-white">Market Dashboard</h1>
         {isAuthenticated ? (
           <div className="inline-block px-4 py-2 text-sm text-blue-600 bg-blue-100 rounded-md dark:bg-blue-900 dark:text-blue-300">
             Welcome back! Your portfolio is ready for review.
@@ -126,8 +124,8 @@ const Home: React.FC = () => {
             Welcome to Tradeborn Realms
           </h2>
           <p className="mb-4 text-gray-600 dark:text-gray-300">
-            Track stocks, build your portfolio, and compete on the leaderboard
-            in our simulated trading environment. Sign up to get started!
+            Track stocks, build your portfolio, and compete on the leaderboard in our simulated
+            trading environment. Sign up to get started!
           </p>
           <div className="flex flex-wrap gap-4">
             <Link

@@ -2,10 +2,10 @@
  * Navigation Component
  * Main navigation bar for the application
  */
-import React from "react";
-import { Link } from "react-router-dom";
-import { useAuth } from "../../contexts/AuthContext";
-import { useNavigation } from "../../contexts/NavigationContext";
+import React from 'react';
+import { Link } from 'react-router-dom';
+import { useAuth } from '../../contexts/AuthContext';
+import { useNavigation } from '../../contexts/NavigationContext';
 
 const Navigation: React.FC = () => {
   const { user } = useAuth();
@@ -13,7 +13,7 @@ const Navigation: React.FC = () => {
 
   // Show all navigation items since auth is no longer required
   const navItems = mainNavigation.filter(
-    (item) => item.showInHeader === undefined || item.showInHeader,
+    item => item.showInHeader === undefined || item.showInHeader
   );
 
   return (
@@ -30,7 +30,7 @@ const Navigation: React.FC = () => {
 
         {/* Middle section - shows dynamic Market links */}
         <div className="hidden md:flex items-center space-x-4">
-          {navItems.map((item) => (
+          {navItems.map(item => (
             <Link
               key={item.path}
               to={item.path}

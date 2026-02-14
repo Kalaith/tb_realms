@@ -1,12 +1,12 @@
-import React, { useState, useEffect, useCallback } from "react";
-import { stockService } from "../api/stockService";
-import { portfolioService } from "../api/portfolioService";
-import { Stock, TimeFrame } from "../entities/Stock";
-import { Transaction, TransactionType, Position } from "../entities/Portfolio";
-import type { Portfolio } from "../entities/Portfolio";
-import type { TradeResult } from "../entities/Trade";
-import type { ApiResponse } from "../entities/api";
-import { formatCurrency } from "../utils/formatUtils";
+import React, { useState, useEffect, useCallback } from 'react';
+import { stockService } from '../api/stockService';
+import { portfolioService } from '../api/portfolioService';
+import { Stock, TimeFrame } from '../entities/Stock';
+import { Transaction, TransactionType, Position } from '../entities/Portfolio';
+import type { Portfolio } from '../entities/Portfolio';
+import type { TradeResult } from '../entities/Trade';
+import type { ApiResponse } from '../entities/api';
+import { formatCurrency } from '../utils/formatUtils';
 import {
   StockList,
   StockDetail,
@@ -14,8 +14,8 @@ import {
   TransactionList,
   TradeConfirmation,
   TradeNotification,
-} from "../components/trade";
-import { LoadingSpinner } from "../components/utility";
+} from '../components/trade';
+import { LoadingSpinner } from '../components/utility';
 
 /**
  * Trade page - Main component for stock trading functionality
@@ -31,20 +31,16 @@ const Trade: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [tradeAmount, setTradeAmount] = useState<number>(0);
   const [tradeShares, setTradeShares] = useState<number>(1);
-  const [tradeType, setTradeType] = useState<TransactionType>(
-    TransactionType.BUY,
-  );
+  const [tradeType, setTradeType] = useState<TransactionType>(TransactionType.BUY);
   const [userPortfolio, setUserPortfolio] = useState<Portfolio | null>(null);
   const [confirmTrade, setConfirmTrade] = useState<boolean>(false);
-  const [recentTransactions, setRecentTransactions] = useState<Transaction[]>(
-    [],
-  );
-  const [searchQuery, setSearchQuery] = useState<string>("");
+  const [recentTransactions, setRecentTransactions] = useState<Transaction[]>([]);
+  const [searchQuery, setSearchQuery] = useState<string>('');
   const [tradeComplete, setTradeComplete] = useState<boolean>(false);
   const [tradeResult, setTradeResult] = useState<TradeResult | null>(null);
 
   // Mock user ID - in a real app, this would come from authentication
-  const userId = "user1";
+  const userId = 'user1';
 
   // Load stocks and user portfolio on component mount
   useEffect(() => {
@@ -61,45 +57,31 @@ const Trade: React.FC = () => {
             setSelectedStock(stocksResponse.data[0]);
           }
         } else {
-          throw new Error(
-            stocksResponse.error?.message || "Failed to fetch stocks",
-          );
+          throw new Error(stocksResponse.error?.message || 'Failed to fetch stocks');
         }
 
         // Fetch user portfolio
-        const portfolioResponse =
-          await portfolioService.getUserPortfolio(userId);
+        const portfolioResponse = await portfolioService.getUserPortfolio(userId);
         if (portfolioResponse.success && portfolioResponse.data) {
           setUserPortfolio(portfolioResponse.data);
 
           // Get recent transactions
           if (portfolioResponse.data.transactionHistory) {
-            const sortedTransactions = [
-              ...portfolioResponse.data.transactionHistory,
-            ]
-              .sort(
-                (a, b) =>
-                  new Date(b.timestamp).getTime() -
-                  new Date(a.timestamp).getTime(),
-              )
+            const sortedTransactions = [...portfolioResponse.data.transactionHistory]
+              .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
               .slice(0, 5); // Get 5 most recent transactions
             setRecentTransactions(sortedTransactions);
           }
         } else {
-          throw new Error(
-            portfolioResponse.error?.message || "Failed to fetch portfolio",
-          );
+          throw new Error(portfolioResponse.error?.message || 'Failed to fetch portfolio');
         }
 
         setLoading(false);
       } catch (err) {
-        const errorMessage =
-          err instanceof Error ? err.message : "An unknown error occurred";
-        setError(
-          `Failed to load data: ${errorMessage}. Please try refreshing the page.`,
-        );
+        const errorMessage = err instanceof Error ? err.message : 'An unknown error occurred';
+        setError(`Failed to load data: ${errorMessage}. Please try refreshing the page.`);
         setLoading(false);
-        console.error("Error fetching data:", err);
+        console.error('Error fetching data:', err);
       }
     };
 
@@ -135,7 +117,7 @@ const Trade: React.FC = () => {
     } else {
       // Check if user has enough shares to sell
       const position = userPortfolio.positions.find(
-        (p: Position) => p.stockId === selectedStock.id,
+        (p: Position) => p.stockId === selectedStock.id
       );
       return !!position && position.shares >= tradeShares;
     }
@@ -156,19 +138,19 @@ const Trade: React.FC = () => {
           userPortfolio.id,
           selectedStock.id,
           tradeShares,
-          selectedStock.currentPrice,
+          selectedStock.currentPrice
         );
       } else {
         response = await portfolioService.sellStock(
           userPortfolio.id,
           selectedStock.id,
           tradeShares,
-          selectedStock.currentPrice,
+          selectedStock.currentPrice
         );
       }
 
       if (!response.success) {
-        throw new Error(response.error?.message || "Transaction failed");
+        throw new Error(response.error?.message || 'Transaction failed');
       }
 
       const tx = response.data;
@@ -188,13 +170,12 @@ const Trade: React.FC = () => {
 
       setLoadingTrade(false);
     } catch (err) {
-      const errorMessage =
-        err instanceof Error ? err.message : "An unknown error occurred";
+      const errorMessage = err instanceof Error ? err.message : 'An unknown error occurred';
       setError(`Failed to execute trade: ${errorMessage}. Please try again.`);
       setTradeResult({
         success: false,
         message: errorMessage,
-        errorCode: "TRADE_ERROR",
+        errorCode: 'TRADE_ERROR',
       });
       setTradeComplete(true);
       setLoadingTrade(false);
@@ -207,7 +188,7 @@ const Trade: React.FC = () => {
         setError(null);
       }, 5000);
 
-      console.error("Error executing trade:", err);
+      console.error('Error executing trade:', err);
     }
   };
 
@@ -215,9 +196,7 @@ const Trade: React.FC = () => {
   if (loading && !selectedStock) {
     return (
       <div className="container mx-auto px-4 py-6" role="main">
-        <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-100 mb-6">
-          Trade
-        </h1>
+        <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-100 mb-6">Trade</h1>
         <div className="flex justify-center">
           <LoadingSpinner />
         </div>
@@ -229,9 +208,7 @@ const Trade: React.FC = () => {
   if (error && !selectedStock) {
     return (
       <div className="container mx-auto px-4 py-6" role="main">
-        <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-100 mb-6">
-          Trade
-        </h1>
+        <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-100 mb-6">Trade</h1>
         <div
           className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4"
           role="alert"
@@ -292,10 +269,7 @@ const Trade: React.FC = () => {
                 <div className="text-sm font-medium text-gray-500 dark:text-gray-400">
                   Available Cash
                 </div>
-                <div
-                  className="font-bold text-gray-800 dark:text-gray-200"
-                  aria-live="polite"
-                >
+                <div className="font-bold text-gray-800 dark:text-gray-200" aria-live="polite">
                   {formatCurrency(userPortfolio.cash)}
                 </div>
               </div>
@@ -303,10 +277,7 @@ const Trade: React.FC = () => {
                 <div className="text-sm font-medium text-gray-500 dark:text-gray-400">
                   Portfolio Value
                 </div>
-                <div
-                  className="font-bold text-gray-800 dark:text-gray-200"
-                  aria-live="polite"
-                >
+                <div className="font-bold text-gray-800 dark:text-gray-200" aria-live="polite">
                   {formatCurrency(userPortfolio.totalValue)}
                 </div>
               </div>

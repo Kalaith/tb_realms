@@ -4,21 +4,17 @@ import {
   Transaction,
   TransactionType,
   PerformancePoint,
-} from "../entities/Portfolio";
-import { Stock } from "../entities/Stock";
-import { ApiResponse } from "../entities/api";
-import {
-  generateId,
-  createSuccessResponse,
-  createErrorResponse,
-} from "./apiUtils";
+} from '../entities/Portfolio';
+import { Stock } from '../entities/Stock';
+import { ApiResponse } from '../entities/api';
+import { generateId, createSuccessResponse, createErrorResponse } from './apiUtils';
 
 /**
  * Generates mock performance history for a portfolio
  */
 export function generatePerformanceHistory(
   startValue: number,
-  days: number = 30,
+  days: number = 30
 ): PerformancePoint[] {
   const performanceHistory: PerformancePoint[] = [];
   let currentValue = startValue;
@@ -47,21 +43,21 @@ export function executeBuyTransaction(
   portfolio: Portfolio,
   stock: Stock,
   shares: number,
-  price: number,
+  price: number
 ): ApiResponse<Transaction> {
   const total = shares * price;
 
   // Check if user has enough cash
   if (portfolio.cash < total) {
     return createErrorResponse(
-      "INSUFFICIENT_FUNDS",
-      "Not enough cash to complete this transaction",
+      'INSUFFICIENT_FUNDS',
+      'Not enough cash to complete this transaction'
     );
   }
 
   // Create transaction
   const transaction: Transaction = {
-    id: generateId("tx_"),
+    id: generateId('tx_'),
     stockId: stock.id,
     stockSymbol: stock.symbol,
     stockName: stock.name,
@@ -76,21 +72,17 @@ export function executeBuyTransaction(
   portfolio.cash -= total;
 
   // Update or create position
-  const existingPosition = portfolio.positions.find(
-    (p) => p.stockId === stock.id,
-  );
+  const existingPosition = portfolio.positions.find(p => p.stockId === stock.id);
   if (existingPosition) {
     const totalShares = existingPosition.shares + shares;
-    const totalCost =
-      existingPosition.shares * existingPosition.averageBuyPrice + total;
+    const totalCost = existingPosition.shares * existingPosition.averageBuyPrice + total;
 
     // Update average buy price
     existingPosition.averageBuyPrice = totalCost / totalShares;
     existingPosition.shares = totalShares;
     existingPosition.currentValue = totalShares * stock.currentPrice;
     existingPosition.totalReturn =
-      existingPosition.currentValue -
-      totalShares * existingPosition.averageBuyPrice;
+      existingPosition.currentValue - totalShares * existingPosition.averageBuyPrice;
     existingPosition.totalReturnPercentage =
       (stock.currentPrice / existingPosition.averageBuyPrice - 1) * 100;
     existingPosition.stock = stock;
@@ -125,13 +117,13 @@ export function executeSellTransaction(
   stock: Stock,
   shares: number,
   price: number,
-  positionIndex: number,
+  positionIndex: number
 ): ApiResponse<Transaction> {
   const position = portfolio.positions[positionIndex];
   if (position.shares < shares) {
     return createErrorResponse(
-      "INSUFFICIENT_SHARES",
-      "Not enough shares to complete this transaction",
+      'INSUFFICIENT_SHARES',
+      'Not enough shares to complete this transaction'
     );
   }
 
@@ -139,7 +131,7 @@ export function executeSellTransaction(
 
   // Create transaction
   const transaction: Transaction = {
-    id: generateId("tx_"),
+    id: generateId('tx_'),
     stockId: stock.id,
     stockSymbol: stock.symbol,
     stockName: stock.name,
@@ -162,10 +154,8 @@ export function executeSellTransaction(
   } else {
     // Update position value
     position.currentValue = position.shares * stock.currentPrice;
-    position.totalReturn =
-      position.currentValue - position.shares * position.averageBuyPrice;
-    position.totalReturnPercentage =
-      (stock.currentPrice / position.averageBuyPrice - 1) * 100;
+    position.totalReturn = position.currentValue - position.shares * position.averageBuyPrice;
+    position.totalReturnPercentage = (stock.currentPrice / position.averageBuyPrice - 1) * 100;
   }
 
   // Add transaction to history

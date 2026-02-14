@@ -1,5 +1,5 @@
-import { Stock, TimeFrame } from "./Stock";
-import { Transaction, TransactionType, Portfolio } from "./Portfolio";
+import { Stock, TimeFrame } from './Stock';
+import { Transaction, TransactionType, Portfolio } from './Portfolio';
 
 /**
  * Props interface for the StockList component

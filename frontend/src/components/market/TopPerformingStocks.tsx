@@ -3,27 +3,22 @@
  * Displays a list of top performing stocks that can be viewed by all users
  * No actions can be performed by unauthenticated users
  */
-import React from "react";
-import { Stock } from "../../entities/Stock";
-import { formatCurrency, formatPercentage } from "../../utils/formatUtils";
-import { useAuth } from "../../contexts/AuthContext";
-import { Link } from "react-router-dom";
+import React from 'react';
+import { Stock } from '../../entities/Stock';
+import { formatCurrency, formatPercentage } from '../../utils/formatUtils';
+import { useAuth } from '../../contexts/AuthContext';
+import { Link } from 'react-router-dom';
 
 interface TopPerformingStocksProps {
   stocks: Stock[];
   limit?: number;
 }
 
-const TopPerformingStocks: React.FC<TopPerformingStocksProps> = ({
-  stocks,
-  limit = 5,
-}) => {
+const TopPerformingStocks: React.FC<TopPerformingStocksProps> = ({ stocks, limit = 5 }) => {
   const { isAuthenticated } = useAuth();
 
   // Sort stocks by percentage change (descending)
-  const topStocks = [...stocks]
-    .sort((a, b) => b.changePercent - a.changePercent)
-    .slice(0, limit);
+  const topStocks = [...stocks].sort((a, b) => b.changePercent - a.changePercent).slice(0, limit);
 
   return (
     <div className="bg-white rounded-lg shadow-md dark:bg-gray-800 overflow-hidden">
@@ -78,11 +73,8 @@ const TopPerformingStocks: React.FC<TopPerformingStocksProps> = ({
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
-            {topStocks.map((stock) => (
-              <tr
-                key={stock.id}
-                className="hover:bg-gray-50 dark:hover:bg-gray-700"
-              >
+            {topStocks.map(stock => (
+              <tr key={stock.id} className="hover:bg-gray-50 dark:hover:bg-gray-700">
                 <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">
                   {stock.symbol}
                 </td>
@@ -96,8 +88,8 @@ const TopPerformingStocks: React.FC<TopPerformingStocksProps> = ({
                   <span
                     className={`inline-flex px-2 text-xs font-semibold rounded-full ${
                       stock.changePercent >= 0
-                        ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300"
-                        : "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300"
+                        ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300'
+                        : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300'
                     }`}
                   >
                     {formatPercentage(stock.changePercent)}

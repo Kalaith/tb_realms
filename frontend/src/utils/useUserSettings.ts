@@ -1,6 +1,6 @@
-import { useState, useEffect, useCallback } from "react";
-import { UserSettings, defaultUserSettings } from "../entities/UserSettings";
-import userSettingsService from "../api/userSettingsService";
+import { useState, useEffect, useCallback } from 'react';
+import { UserSettings, defaultUserSettings } from '../entities/UserSettings';
+import userSettingsService from '../api/userSettingsService';
 
 /**
  * Custom hook for accessing and modifying user settings throughout the application
@@ -30,8 +30,8 @@ export function useUserSettings() {
           setError(response.error.message);
         }
       } catch (err) {
-        setError("Failed to load settings");
-        console.error("Error loading settings:", err);
+        setError('Failed to load settings');
+        console.error('Error loading settings:', err);
       } finally {
         setIsLoading(false);
       }
@@ -45,16 +45,16 @@ export function useUserSettings() {
    */
   const updateSetting = useCallback(
     <K extends keyof UserSettings>(key: K, value: UserSettings[K]) => {
-      setSettings((prev) =>
+      setSettings(prev =>
         prev
           ? {
               ...prev,
               [key]: value,
             }
-          : null,
+          : null
       );
     },
-    [],
+    []
   );
 
   /**
@@ -62,7 +62,7 @@ export function useUserSettings() {
    */
   const saveSettings = useCallback(async () => {
     if (!settings) {
-      setError("No settings to save");
+      setError('No settings to save');
       return false;
     }
 
@@ -74,8 +74,8 @@ export function useUserSettings() {
       }
       return true;
     } catch (err) {
-      console.error("Error saving settings:", err);
-      setError("Failed to save settings");
+      console.error('Error saving settings:', err);
+      setError('Failed to save settings');
       return false;
     }
   }, [settings]);
@@ -92,8 +92,8 @@ export function useUserSettings() {
       }
       return false;
     } catch (err) {
-      console.error("Error resetting settings:", err);
-      setError("Failed to reset settings");
+      console.error('Error resetting settings:', err);
+      setError('Failed to reset settings');
       return false;
     }
   }, []);
@@ -109,11 +109,9 @@ export function useUserSettings() {
       }
 
       // Fall back to default if setting not loaded yet
-      return defaultUserSettings[
-        key as keyof typeof defaultUserSettings
-      ] as UserSettings[K];
+      return defaultUserSettings[key as keyof typeof defaultUserSettings] as UserSettings[K];
     },
-    [settings],
+    [settings]
   );
 
   return {

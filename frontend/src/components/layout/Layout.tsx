@@ -1,6 +1,6 @@
-import React from "react";
-import { Outlet } from "react-router-dom";
-import Navigation from "./Navigation";
+import React from 'react';
+import { Outlet } from 'react-router-dom';
+import Navigation from './Navigation';
 
 /**
  * Main Layout Component
@@ -23,9 +23,7 @@ const Layout: React.FC = () => {
 
         {/* Simple footer */}
         <footer className="py-3 text-center text-sm text-gray-500 border-t dark:text-gray-400 dark:border-gray-700">
-          <p>
-            © {new Date().getFullYear()} Tradeborn Realms. All rights reserved.
-          </p>
+          <p>© {new Date().getFullYear()} Tradeborn Realms. All rights reserved.</p>
         </footer>
       </div>
     </div>

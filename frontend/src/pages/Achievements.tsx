@@ -1,19 +1,19 @@
-import React, { useState, useEffect } from "react";
-import { achievementService } from "../api/achievementService";
-import { UserAchievement, UserAchievementStats } from "../entities/Achievement";
-import AchievementIcon from "../components/achievements/AchievementIcon";
-import { formatDate } from "../utils/formatUtils";
-import { LoadingSpinner } from "../components/utility";
+import React, { useState, useEffect } from 'react';
+import { achievementService } from '../api/achievementService';
+import { UserAchievement, UserAchievementStats } from '../entities/Achievement';
+import AchievementIcon from '../components/achievements/AchievementIcon';
+import { formatDate } from '../utils/formatUtils';
+import { LoadingSpinner } from '../components/utility';
 
 const Achievements: React.FC = () => {
   const [achievements, setAchievements] = useState<UserAchievement[]>([]);
   const [stats, setStats] = useState<UserAchievementStats | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
-  const [filter, setFilter] = useState<string>("all");
+  const [filter, setFilter] = useState<string>('all');
 
   // Mock user ID - consistent with portfolio service
-  const userId = "elf782";
+  const userId = 'elf782';
 
   useEffect(() => {
     const fetchAchievements = async () => {
@@ -22,22 +22,20 @@ const Achievements: React.FC = () => {
         setError(null);
 
         // Get user's achievements data
-        const achievementsResponse =
-          await achievementService.getUserAchievements(userId);
-        const statsResponse =
-          await achievementService.getUserAchievementStats(userId);
+        const achievementsResponse = await achievementService.getUserAchievements(userId);
+        const statsResponse = await achievementService.getUserAchievementStats(userId);
 
         if (achievementsResponse.success && achievementsResponse.data) {
           setAchievements(achievementsResponse.data);
         } else {
-          setError("Failed to load achievements data");
+          setError('Failed to load achievements data');
         }
 
         if (statsResponse.success && statsResponse.data) {
           setStats(statsResponse.data);
         }
       } catch (err) {
-        setError("An error occurred while fetching achievements data");
+        setError('An error occurred while fetching achievements data');
         console.error(err);
       } finally {
         setLoading(false);
@@ -48,17 +46,15 @@ const Achievements: React.FC = () => {
   }, [userId]);
 
   // Filter achievements based on selected filter
-  const filteredAchievements = achievements.filter((achievement) => {
-    if (filter === "all") return true;
-    if (filter === "unlocked") return achievement.unlocked;
-    if (filter === "locked") return !achievement.unlocked;
+  const filteredAchievements = achievements.filter(achievement => {
+    if (filter === 'all') return true;
+    if (filter === 'unlocked') return achievement.unlocked;
+    if (filter === 'locked') return !achievement.unlocked;
     return achievement.achievement.category === filter;
   });
 
   // Get unique categories for filter buttons
-  const categories = [
-    ...new Set(achievements.map((a) => a.achievement.category)),
-  ];
+  const categories = [...new Set(achievements.map(a => a.achievement.category))];
 
   if (loading) {
     return (
@@ -136,44 +132,44 @@ const Achievements: React.FC = () => {
       <div className="flex flex-wrap gap-2 mb-6">
         <button
           className={`px-3 py-1 text-sm rounded-full ${
-            filter === "all"
-              ? "bg-blue-600 text-white dark:bg-blue-700"
-              : "bg-gray-100 text-gray-800 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600"
+            filter === 'all'
+              ? 'bg-blue-600 text-white dark:bg-blue-700'
+              : 'bg-gray-100 text-gray-800 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600'
           }`}
-          onClick={() => setFilter("all")}
+          onClick={() => setFilter('all')}
         >
           All
         </button>
 
         <button
           className={`px-3 py-1 text-sm rounded-full ${
-            filter === "unlocked"
-              ? "bg-blue-600 text-white dark:bg-blue-700"
-              : "bg-gray-100 text-gray-800 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600"
+            filter === 'unlocked'
+              ? 'bg-blue-600 text-white dark:bg-blue-700'
+              : 'bg-gray-100 text-gray-800 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600'
           }`}
-          onClick={() => setFilter("unlocked")}
+          onClick={() => setFilter('unlocked')}
         >
           Unlocked
         </button>
 
         <button
           className={`px-3 py-1 text-sm rounded-full ${
-            filter === "locked"
-              ? "bg-blue-600 text-white dark:bg-blue-700"
-              : "bg-gray-100 text-gray-800 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600"
+            filter === 'locked'
+              ? 'bg-blue-600 text-white dark:bg-blue-700'
+              : 'bg-gray-100 text-gray-800 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600'
           }`}
-          onClick={() => setFilter("locked")}
+          onClick={() => setFilter('locked')}
         >
           Locked
         </button>
 
-        {categories.map((category) => (
+        {categories.map(category => (
           <button
             key={category}
             className={`px-3 py-1 text-sm rounded-full ${
               filter === category
-                ? "bg-blue-600 text-white dark:bg-blue-700"
-                : "bg-gray-100 text-gray-800 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600"
+                ? 'bg-blue-600 text-white dark:bg-blue-700'
+                : 'bg-gray-100 text-gray-800 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600'
             }`}
             onClick={() => setFilter(category)}
           >
@@ -184,19 +180,19 @@ const Achievements: React.FC = () => {
 
       {/* Achievement Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {filteredAchievements.map((achievement) => (
+        {filteredAchievements.map(achievement => (
           <div
             key={achievement.achievementId}
             className={`bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden ${
               achievement.unlocked
-                ? "border-2 border-green-500 dark:border-green-600"
-                : "border border-gray-200 dark:border-gray-700"
+                ? 'border-2 border-green-500 dark:border-green-600'
+                : 'border border-gray-200 dark:border-gray-700'
             }`}
           >
             <div className="p-5">
               <div className="flex items-center mb-4">
                 <div
-                  className={`${achievement.unlocked ? "text-green-500 dark:text-green-400" : "text-gray-400 dark:text-gray-500"} mr-3`}
+                  className={`${achievement.unlocked ? 'text-green-500 dark:text-green-400' : 'text-gray-400 dark:text-gray-500'} mr-3`}
                 >
                   <AchievementIcon
                     icon={achievement.achievement.icon}
@@ -220,11 +216,11 @@ const Achievements: React.FC = () => {
               <div className="flex justify-between items-center mb-3">
                 <span
                   className={`inline-flex items-center px-2 py-1 text-xs font-medium rounded-md ${
-                    achievement.achievement.difficulty === "beginner"
-                      ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
-                      : achievement.achievement.difficulty === "intermediate"
-                        ? "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200"
-                        : "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200"
+                    achievement.achievement.difficulty === 'beginner'
+                      ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
+                      : achievement.achievement.difficulty === 'intermediate'
+                        ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200'
+                        : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
                   }`}
                 >
                   {achievement.achievement.difficulty.charAt(0).toUpperCase() +
@@ -247,8 +243,7 @@ const Achievements: React.FC = () => {
                   <div className="flex justify-between items-center mb-1 text-xs text-gray-600 dark:text-gray-300">
                     <span>Progress</span>
                     <span>
-                      {achievement.progress} /{" "}
-                      {achievement.achievement.requirement.threshold}
+                      {achievement.progress} / {achievement.achievement.requirement.threshold}
                     </span>
                   </div>
                   <div className="w-full bg-gray-200 rounded-full h-2 dark:bg-gray-700">

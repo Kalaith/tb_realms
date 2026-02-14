@@ -1,7 +1,7 @@
-import React, { useRef, useEffect } from "react";
-import { TradeConfirmationProps } from "../../entities/Trade";
-import { formatCurrency } from "../../utils/formatUtils";
-import { TransactionType } from "../../entities/Portfolio";
+import React, { useRef, useEffect } from 'react';
+import { TradeConfirmationProps } from '../../entities/Trade';
+import { formatCurrency } from '../../utils/formatUtils';
+import { TransactionType } from '../../entities/Portfolio';
 
 /**
  * TradeConfirmation component - Modal dialog for confirming a trade
@@ -28,14 +28,14 @@ const TradeConfirmation: React.FC<TradeConfirmationProps> = ({
 
     // Handle escape key to close modal
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Escape") {
+      if (e.key === 'Escape') {
         e.preventDefault();
         onCancel();
       }
     };
 
-    document.addEventListener("keydown", handleKeyDown);
-    return () => document.removeEventListener("keydown", handleKeyDown);
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
   }, [onCancel]);
 
   return (
@@ -54,33 +54,25 @@ const TradeConfirmation: React.FC<TradeConfirmationProps> = ({
           id="confirmation-title"
           className="text-xl font-bold text-gray-900 dark:text-white mb-4"
         >
-          Confirm {tradeType === TransactionType.BUY ? "Purchase" : "Sale"}
+          Confirm {tradeType === TransactionType.BUY ? 'Purchase' : 'Sale'}
         </h2>
 
         <div className="space-y-3 mb-6">
           <p className="text-gray-700 dark:text-gray-300">
-            <span className="font-medium text-gray-900 dark:text-white">
-              Stock:
-            </span>{" "}
-            {stock.name} ({stock.symbol})
+            <span className="font-medium text-gray-900 dark:text-white">Stock:</span> {stock.name} (
+            {stock.symbol})
           </p>
           <p className="text-gray-700 dark:text-gray-300">
-            <span className="font-medium text-gray-900 dark:text-white">
-              Action:
-            </span>{" "}
-            {tradeType === TransactionType.BUY ? "Buy" : "Sell"} {shares} share
-            {shares !== 1 ? "s" : ""}
+            <span className="font-medium text-gray-900 dark:text-white">Action:</span>{' '}
+            {tradeType === TransactionType.BUY ? 'Buy' : 'Sell'} {shares} share
+            {shares !== 1 ? 's' : ''}
           </p>
           <p className="text-gray-700 dark:text-gray-300">
-            <span className="font-medium text-gray-900 dark:text-white">
-              Price:
-            </span>{" "}
+            <span className="font-medium text-gray-900 dark:text-white">Price:</span>{' '}
             {formatCurrency(stock.currentPrice)} per share
           </p>
           <p className="text-gray-700 dark:text-gray-300">
-            <span className="font-medium text-gray-900 dark:text-white">
-              Total:
-            </span>{" "}
+            <span className="font-medium text-gray-900 dark:text-white">Total:</span>{' '}
             {formatCurrency(amount)}
           </p>
         </div>
@@ -96,16 +88,16 @@ const TradeConfirmation: React.FC<TradeConfirmationProps> = ({
             ref={confirmButtonRef}
             className={`flex-1 py-2 px-4 rounded-md font-medium transition-colors ${
               loading || !canAfford
-                ? "bg-gray-300 text-gray-500 cursor-not-allowed dark:bg-gray-700 dark:text-gray-500"
+                ? 'bg-gray-300 text-gray-500 cursor-not-allowed dark:bg-gray-700 dark:text-gray-500'
                 : tradeType === TransactionType.BUY
-                  ? "bg-green-600 hover:bg-green-700 text-white dark:bg-green-700 dark:hover:bg-green-800"
-                  : "bg-red-600 hover:bg-red-700 text-white dark:bg-red-700 dark:hover:bg-red-800"
+                  ? 'bg-green-600 hover:bg-green-700 text-white dark:bg-green-700 dark:hover:bg-green-800'
+                  : 'bg-red-600 hover:bg-red-700 text-white dark:bg-red-700 dark:hover:bg-red-800'
             }`}
             onClick={onConfirm}
             disabled={loading || !canAfford}
             aria-disabled={loading || !canAfford}
           >
-            {loading ? "Processing..." : "Confirm"}
+            {loading ? 'Processing...' : 'Confirm'}
           </button>
           <button
             ref={cancelButtonRef}

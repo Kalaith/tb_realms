@@ -2,12 +2,12 @@
  * Watchlist Service
  * Handles API requests related to user watchlist
  */
-import { BaseApiService } from "./baseApiService";
-import { ApiResponse } from "../entities/api";
-import apiClient from "./apiClient";
-import { Stock } from "../entities/Stock";
-import { toApiError } from "./apiErrorUtils";
-import { unwrapData } from "./apiResponseUtils";
+import { BaseApiService } from './baseApiService';
+import { ApiResponse } from '../entities/api';
+import apiClient from './apiClient';
+import { Stock } from '../entities/Stock';
+import { toApiError } from './apiErrorUtils';
+import { unwrapData } from './apiResponseUtils';
 
 export interface WatchlistItem {
   id: string;
@@ -24,7 +24,7 @@ export interface WatchlistItem {
  */
 export class WatchlistService extends BaseApiService<WatchlistItem> {
   constructor() {
-    super("watchlist");
+    super('watchlist');
   }
 
   /**
@@ -39,7 +39,7 @@ export class WatchlistService extends BaseApiService<WatchlistItem> {
         data: unwrapData<WatchlistItem[]>(response),
       };
     } catch (error: unknown) {
-      const apiError = toApiError(error, "Failed to fetch watchlist data");
+      const apiError = toApiError(error, 'Failed to fetch watchlist data');
       return {
         success: false,
         error: {
@@ -55,7 +55,7 @@ export class WatchlistService extends BaseApiService<WatchlistItem> {
    */
   async addToWatchlist(
     stockId: string,
-    options?: { notes?: string; targetPrice?: number },
+    options?: { notes?: string; targetPrice?: number }
   ): Promise<ApiResponse<WatchlistItem>> {
     try {
       const response = await apiClient.post<
@@ -71,7 +71,7 @@ export class WatchlistService extends BaseApiService<WatchlistItem> {
         data: unwrapData<WatchlistItem>(response),
       };
     } catch (error: unknown) {
-      const apiError = toApiError(error, "Failed to add stock to watchlist");
+      const apiError = toApiError(error, 'Failed to add stock to watchlist');
       return {
         success: false,
         error: {
@@ -93,10 +93,7 @@ export class WatchlistService extends BaseApiService<WatchlistItem> {
         success: true,
       };
     } catch (error: unknown) {
-      const apiError = toApiError(
-        error,
-        "Failed to remove stock from watchlist",
-      );
+      const apiError = toApiError(error, 'Failed to remove stock from watchlist');
       return {
         success: false,
         error: {
@@ -112,20 +109,20 @@ export class WatchlistService extends BaseApiService<WatchlistItem> {
    */
   async updateWatchlistItem(
     itemId: string,
-    updates: { notes?: string; targetPrice?: number },
+    updates: { notes?: string; targetPrice?: number }
   ): Promise<ApiResponse<WatchlistItem>> {
     try {
-      const response = await apiClient.patch<
-        unknown,
-        { notes?: string; targetPrice?: number }
-      >(`${this.endpoint}/${itemId}`, updates);
+      const response = await apiClient.patch<unknown, { notes?: string; targetPrice?: number }>(
+        `${this.endpoint}/${itemId}`,
+        updates
+      );
 
       return {
         success: true,
         data: unwrapData<WatchlistItem>(response),
       };
     } catch (error: unknown) {
-      const apiError = toApiError(error, "Failed to update watchlist item");
+      const apiError = toApiError(error, 'Failed to update watchlist item');
       return {
         success: false,
         error: {

@@ -1,5 +1,5 @@
-import { Position } from "../../entities/Portfolio";
-import { formatCurrency, formatPercentage } from "../../utils/formatUtils";
+import { Position } from '../../entities/Portfolio';
+import { formatCurrency, formatPercentage } from '../../utils/formatUtils';
 
 type PortfolioHoldingsProps = {
   positions: Position[];
@@ -10,11 +10,7 @@ type PortfolioHoldingsProps = {
 /**
  * Displays the holdings table with stock positions and action buttons
  */
-const PortfolioHoldings = ({
-  positions,
-  onBuyClick,
-  onSellClick,
-}: PortfolioHoldingsProps) => {
+const PortfolioHoldings = ({ positions, onBuyClick, onSellClick }: PortfolioHoldingsProps) => {
   return (
     <div className="overflow-x-auto bg-white rounded-lg shadow-md dark:bg-gray-800">
       <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
@@ -65,11 +61,8 @@ const PortfolioHoldings = ({
           </tr>
         </thead>
         <tbody className="bg-white divide-y divide-gray-200 dark:bg-gray-800 dark:divide-gray-700">
-          {positions.map((position) => (
-            <tr
-              key={position.stockId}
-              className="hover:bg-gray-50 dark:hover:bg-gray-700"
-            >
+          {positions.map(position => (
+            <tr key={position.stockId} className="hover:bg-gray-50 dark:hover:bg-gray-700">
               <td className="px-4 py-4 whitespace-nowrap">
                 <div className="font-medium text-gray-900 dark:text-white">
                   {position.stock.symbol}
@@ -92,22 +85,14 @@ const PortfolioHoldings = ({
               </td>
               <td className="px-4 py-4 whitespace-nowrap">
                 <div
-                  className={`font-medium ${position.totalReturn >= 0 ? "text-green-600 dark:text-green-400" : "text-red-600 dark:text-red-400"}`}
+                  className={`font-medium ${position.totalReturn >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}
                 >
                   {formatCurrency(position.totalReturn)}
                 </div>
                 <div
-                  className={`text-sm ${position.totalReturnPercentage >= 0 ? "text-green-600 dark:text-green-400" : "text-red-600 dark:text-red-400"}`}
+                  className={`text-sm ${position.totalReturnPercentage >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}
                 >
-                  (
-                  {formatPercentage(
-                    position.totalReturnPercentage,
-                    true,
-                    2,
-                    2,
-                    false,
-                  )}
-                  )
+                  ({formatPercentage(position.totalReturnPercentage, true, 2, 2, false)})
                 </div>
               </td>
               <td className="px-4 py-4 whitespace-nowrap text-sm">

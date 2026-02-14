@@ -1,7 +1,7 @@
 /**
  * Custom hook for responsive design using media queries
  */
-import { useState, useEffect } from "react";
+import { useState, useEffect } from 'react';
 
 /**
  * Hook to detect if a media query matches
@@ -12,7 +12,7 @@ export function useMediaQuery(query: string): boolean {
   // Initial match state based on current window
   const [matches, setMatches] = useState<boolean>(() => {
     // Check for window object to ensure SSR compatibility
-    if (typeof window !== "undefined") {
+    if (typeof window !== 'undefined') {
       return window.matchMedia(query).matches;
     }
     return false;
@@ -20,7 +20,7 @@ export function useMediaQuery(query: string): boolean {
 
   useEffect(() => {
     // Ensure we're in a browser environment
-    if (typeof window === "undefined") return;
+    if (typeof window === 'undefined') return;
 
     // Create media query list
     const mediaQuery = window.matchMedia(query);
@@ -34,11 +34,11 @@ export function useMediaQuery(query: string): boolean {
     };
 
     // Add event listener
-    mediaQuery.addEventListener("change", handleChange);
+    mediaQuery.addEventListener('change', handleChange);
 
     // Cleanup
     return () => {
-      mediaQuery.removeEventListener("change", handleChange);
+      mediaQuery.removeEventListener('change', handleChange);
     };
   }, [query]);
 

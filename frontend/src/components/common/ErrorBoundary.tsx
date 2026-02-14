@@ -1,4 +1,4 @@
-import React, { Component, ReactNode } from "react";
+import React, { Component, ReactNode } from 'react';
 
 interface ErrorBoundaryState {
   hasError: boolean;
@@ -26,7 +26,7 @@ class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
   }
 
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
-    console.error("Application error caught by boundary:", error, errorInfo);
+    console.error('Application error caught by boundary:', error, errorInfo);
     this.setState({ error, errorInfo });
 
     // In production, you might want to send this to an error reporting service
@@ -44,21 +44,11 @@ class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
       // Custom fallback UI if provided
       if (this.props.fallback) {
         const FallbackComponent = this.props.fallback;
-        return (
-          <FallbackComponent
-            error={this.state.error}
-            resetError={this.resetError}
-          />
-        );
+        return <FallbackComponent error={this.state.error} resetError={this.resetError} />;
       }
 
       // Default fallback UI
-      return (
-        <DefaultErrorFallback
-          error={this.state.error}
-          resetError={this.resetError}
-        />
-      );
+      return <DefaultErrorFallback error={this.state.error} resetError={this.resetError} />;
     }
 
     return this.props.children;
@@ -94,8 +84,8 @@ const DefaultErrorFallback: React.FC<{
         </h1>
 
         <p className="text-gray-600 dark:text-gray-400 text-center mb-6">
-          We encountered an unexpected error. Please try refreshing the page or
-          contact support if the problem persists.
+          We encountered an unexpected error. Please try refreshing the page or contact support if
+          the problem persists.
         </p>
 
         {import.meta.env.DEV && error && (
@@ -106,9 +96,7 @@ const DefaultErrorFallback: React.FC<{
             <pre className="text-red-600 dark:text-red-400 whitespace-pre-wrap text-xs">
               {error.name}: {error.message}
               {error.stack && (
-                <div className="mt-2 text-gray-600 dark:text-gray-400">
-                  {error.stack}
-                </div>
+                <div className="mt-2 text-gray-600 dark:text-gray-400">{error.stack}</div>
               )}
             </pre>
           </details>

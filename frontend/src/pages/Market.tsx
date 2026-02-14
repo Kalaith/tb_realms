@@ -1,10 +1,10 @@
-import { useState, useEffect, useMemo } from "react";
-import { stockService } from "../api/stockService";
-import { Stock } from "../entities/Stock";
-import { StockFilters } from "../entities/api";
-import { MarketFilters, StocksTable } from "../components/market";
-import StockDetailsPanel from "../components/market/StockDetailsPanel";
-import { LoadingSpinner } from "../components/utility";
+import { useState, useEffect, useMemo } from 'react';
+import { stockService } from '../api/stockService';
+import { Stock } from '../entities/Stock';
+import { StockFilters } from '../entities/api';
+import { MarketFilters, StocksTable } from '../components/market';
+import StockDetailsPanel from '../components/market/StockDetailsPanel';
+import { LoadingSpinner } from '../components/utility';
 
 /**
  * Market page displays a list of all available stocks with filtering and sorting options
@@ -15,20 +15,18 @@ const Market = () => {
   const [stocks, setStocks] = useState<Stock[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
-  const [searchQuery, setSearchQuery] = useState<string>("");
+  const [searchQuery, setSearchQuery] = useState<string>('');
   const [selectedSector, setSelectedSector] = useState<string | null>(null);
-  const [sortBy, setSortBy] = useState<
-    "name" | "price" | "change" | "volume" | "marketCap"
-  >("marketCap");
-  const [sortDirection, setSortDirection] = useState<"asc" | "desc">("desc");
+  const [sortBy, setSortBy] = useState<'name' | 'price' | 'change' | 'volume' | 'marketCap'>(
+    'marketCap'
+  );
+  const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc');
   const [selectedStock, setSelectedStock] = useState<Stock | null>(null);
-  const [activeTab, setActiveTab] = useState<
-    "overview" | "financials" | "news"
-  >("overview");
+  const [activeTab, setActiveTab] = useState<'overview' | 'financials' | 'news'>('overview');
 
   // Stock sectors for filtering
   const sectors = useMemo(() => {
-    const uniqueSectors = [...new Set(stocks.map((stock) => stock.sector))];
+    const uniqueSectors = [...new Set(stocks.map(stock => stock.sector))];
     return uniqueSectors.sort();
   }, [stocks]);
 
@@ -52,10 +50,10 @@ const Market = () => {
         if (response.success && response.data) {
           setStocks(response.data);
         } else {
-          setError("Failed to load stock data");
+          setError('Failed to load stock data');
         }
       } catch (err) {
-        setError("An error occurred while fetching stocks");
+        setError('An error occurred while fetching stocks');
         console.error(err);
       } finally {
         setLoading(false);
@@ -71,23 +69,20 @@ const Market = () => {
 
     const query = searchQuery.toLowerCase();
     return stocks.filter(
-      (stock) =>
-        stock.symbol.toLowerCase().includes(query) ||
-        stock.name.toLowerCase().includes(query),
+      stock =>
+        stock.symbol.toLowerCase().includes(query) || stock.name.toLowerCase().includes(query)
     );
   }, [stocks, searchQuery]);
 
   // Sorting handler
-  const handleSort = (
-    newSortBy: "name" | "price" | "change" | "volume" | "marketCap",
-  ) => {
+  const handleSort = (newSortBy: 'name' | 'price' | 'change' | 'volume' | 'marketCap') => {
     if (sortBy === newSortBy) {
       // Toggle direction if clicking the same column
-      setSortDirection((prev) => (prev === "asc" ? "desc" : "asc"));
+      setSortDirection(prev => (prev === 'asc' ? 'desc' : 'asc'));
     } else {
       // Default to descending for new column, except for name which is ascending
       setSortBy(newSortBy);
-      setSortDirection(newSortBy === "name" ? "asc" : "desc");
+      setSortDirection(newSortBy === 'name' ? 'asc' : 'desc');
     }
   };
 
@@ -101,7 +96,7 @@ const Market = () => {
     setSelectedStock(stock);
     // Reset to overview tab when selecting a new stock
     if (stock && (!selectedStock || selectedStock.id !== stock.id)) {
-      setActiveTab("overview");
+      setActiveTab('overview');
     }
   };
 

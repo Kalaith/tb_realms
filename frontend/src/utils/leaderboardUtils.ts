@@ -8,9 +8,9 @@
  * @returns Formatted currency string
  */
 export const formatCurrency = (value: number): string => {
-  return new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: "USD",
+  return new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: 'USD',
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
   }).format(value);
@@ -22,11 +22,11 @@ export const formatCurrency = (value: number): string => {
  * @returns Formatted percentage string
  */
 export const formatPercentage = (value: number): string => {
-  return new Intl.NumberFormat("en-US", {
-    style: "percent",
+  return new Intl.NumberFormat('en-US', {
+    style: 'percent',
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
-    signDisplay: "always",
+    signDisplay: 'always',
   }).format(value / 100);
 };
 
@@ -37,10 +37,10 @@ export const formatPercentage = (value: number): string => {
  */
 export const formatDate = (dateString: string): string => {
   const date = new Date(dateString);
-  return date.toLocaleDateString("en-US", {
-    year: "numeric",
-    month: "short",
-    day: "numeric",
+  return date.toLocaleDateString('en-US', {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
   });
 };
 
@@ -50,7 +50,7 @@ export const formatDate = (dateString: string): string => {
  * @returns CSS class name
  */
 export const getGrowthClass = (growth: number): string => {
-  return growth >= 0 ? "positive-growth" : "negative-growth";
+  return growth >= 0 ? 'positive-growth' : 'negative-growth';
 };
 
 /**
@@ -60,20 +60,20 @@ export const getGrowthClass = (growth: number): string => {
  */
 export const getBadgeClass = (badge: string): string => {
   const badgeClasses: Record<string, string> = {
-    "Diamond Trader": "badge-diamond",
-    "Market Guru": "badge-guru",
-    "Gold Trader": "badge-gold",
-    "Silver Trader": "badge-silver",
-    "Bronze Trader": "badge-bronze",
-    "Risk Manager": "badge-risk",
-    "Tech Specialist": "badge-tech",
-    "Rising Star": "badge-rising",
-    "Consistent Performer": "badge-consistent",
-    "Smart Investor": "badge-smart",
-    "Rapid Trader": "badge-rapid",
-    "Income Specialist": "badge-income",
-    "Quick Flipper": "badge-flipper",
+    'Diamond Trader': 'badge-diamond',
+    'Market Guru': 'badge-guru',
+    'Gold Trader': 'badge-gold',
+    'Silver Trader': 'badge-silver',
+    'Bronze Trader': 'badge-bronze',
+    'Risk Manager': 'badge-risk',
+    'Tech Specialist': 'badge-tech',
+    'Rising Star': 'badge-rising',
+    'Consistent Performer': 'badge-consistent',
+    'Smart Investor': 'badge-smart',
+    'Rapid Trader': 'badge-rapid',
+    'Income Specialist': 'badge-income',
+    'Quick Flipper': 'badge-flipper',
   };
 
-  return badgeClasses[badge] || "badge-default";
+  return badgeClasses[badge] || 'badge-default';
 };

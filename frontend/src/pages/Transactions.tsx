@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from "react";
-import { Transaction } from "../entities/Portfolio";
-import { portfolioService } from "../api/portfolioService";
-import { formatCurrency, formatDateTime } from "../utils/formatUtils";
-import { LoadingSpinner } from "../components/utility";
+import React, { useState, useEffect } from 'react';
+import { Transaction } from '../entities/Portfolio';
+import { portfolioService } from '../api/portfolioService';
+import { formatCurrency, formatDateTime } from '../utils/formatUtils';
+import { LoadingSpinner } from '../components/utility';
 
 /**
  * Transactions page - Shows a detailed history of user transactions
@@ -13,11 +13,11 @@ const Transactions: React.FC = () => {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
-  const [filter, setFilter] = useState<"all" | "buy" | "sell">("all");
-  const [searchQuery, setSearchQuery] = useState<string>("");
+  const [filter, setFilter] = useState<'all' | 'buy' | 'sell'>('all');
+  const [searchQuery, setSearchQuery] = useState<string>('');
 
   // Mock user ID - should be replaced with context/auth in a real implementation
-  const userId = "elf782";
+  const userId = 'elf782';
 
   useEffect(() => {
     const fetchTransactions = async () => {
@@ -31,10 +31,10 @@ const Transactions: React.FC = () => {
         if (response.success && response.data) {
           setTransactions(response.data);
         } else {
-          setError("Failed to load transaction data");
+          setError('Failed to load transaction data');
         }
       } catch (err) {
-        setError("An error occurred while fetching transaction data");
+        setError('An error occurred while fetching transaction data');
         console.error(err);
       } finally {
         setLoading(false);
@@ -45,18 +45,16 @@ const Transactions: React.FC = () => {
   }, [userId]);
 
   // Filter transactions based on selected filter and search query
-  const filteredTransactions = transactions.filter((transaction) => {
+  const filteredTransactions = transactions.filter(transaction => {
     // Apply type filter
-    if (filter !== "all" && transaction.type.toLowerCase() !== filter) {
+    if (filter !== 'all' && transaction.type.toLowerCase() !== filter) {
       return false;
     }
 
     // Apply search filter
     if (
       searchQuery &&
-      !transaction.stockSymbol
-        .toLowerCase()
-        .includes(searchQuery.toLowerCase()) &&
+      !transaction.stockSymbol.toLowerCase().includes(searchQuery.toLowerCase()) &&
       !transaction.stockName.toLowerCase().includes(searchQuery.toLowerCase())
     ) {
       return false;
@@ -66,7 +64,7 @@ const Transactions: React.FC = () => {
   });
 
   // Handle filter change
-  const handleFilterChange = (newFilter: "all" | "buy" | "sell") => {
+  const handleFilterChange = (newFilter: 'all' | 'buy' | 'sell') => {
     setFilter(newFilter);
   };
 
@@ -104,31 +102,31 @@ const Transactions: React.FC = () => {
           <div className="flex space-x-2">
             <button
               className={`px-4 py-2 rounded-md text-sm font-medium ${
-                filter === "all"
-                  ? "bg-blue-600 text-white dark:bg-blue-700"
-                  : "bg-gray-200 text-gray-800 dark:bg-gray-700 dark:text-gray-300"
+                filter === 'all'
+                  ? 'bg-blue-600 text-white dark:bg-blue-700'
+                  : 'bg-gray-200 text-gray-800 dark:bg-gray-700 dark:text-gray-300'
               }`}
-              onClick={() => handleFilterChange("all")}
+              onClick={() => handleFilterChange('all')}
             >
               All
             </button>
             <button
               className={`px-4 py-2 rounded-md text-sm font-medium ${
-                filter === "buy"
-                  ? "bg-green-600 text-white dark:bg-green-700"
-                  : "bg-gray-200 text-gray-800 dark:bg-gray-700 dark:text-gray-300"
+                filter === 'buy'
+                  ? 'bg-green-600 text-white dark:bg-green-700'
+                  : 'bg-gray-200 text-gray-800 dark:bg-gray-700 dark:text-gray-300'
               }`}
-              onClick={() => handleFilterChange("buy")}
+              onClick={() => handleFilterChange('buy')}
             >
               Buy
             </button>
             <button
               className={`px-4 py-2 rounded-md text-sm font-medium ${
-                filter === "sell"
-                  ? "bg-red-600 text-white dark:bg-red-700"
-                  : "bg-gray-200 text-gray-800 dark:bg-gray-700 dark:text-gray-300"
+                filter === 'sell'
+                  ? 'bg-red-600 text-white dark:bg-red-700'
+                  : 'bg-gray-200 text-gray-800 dark:bg-gray-700 dark:text-gray-300'
               }`}
-              onClick={() => handleFilterChange("sell")}
+              onClick={() => handleFilterChange('sell')}
             >
               Sell
             </button>
@@ -139,7 +137,7 @@ const Transactions: React.FC = () => {
               type="text"
               placeholder="Search by stock symbol or name..."
               value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
+              onChange={e => setSearchQuery(e.target.value)}
               className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
             />
           </div>
@@ -189,20 +187,17 @@ const Transactions: React.FC = () => {
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200 dark:bg-gray-800 dark:divide-gray-700">
-              {filteredTransactions.map((transaction) => (
-                <tr
-                  key={transaction.id}
-                  className="hover:bg-gray-50 dark:hover:bg-gray-700"
-                >
+              {filteredTransactions.map(transaction => (
+                <tr key={transaction.id} className="hover:bg-gray-50 dark:hover:bg-gray-700">
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
                     {formatDateTime(transaction.timestamp)}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <span
                       className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                        transaction.type.toLowerCase() === "buy"
-                          ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
-                          : "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200"
+                        transaction.type.toLowerCase() === 'buy'
+                          ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
+                          : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
                       }`}
                     >
                       {transaction.type}
@@ -233,8 +228,8 @@ const Transactions: React.FC = () => {
           {filteredTransactions.length === 0 && (
             <div className="flex items-center justify-center p-8 text-gray-500 dark:text-gray-400">
               {transactions.length === 0
-                ? "No transactions found. Start trading to see your history."
-                : "No transactions match the selected filters."}
+                ? 'No transactions found. Start trading to see your history.'
+                : 'No transactions match the selected filters.'}
             </div>
           )}
         </div>

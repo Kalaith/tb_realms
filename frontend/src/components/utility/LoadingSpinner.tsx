@@ -1,15 +1,11 @@
-import React from "react";
+import React from 'react';
 
 /**
  * LoadingSpinner component - Displays a loading indicator
  * Used for consistent loading UI throughout the application
  */
 const LoadingSpinner: React.FC = () => (
-  <div
-    className="flex flex-col items-center justify-center p-4"
-    role="status"
-    aria-live="polite"
-  >
+  <div className="flex flex-col items-center justify-center p-4" role="status" aria-live="polite">
     <svg
       className="w-10 h-10 mb-3 animate-spin text-blue-600 dark:text-blue-400"
       xmlns="http://www.w3.org/2000/svg"

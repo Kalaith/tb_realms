@@ -2,15 +2,15 @@
  * Authentication API Client
  * Handles all authentication-related API requests
  */
-import axios from "axios";
-import { AuthUser, ApiResponse } from "../entities/Auth";
+import axios from 'axios';
+import { AuthUser, ApiResponse } from '../entities/Auth';
 
 // Base API URL from environment variables - required
 // IMPORTANT: Make sure this matches your backend server address and port
 const apiUrl = import.meta.env.VITE_API_URL;
 
 if (!apiUrl) {
-  throw new Error("VITE_API_URL environment variable is required");
+  throw new Error('VITE_API_URL environment variable is required');
 }
 
 /**
@@ -19,7 +19,7 @@ if (!apiUrl) {
 const apiClient = axios.create({
   baseURL: apiUrl,
   headers: {
-    "Content-Type": "application/json",
+    'Content-Type': 'application/json',
   },
   // Add timeout to prevent hanging requests
   timeout: 10000,
@@ -28,9 +28,9 @@ const apiClient = axios.create({
 /**
  * Add auth token to requests if available (Web Hatchery)
  */
-apiClient.interceptors.request.use((config) => {
+apiClient.interceptors.request.use(config => {
   try {
-    const raw = localStorage.getItem("auth-storage");
+    const raw = localStorage.getItem('auth-storage');
     if (raw) {
       const parsed = JSON.parse(raw) as { state?: { token?: string | null } };
       const token = parsed.state?.token ?? null;
@@ -52,21 +52,17 @@ apiClient.interceptors.request.use((config) => {
 const handleApiError = (error: unknown): never => {
   // Log the error for debugging (only in development)
   if (import.meta.env.DEV) {
-    console.error("API Error:", error);
+    console.error('API Error:', error);
   }
 
   // Handle Axios errors
   if (axios.isAxiosError(error)) {
     // Handle network errors (connection refused, server down, etc.)
-    if (
-      error.code === "ECONNABORTED" ||
-      error.code === "ERR_NETWORK" ||
-      !error.response
-    ) {
+    if (error.code === 'ECONNABORTED' || error.code === 'ERR_NETWORK' || !error.response) {
       throw {
-        code: "CONNECTION_ERROR",
+        code: 'CONNECTION_ERROR',
         message:
-          "Unable to connect to the server. Please check your connection or try again later.",
+          'Unable to connect to the server. Please check your connection or try again later.',
       };
     }
 
@@ -79,41 +75,41 @@ const handleApiError = (error: unknown): never => {
     switch (error.response?.status) {
       case 401:
         throw {
-          code: "UNAUTHORIZED",
-          message: "Invalid credentials. Please check your email and password.",
+          code: 'UNAUTHORIZED',
+          message: 'Invalid credentials. Please check your email and password.',
         };
       case 403:
         throw {
-          code: "FORBIDDEN",
-          message: "You do not have permission to perform this action.",
+          code: 'FORBIDDEN',
+          message: 'You do not have permission to perform this action.',
         };
       case 404:
         throw {
-          code: "NOT_FOUND",
-          message: "The requested resource was not found.",
+          code: 'NOT_FOUND',
+          message: 'The requested resource was not found.',
         };
       case 422:
         throw {
-          code: "VALIDATION_ERROR",
-          message: "Please check your input and try again.",
+          code: 'VALIDATION_ERROR',
+          message: 'Please check your input and try again.',
         };
       case 500:
         throw {
-          code: "SERVER_ERROR",
-          message: "An internal server error occurred. Please try again later.",
+          code: 'SERVER_ERROR',
+          message: 'An internal server error occurred. Please try again later.',
         };
       default:
         throw {
-          code: "UNKNOWN_ERROR",
-          message: `Error ${error.response?.status || ""}: Something went wrong.`,
+          code: 'UNKNOWN_ERROR',
+          message: `Error ${error.response?.status || ''}: Something went wrong.`,
         };
     }
   }
 
   // Handle non-Axios errors
   throw {
-    code: "CLIENT_ERROR",
-    message: "An unexpected error occurred. Please try again.",
+    code: 'CLIENT_ERROR',
+    message: 'An unexpected error occurred. Please try again.',
   };
 };
 
@@ -124,8 +120,8 @@ const handleApiError = (error: unknown): never => {
  */
 export const login = async (): Promise<AuthUser> => {
   return handleApiError({
-    code: "UNSUPPORTED",
-    message: "Login is handled by Web Hatchery.",
+    code: 'UNSUPPORTED',
+    message: 'Login is handled by Web Hatchery.',
   });
 };
 
@@ -136,8 +132,8 @@ export const login = async (): Promise<AuthUser> => {
  */
 export const register = async (): Promise<AuthUser> => {
   return handleApiError({
-    code: "UNSUPPORTED",
-    message: "Registration is handled by Web Hatchery.",
+    code: 'UNSUPPORTED',
+    message: 'Registration is handled by Web Hatchery.',
   });
 };
 
@@ -147,8 +143,7 @@ export const register = async (): Promise<AuthUser> => {
  */
 export const getCurrentUser = async (): Promise<AuthUser | null> => {
   try {
-    const response =
-      await apiClient.get<ApiResponse<{ user: AuthUser }>>("/auth/session");
+    const response = await apiClient.get<ApiResponse<{ user: AuthUser }>>('/auth/session');
     return response.data.data?.user ?? null;
   } catch (error) {
     // Silently fail for auth check - this is expected when not logged in
@@ -161,7 +156,7 @@ export const getCurrentUser = async (): Promise<AuthUser | null> => {
 
     // For connection errors during auth check, also return null but log the issue
     if (axios.isAxiosError(error) && !error.response) {
-      console.warn("Connection issue during auth check:", error.message);
+      console.warn('Connection issue during auth check:', error.message);
       return null;
     }
 

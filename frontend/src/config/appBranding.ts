@@ -7,6 +7,6 @@
 
 // For backward compatibility
 export const appBranding = {
-  name: "Tradeborn Realms",
-  logo: "/logo.svg",
+  name: 'Tradeborn Realms',
+  logo: '/logo.svg',
 };

@@ -1,12 +1,12 @@
-import { ApiResponse } from "../entities/api";
-import type { PricePoint } from "../entities/Stock";
+import { ApiResponse } from '../entities/api';
+import type { PricePoint } from '../entities/Stock';
 
 /**
  * Simulates API delay (legacy - kept for fallback to mock data if needed)
  */
 export async function mockDelay(minMs = 300, maxMs = 800): Promise<void> {
   const delay = Math.floor(Math.random() * (maxMs - minMs + 1)) + minMs;
-  return new Promise((resolve) => setTimeout(resolve, delay));
+  return new Promise(resolve => setTimeout(resolve, delay));
 }
 
 /**
@@ -50,10 +50,7 @@ export function createSuccessResponse<T>(data: T): ApiResponse<T> {
  * Creates an error API response
  * Used for formatting error responses consistently
  */
-export function createErrorResponse(
-  code: string,
-  message: string,
-): ApiResponse<never> {
+export function createErrorResponse(code: string, message: string): ApiResponse<never> {
   return {
     success: false,
     error: {
@@ -77,7 +74,7 @@ export function generateId(prefix: string): string {
 export function handleApiError(
   error: unknown,
   entityName: string,
-  actionDescription: string,
+  actionDescription: string
 ): ApiResponse<never> {
   console.error(`Error ${actionDescription} for ${entityName}:`, error);
 
@@ -86,8 +83,7 @@ export function handleApiError(
     data?: { message?: string; code?: string };
     statusText?: string;
   };
-  const message =
-    err.data?.message || err.statusText || `Failed ${actionDescription}`;
+  const message = err.data?.message || err.statusText || `Failed ${actionDescription}`;
   const errorCode = err.data?.code || `${entityName.toUpperCase()}_ERROR`;
 
   return createErrorResponse(errorCode, message);

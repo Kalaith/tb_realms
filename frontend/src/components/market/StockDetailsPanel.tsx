@@ -1,17 +1,13 @@
-import React, { useState, useEffect } from "react";
-import { Stock } from "../../entities/Stock";
-import { MarketEvent } from "../../entities/MarketEvent";
-import {
-  formatCurrency,
-  formatPercentage,
-  formatMarketCap,
-} from "../../utils/formatUtils";
-import { marketEventService } from "../../api/marketEventService";
+import React, { useState, useEffect } from 'react';
+import { Stock } from '../../entities/Stock';
+import { MarketEvent } from '../../entities/MarketEvent';
+import { formatCurrency, formatPercentage, formatMarketCap } from '../../utils/formatUtils';
+import { marketEventService } from '../../api/marketEventService';
 
 interface StockDetailsPanelProps {
   stock: Stock;
-  activeTab: "overview" | "financials" | "news";
-  setActiveTab: (tab: "overview" | "financials" | "news") => void;
+  activeTab: 'overview' | 'financials' | 'news';
+  setActiveTab: (tab: 'overview' | 'financials' | 'news') => void;
   onClose: () => void;
 }
 
@@ -30,7 +26,7 @@ const StockDetailsPanel: React.FC<StockDetailsPanelProps> = ({
 
   // Fetch market events when stock changes or news tab is active
   useEffect(() => {
-    if (activeTab === "news" && stock) {
+    if (activeTab === 'news' && stock) {
       const fetchMarketEvents = async () => {
         setLoadingNews(true);
         try {
@@ -41,7 +37,7 @@ const StockDetailsPanel: React.FC<StockDetailsPanelProps> = ({
             setMarketEvents([]);
           }
         } catch (error) {
-          console.error("Failed to fetch market events:", error);
+          console.error('Failed to fetch market events:', error);
           setMarketEvents([]);
         } finally {
           setLoadingNews(false);
@@ -59,7 +55,7 @@ const StockDetailsPanel: React.FC<StockDetailsPanelProps> = ({
             {/* Close Button */}
             <button
               className="absolute top-4 right-4 text-white opacity-80 hover:opacity-100"
-              onClick={(e) => {
+              onClick={e => {
                 e.stopPropagation();
                 onClose();
               }}
@@ -99,56 +95,54 @@ const StockDetailsPanel: React.FC<StockDetailsPanelProps> = ({
                 {formatCurrency(stock.currentPrice)}
               </div>
               <div
-                className={`ml-2 px-2 py-1 rounded ${stock.changePercent >= 0 ? "bg-green-500" : "bg-red-500"} flex items-center`}
+                className={`ml-2 px-2 py-1 rounded ${stock.changePercent >= 0 ? 'bg-green-500' : 'bg-red-500'} flex items-center`}
               >
                 <span className="text-white text-sm font-medium">
-                  {stock.changePercent >= 0 ? "↑" : "↓"}{" "}
+                  {stock.changePercent >= 0 ? '↑' : '↓'}{' '}
                   {formatPercentage(Math.abs(stock.changePercent), false)}
                 </span>
               </div>
             </div>
-            <div className="text-sm text-blue-100 mt-1">
-              {formatCurrency(stock.change)} Today
-            </div>
+            <div className="text-sm text-blue-100 mt-1">{formatCurrency(stock.change)} Today</div>
           </div>
 
           {/* Navigation Tabs */}
           <div className="flex border-b border-gray-200 dark:border-gray-700">
             <button
               className={`flex-1 py-3 px-2 text-sm font-medium ${
-                activeTab === "overview"
-                  ? "text-blue-600 dark:text-blue-400 border-b-2 border-blue-600 dark:border-blue-400"
-                  : "text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200"
+                activeTab === 'overview'
+                  ? 'text-blue-600 dark:text-blue-400 border-b-2 border-blue-600 dark:border-blue-400'
+                  : 'text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200'
               }`}
-              onClick={(e) => {
+              onClick={e => {
                 e.stopPropagation();
-                setActiveTab("overview");
+                setActiveTab('overview');
               }}
             >
               Overview
             </button>
             <button
               className={`flex-1 py-3 px-2 text-sm font-medium ${
-                activeTab === "financials"
-                  ? "text-blue-600 dark:text-blue-400 border-b-2 border-blue-600 dark:border-blue-400"
-                  : "text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200"
+                activeTab === 'financials'
+                  ? 'text-blue-600 dark:text-blue-400 border-b-2 border-blue-600 dark:border-blue-400'
+                  : 'text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200'
               }`}
-              onClick={(e) => {
+              onClick={e => {
                 e.stopPropagation();
-                setActiveTab("financials");
+                setActiveTab('financials');
               }}
             >
               Financials
             </button>
             <button
               className={`flex-1 py-3 px-2 text-sm font-medium ${
-                activeTab === "news"
-                  ? "text-blue-600 dark:text-blue-400 border-b-2 border-blue-600 dark:border-blue-400"
-                  : "text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200"
+                activeTab === 'news'
+                  ? 'text-blue-600 dark:text-blue-400 border-b-2 border-blue-600 dark:border-blue-400'
+                  : 'text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200'
               }`}
-              onClick={(e) => {
+              onClick={e => {
                 e.stopPropagation();
-                setActiveTab("news");
+                setActiveTab('news');
               }}
             >
               News
@@ -157,7 +151,7 @@ const StockDetailsPanel: React.FC<StockDetailsPanelProps> = ({
 
           {/* Tab Content */}
           <div className="p-6">
-            {activeTab === "overview" && (
+            {activeTab === 'overview' && (
               <div className="space-y-4">
                 {/* Key Metrics */}
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
@@ -190,8 +184,7 @@ const StockDetailsPanel: React.FC<StockDetailsPanelProps> = ({
                       52-Week Range
                     </div>
                     <div className="text-base font-medium text-gray-900 dark:text-white">
-                      {formatCurrency(stock.yearLow)} -{" "}
-                      {formatCurrency(stock.yearHigh)}
+                      {formatCurrency(stock.yearLow)} - {formatCurrency(stock.yearHigh)}
                     </div>
                   </div>
                 </div>
@@ -219,7 +212,7 @@ const StockDetailsPanel: React.FC<StockDetailsPanelProps> = ({
                   </h3>
                   <div className="relative w-full h-1 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
                     <div
-                      className={`absolute top-0 left-0 h-full ${stock.changePercent >= 0 ? "bg-green-500" : "bg-red-500"}`}
+                      className={`absolute top-0 left-0 h-full ${stock.changePercent >= 0 ? 'bg-green-500' : 'bg-red-500'}`}
                       style={{
                         width: `${(((stock.currentPrice - stock.yearLow) / (stock.yearHigh - stock.yearLow)) * 100).toFixed(2)}%`,
                       }}
@@ -236,14 +229,14 @@ const StockDetailsPanel: React.FC<StockDetailsPanelProps> = ({
                 <div className="flex space-x-2 pt-4">
                   <button
                     className="flex-1 py-2 px-4 bg-green-600 hover:bg-green-700 text-white font-medium rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors"
-                    onClick={(e) => e.stopPropagation()}
+                    onClick={e => e.stopPropagation()}
                     aria-label={`Buy ${stock.symbol} stock`}
                   >
                     Buy
                   </button>
                   <button
                     className="flex-1 py-2 px-4 bg-red-600 hover:bg-red-700 text-white font-medium rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors"
-                    onClick={(e) => e.stopPropagation()}
+                    onClick={e => e.stopPropagation()}
                     aria-label={`Sell ${stock.symbol} stock`}
                   >
                     Sell
@@ -252,16 +245,14 @@ const StockDetailsPanel: React.FC<StockDetailsPanelProps> = ({
               </div>
             )}
 
-            {activeTab === "financials" && (
+            {activeTab === 'financials' && (
               <div className="space-y-4">
                 <div className="text-sm text-gray-700 dark:text-gray-300">
                   <h3 className="font-medium mb-2">Financial Highlights</h3>
                   <table className="min-w-full">
                     <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
                       <tr>
-                        <td className="py-2 text-xs text-gray-500 dark:text-gray-400">
-                          P/E Ratio
-                        </td>
+                        <td className="py-2 text-xs text-gray-500 dark:text-gray-400">P/E Ratio</td>
                         <td className="py-2 text-right font-medium">
                           {(stock.peRatio || 0).toFixed(2)}
                         </td>
@@ -275,9 +266,7 @@ const StockDetailsPanel: React.FC<StockDetailsPanelProps> = ({
                         </td>
                       </tr>
                       <tr>
-                        <td className="py-2 text-xs text-gray-500 dark:text-gray-400">
-                          Beta
-                        </td>
+                        <td className="py-2 text-xs text-gray-500 dark:text-gray-400">Beta</td>
                         <td className="py-2 text-right font-medium">
                           {(stock.beta || 0).toFixed(2)}
                         </td>
@@ -299,7 +288,7 @@ const StockDetailsPanel: React.FC<StockDetailsPanelProps> = ({
               </div>
             )}
 
-            {activeTab === "news" && (
+            {activeTab === 'news' && (
               <div className="space-y-4">
                 {loadingNews ? (
                   <div className="text-center py-6 text-gray-500 dark:text-gray-400">
@@ -307,7 +296,7 @@ const StockDetailsPanel: React.FC<StockDetailsPanelProps> = ({
                     <p className="text-sm">Loading news...</p>
                   </div>
                 ) : marketEvents.length > 0 ? (
-                  marketEvents.map((event) => (
+                  marketEvents.map(event => (
                     <div
                       key={event.id}
                       className="border-b border-gray-200 dark:border-gray-700 pb-3 last:border-0"
@@ -318,13 +307,13 @@ const StockDetailsPanel: React.FC<StockDetailsPanelProps> = ({
                         </h4>
                         <span
                           className={`ml-2 px-2 py-1 rounded-full text-xs font-medium ${
-                            event.severity === "critical"
-                              ? "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200"
-                              : event.severity === "high"
-                                ? "bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200"
-                                : event.severity === "medium"
-                                  ? "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200"
-                                  : "bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200"
+                            event.severity === 'critical'
+                              ? 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
+                              : event.severity === 'high'
+                                ? 'bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200'
+                                : event.severity === 'medium'
+                                  ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200'
+                                  : 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200'
                           }`}
                         >
                           {event.severity.toUpperCase()}
@@ -338,33 +327,29 @@ const StockDetailsPanel: React.FC<StockDetailsPanelProps> = ({
                           {event.source && `${event.source} • `}
                           {event.date.toLocaleDateString()}
                         </div>
-                        {event.affectedStocks.some(
-                          (affected) => affected.stockId === stock.id,
-                        ) && (
+                        {event.affectedStocks.some(affected => affected.stockId === stock.id) && (
                           <div className="flex items-center">
                             {event.affectedStocks
-                              .filter(
-                                (affected) => affected.stockId === stock.id,
-                              )
+                              .filter(affected => affected.stockId === stock.id)
                               .map((affected, index) => (
                                 <span
                                   key={index}
                                   className={`text-xs font-medium px-2 py-1 rounded ${
-                                    affected.impactDirection === "positive"
-                                      ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
-                                      : affected.impactDirection === "negative"
-                                        ? "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200"
-                                        : "bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200"
+                                    affected.impactDirection === 'positive'
+                                      ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
+                                      : affected.impactDirection === 'negative'
+                                        ? 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
+                                        : 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200'
                                   }`}
                                 >
-                                  {affected.impactDirection === "positive"
-                                    ? "↑"
-                                    : affected.impactDirection === "negative"
-                                      ? "↓"
-                                      : "~"}
+                                  {affected.impactDirection === 'positive'
+                                    ? '↑'
+                                    : affected.impactDirection === 'negative'
+                                      ? '↓'
+                                      : '~'}
                                   {affected.priceChangePercent
                                     ? ` ${formatPercentage(affected.priceChangePercent)}`
-                                    : ""}
+                                    : ''}
                                 </span>
                               ))}
                           </div>
@@ -388,9 +373,7 @@ const StockDetailsPanel: React.FC<StockDetailsPanelProps> = ({
                         d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1M19 20a2 2 0 002-2V8a2 2 0 00-2-2h-5M19 20V9m0 0l-5-1m5 1v4m-8-5v4m-2.5-4v4"
                       />
                     </svg>
-                    <p className="text-sm">
-                      No recent news available for {stock.symbol}
-                    </p>
+                    <p className="text-sm">No recent news available for {stock.symbol}</p>
                   </div>
                 )}
               </div>

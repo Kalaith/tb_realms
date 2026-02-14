@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from "react";
-import { LoadingSpinner } from "../components/utility";
-import { useAuth } from "../contexts/AuthContext";
-import { formatDateTime } from "../utils/formatUtils";
+import React, { useState, useEffect } from 'react';
+import { LoadingSpinner } from '../components/utility';
+import { useAuth } from '../contexts/AuthContext';
+import { formatDateTime } from '../utils/formatUtils';
 
 /**
  * Profile interface for type safety
@@ -17,7 +17,7 @@ interface UserProfile {
   location: string;
   twitterHandle: string;
   linkedinProfile: string;
-  experience: "beginner" | "intermediate" | "advanced" | "expert";
+  experience: 'beginner' | 'intermediate' | 'advanced' | 'expert';
 }
 
 /**
@@ -40,27 +40,27 @@ const Profile: React.FC = () => {
 
         // In a real app, you would fetch this from an API
         // For now, we'll simulate an API call with a timeout
-        await new Promise((resolve) => setTimeout(resolve, 500));
+        await new Promise(resolve => setTimeout(resolve, 500));
 
         // Mock profile data
         const mockProfileData: UserProfile = {
-          id: "elf782",
-          username: user?.username || "trader123",
-          email: user?.email || "trader@example.com",
-          fullName: "Alex Johnson",
-          avatarUrl: "https://i.pravatar.cc/300",
-          joinDate: "2023-03-15T10:30:00Z",
-          bio: "Passionate trader with 5+ years of experience in stock markets. Focused on tech and renewable energy sectors.",
-          location: "San Francisco, CA",
-          twitterHandle: "@trader123",
-          linkedinProfile: "linkedin.com/in/alexjohnson",
-          experience: "advanced",
+          id: 'elf782',
+          username: user?.username || 'trader123',
+          email: user?.email || 'trader@example.com',
+          fullName: 'Alex Johnson',
+          avatarUrl: 'https://i.pravatar.cc/300',
+          joinDate: '2023-03-15T10:30:00Z',
+          bio: 'Passionate trader with 5+ years of experience in stock markets. Focused on tech and renewable energy sectors.',
+          location: 'San Francisco, CA',
+          twitterHandle: '@trader123',
+          linkedinProfile: 'linkedin.com/in/alexjohnson',
+          experience: 'advanced',
         };
 
         setProfile(mockProfileData);
         setFormData(mockProfileData);
       } catch (err) {
-        setError("Failed to load profile data");
+        setError('Failed to load profile data');
         console.error(err);
       } finally {
         setLoading(false);
@@ -72,12 +72,10 @@ const Profile: React.FC = () => {
 
   // Handle form input changes
   const handleInputChange = (
-    e: React.ChangeEvent<
-      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
-    >,
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
   ) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+    setFormData(prev => ({ ...prev, [name]: value }));
   };
 
   // Handle form submission
@@ -89,16 +87,16 @@ const Profile: React.FC = () => {
 
       // In a real app, you would send this to an API
       // For now, we'll simulate an API call with a timeout
-      await new Promise((resolve) => setTimeout(resolve, 800));
+      await new Promise(resolve => setTimeout(resolve, 800));
 
       // Update local state
-      setProfile((prev) => (prev ? { ...prev, ...formData } : null));
+      setProfile(prev => (prev ? { ...prev, ...formData } : null));
       setIsEditing(false);
 
       // Show success notification (in a real app)
-      console.log("Profile updated successfully");
+      console.log('Profile updated successfully');
     } catch (err) {
-      setError("Failed to update profile");
+      setError('Failed to update profile');
       console.error(err);
     } finally {
       setLoading(false);
@@ -131,9 +129,7 @@ const Profile: React.FC = () => {
     <div className="space-y-6">
       <div className="p-6 bg-white rounded-lg shadow-md dark:bg-gray-800">
         <div className="flex justify-between items-center mb-6">
-          <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-200">
-            User Profile
-          </h1>
+          <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-200">User Profile</h1>
 
           {!isEditing && (
             <button
@@ -151,7 +147,7 @@ const Profile: React.FC = () => {
             <div className="col-span-1 flex flex-col items-center space-y-4">
               <div className="relative">
                 <img
-                  src={profile.avatarUrl || "https://i.pravatar.cc/300"}
+                  src={profile.avatarUrl || 'https://i.pravatar.cc/300'}
                   alt="Profile"
                   className="w-40 h-40 rounded-full object-cover border-4 border-blue-500"
                 />
@@ -159,11 +155,9 @@ const Profile: React.FC = () => {
               <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-200">
                 {profile.fullName}
               </h2>
-              <p className="text-gray-600 dark:text-gray-400">
-                {profile.username}
-              </p>
+              <p className="text-gray-600 dark:text-gray-400">{profile.username}</p>
               <p className="text-sm text-gray-500 dark:text-gray-500">
-                Member since {formatDateTime(profile.joinDate).split(",")[0]}
+                Member since {formatDateTime(profile.joinDate).split(',')[0]}
               </p>
             </div>
 
@@ -174,7 +168,7 @@ const Profile: React.FC = () => {
                   About Me
                 </h3>
                 <p className="text-gray-600 dark:text-gray-400">
-                  {profile.bio || "No bio available"}
+                  {profile.bio || 'No bio available'}
                 </p>
               </div>
 
@@ -183,9 +177,7 @@ const Profile: React.FC = () => {
                   <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">
                     Email
                   </h3>
-                  <p className="text-gray-800 dark:text-gray-200">
-                    {profile.email}
-                  </p>
+                  <p className="text-gray-800 dark:text-gray-200">{profile.email}</p>
                 </div>
 
                 <div className="p-4 bg-gray-50 rounded-lg dark:bg-gray-700">
@@ -193,7 +185,7 @@ const Profile: React.FC = () => {
                     Location
                   </h3>
                   <p className="text-gray-800 dark:text-gray-200">
-                    {profile.location || "Not specified"}
+                    {profile.location || 'Not specified'}
                   </p>
                 </div>
 
@@ -202,7 +194,7 @@ const Profile: React.FC = () => {
                     Experience Level
                   </h3>
                   <p className="text-gray-800 dark:text-gray-200 capitalize">
-                    {profile.experience || "Not specified"}
+                    {profile.experience || 'Not specified'}
                   </p>
                 </div>
 
@@ -213,7 +205,7 @@ const Profile: React.FC = () => {
                   <div className="flex space-x-3">
                     {profile.twitterHandle && (
                       <a
-                        href={`https://twitter.com/${profile.twitterHandle.replace("@", "")}`}
+                        href={`https://twitter.com/${profile.twitterHandle.replace('@', '')}`}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300"
@@ -252,7 +244,7 @@ const Profile: React.FC = () => {
                     type="text"
                     id="fullName"
                     name="fullName"
-                    value={formData.fullName || ""}
+                    value={formData.fullName || ''}
                     onChange={handleInputChange}
                     className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
                     required
@@ -270,7 +262,7 @@ const Profile: React.FC = () => {
                     type="email"
                     id="email"
                     name="email"
-                    value={formData.email || ""}
+                    value={formData.email || ''}
                     onChange={handleInputChange}
                     className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
                     required
@@ -288,7 +280,7 @@ const Profile: React.FC = () => {
                     type="text"
                     id="location"
                     name="location"
-                    value={formData.location || ""}
+                    value={formData.location || ''}
                     onChange={handleInputChange}
                     className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
                   />
@@ -304,7 +296,7 @@ const Profile: React.FC = () => {
                   <select
                     id="experience"
                     name="experience"
-                    value={formData.experience || ""}
+                    value={formData.experience || ''}
                     onChange={handleInputChange}
                     className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
                   >
@@ -328,7 +320,7 @@ const Profile: React.FC = () => {
                     id="bio"
                     name="bio"
                     rows={4}
-                    value={formData.bio || ""}
+                    value={formData.bio || ''}
                     onChange={handleInputChange}
                     className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
                   ></textarea>
@@ -345,7 +337,7 @@ const Profile: React.FC = () => {
                     type="text"
                     id="twitterHandle"
                     name="twitterHandle"
-                    value={formData.twitterHandle || ""}
+                    value={formData.twitterHandle || ''}
                     onChange={handleInputChange}
                     placeholder="@username"
                     className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
@@ -363,7 +355,7 @@ const Profile: React.FC = () => {
                     type="text"
                     id="linkedinProfile"
                     name="linkedinProfile"
-                    value={formData.linkedinProfile || ""}
+                    value={formData.linkedinProfile || ''}
                     onChange={handleInputChange}
                     placeholder="linkedin.com/in/username"
                     className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
@@ -381,7 +373,7 @@ const Profile: React.FC = () => {
                     type="text"
                     id="avatarUrl"
                     name="avatarUrl"
-                    value={formData.avatarUrl || ""}
+                    value={formData.avatarUrl || ''}
                     onChange={handleInputChange}
                     className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
                   />

@@ -1,12 +1,12 @@
-import React from "react";
+import React from 'react';
 
 /**
  * Button component - Standardized button with consistent styling
  * Supports different variants, sizes, and states
  */
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
-  variant?: "primary" | "secondary" | "danger" | "success";
-  size?: "sm" | "md" | "lg";
+  variant?: 'primary' | 'secondary' | 'danger' | 'success';
+  size?: 'sm' | 'md' | 'lg';
   fullWidth?: boolean;
   isLoading?: boolean;
   className?: string;
@@ -14,44 +14,41 @@ interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
 }
 
 const Button: React.FC<ButtonProps> = ({
-  variant = "primary",
-  size = "md",
+  variant = 'primary',
+  size = 'md',
   fullWidth = false,
   isLoading = false,
-  className = "",
+  className = '',
   children,
   disabled,
   ...props
 }) => {
   // Base classes for all buttons
   const baseClasses =
-    "font-medium rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 transition-colors";
+    'font-medium rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 transition-colors';
 
   // Variant-specific classes
   const variantClasses = {
-    primary:
-      "bg-blue-600 hover:bg-blue-700 text-white focus:ring-blue-500 disabled:bg-blue-300",
+    primary: 'bg-blue-600 hover:bg-blue-700 text-white focus:ring-blue-500 disabled:bg-blue-300',
     secondary:
-      "bg-gray-200 hover:bg-gray-300 text-gray-800 focus:ring-gray-500 dark:bg-gray-700 dark:hover:bg-gray-600 dark:text-gray-200 disabled:bg-gray-100 disabled:text-gray-400 dark:disabled:bg-gray-800 dark:disabled:text-gray-600",
-    danger:
-      "bg-red-600 hover:bg-red-700 text-white focus:ring-red-500 disabled:bg-red-300",
+      'bg-gray-200 hover:bg-gray-300 text-gray-800 focus:ring-gray-500 dark:bg-gray-700 dark:hover:bg-gray-600 dark:text-gray-200 disabled:bg-gray-100 disabled:text-gray-400 dark:disabled:bg-gray-800 dark:disabled:text-gray-600',
+    danger: 'bg-red-600 hover:bg-red-700 text-white focus:ring-red-500 disabled:bg-red-300',
     success:
-      "bg-green-600 hover:bg-green-700 text-white focus:ring-green-500 disabled:bg-green-300",
+      'bg-green-600 hover:bg-green-700 text-white focus:ring-green-500 disabled:bg-green-300',
   };
 
   // Size-specific classes
   const sizeClasses = {
-    sm: "px-3 py-1.5 text-sm",
-    md: "px-4 py-2",
-    lg: "px-6 py-3 text-lg",
+    sm: 'px-3 py-1.5 text-sm',
+    md: 'px-4 py-2',
+    lg: 'px-6 py-3 text-lg',
   };
 
   // Width classes
-  const widthClasses = fullWidth ? "w-full" : "";
+  const widthClasses = fullWidth ? 'w-full' : '';
 
   // Disabled and loading states
-  const stateClasses =
-    disabled || isLoading ? "cursor-not-allowed opacity-70" : "";
+  const stateClasses = disabled || isLoading ? 'cursor-not-allowed opacity-70' : '';
 
   return (
     <button

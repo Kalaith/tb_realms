@@ -2,26 +2,16 @@
  * Navigation Context
  * Provides navigation data from the backend throughout the application
  */
-import React, {
-  createContext,
-  useContext,
-  useState,
-  useEffect,
-  ReactNode,
-} from "react";
-import {
-  NavigationItem,
-  AccountNavItem,
-  AppBranding,
-} from "../entities/navigation";
-import navigationService from "../api/navigationService";
+import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { NavigationItem, AccountNavItem, AppBranding } from '../entities/navigation';
+import navigationService from '../api/navigationService';
 
 // Fallback data in case API call fails
 const fallbackMainNavigation: NavigationItem[] = [
   {
-    name: "Home",
-    path: "/",
-    icon: "🏠",
+    name: 'Home',
+    path: '/',
+    icon: '🏠',
     requiresAuth: false,
     showInHeader: true,
   },
@@ -29,16 +19,16 @@ const fallbackMainNavigation: NavigationItem[] = [
 
 const fallbackAccountNavigation: AccountNavItem[] = [
   {
-    name: "Settings",
-    path: "/settings",
-    icon: "⚙️",
+    name: 'Settings',
+    path: '/settings',
+    icon: '⚙️',
   },
 ];
 
 const fallbackAppBranding: AppBranding = {
-  name: "Stock Management App",
+  name: 'Stock Management App',
   logoUrl: null,
-  version: "1.0.0",
+  version: '1.0.0',
 };
 
 /**
@@ -57,9 +47,7 @@ interface NavigationContextType {
 }
 
 // Create context with default undefined value
-const NavigationContext = createContext<NavigationContextType | undefined>(
-  undefined,
-);
+const NavigationContext = createContext<NavigationContextType | undefined>(undefined);
 
 // Provider props
 interface NavigationProviderProps {
@@ -69,18 +57,12 @@ interface NavigationProviderProps {
 /**
  * Navigation Context Provider component
  */
-export const NavigationProvider: React.FC<NavigationProviderProps> = ({
-  children,
-}) => {
+export const NavigationProvider: React.FC<NavigationProviderProps> = ({ children }) => {
   // Navigation state
-  const [mainNavigation, setMainNavigation] = useState<NavigationItem[]>(
-    fallbackMainNavigation,
-  );
-  const [accountNavigation, setAccountNavigation] = useState<AccountNavItem[]>(
-    fallbackAccountNavigation,
-  );
-  const [appBranding, setAppBranding] =
-    useState<AppBranding>(fallbackAppBranding);
+  const [mainNavigation, setMainNavigation] = useState<NavigationItem[]>(fallbackMainNavigation);
+  const [accountNavigation, setAccountNavigation] =
+    useState<AccountNavItem[]>(fallbackAccountNavigation);
+  const [appBranding, setAppBranding] = useState<AppBranding>(fallbackAppBranding);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   /**
@@ -109,8 +91,8 @@ export const NavigationProvider: React.FC<NavigationProviderProps> = ({
         setAppBranding(brandingResponse.data);
       }
     } catch (error) {
-      console.error("Error fetching navigation data:", error);
-      setError("Failed to load navigation data. Using fallback values.");
+      console.error('Error fetching navigation data:', error);
+      setError('Failed to load navigation data. Using fallback values.');
     } finally {
       setIsLoading(false);
     }
@@ -128,11 +110,11 @@ export const NavigationProvider: React.FC<NavigationProviderProps> = ({
       }, 100);
     };
 
-    window.addEventListener("auth:login-success", handleLoginSuccess);
+    window.addEventListener('auth:login-success', handleLoginSuccess);
 
     // Clean up event listener
     return () => {
-      window.removeEventListener("auth:login-success", handleLoginSuccess);
+      window.removeEventListener('auth:login-success', handleLoginSuccess);
     };
   }, []);
 
@@ -146,11 +128,7 @@ export const NavigationProvider: React.FC<NavigationProviderProps> = ({
     refreshNavigationData,
   };
 
-  return (
-    <NavigationContext.Provider value={contextValue}>
-      {children}
-    </NavigationContext.Provider>
-  );
+  return <NavigationContext.Provider value={contextValue}>{children}</NavigationContext.Provider>;
 };
 
 /**
@@ -161,7 +139,7 @@ export const useNavigation = (): NavigationContextType => {
   const context = useContext(NavigationContext);
 
   if (context === undefined) {
-    throw new Error("useNavigation must be used within a NavigationProvider");
+    throw new Error('useNavigation must be used within a NavigationProvider');
   }
 
   return context;

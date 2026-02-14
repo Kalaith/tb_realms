@@ -1,16 +1,16 @@
-import { BaseApiService } from "./baseApiService";
-import { Portfolio, Transaction, TransactionType } from "../entities/Portfolio";
-import { ApiResponse } from "../entities/api";
-import apiClient from "./apiClient";
-import { toApiError } from "./apiErrorUtils";
-import { unwrapData } from "./apiResponseUtils";
+import { BaseApiService } from './baseApiService';
+import { Portfolio, Transaction, TransactionType } from '../entities/Portfolio';
+import { ApiResponse } from '../entities/api';
+import apiClient from './apiClient';
+import { toApiError } from './apiErrorUtils';
+import { unwrapData } from './apiResponseUtils';
 
 /**
  * Service for managing portfolio data
  */
 export class PortfolioService extends BaseApiService<Portfolio> {
   constructor() {
-    super("portfolios");
+    super('portfolios');
   }
 
   /**
@@ -28,7 +28,7 @@ export class PortfolioService extends BaseApiService<Portfolio> {
     return {
       ...p,
       createdAt: p.createdAt ? new Date(p.createdAt) : new Date(),
-      transactionHistory: (p.transactionHistory ?? []).map((tx) => ({
+      transactionHistory: (p.transactionHistory ?? []).map(tx => ({
         ...tx,
         timestamp: new Date(tx.timestamp),
       })),
@@ -43,7 +43,7 @@ export class PortfolioService extends BaseApiService<Portfolio> {
         yearlyChangePercent: p.performance?.yearlyChangePercent ?? 0,
         allTimeChange: p.performance?.allTimeChange ?? 0,
         allTimeChangePercent: p.performance?.allTimeChangePercent ?? 0,
-        history: (p.performance?.history ?? []).map((point) => ({
+        history: (p.performance?.history ?? []).map(point => ({
           ...point,
           timestamp: new Date(point.timestamp),
         })),
@@ -61,16 +61,14 @@ export class PortfolioService extends BaseApiService<Portfolio> {
       return {
         success: false,
         error: {
-          code: "NOT_IMPLEMENTED",
-          message: "Mock implementation not used",
+          code: 'NOT_IMPLEMENTED',
+          message: 'Mock implementation not used',
         },
       };
     }
 
     try {
-      const response = await apiClient.get<unknown>(
-        `${this.endpoint}/user/${userId}`,
-      );
+      const response = await apiClient.get<unknown>(`${this.endpoint}/user/${userId}`);
       const portfolioData = unwrapData<unknown>(response);
 
       // Normalize the portfolio data with proper date objects
@@ -81,7 +79,7 @@ export class PortfolioService extends BaseApiService<Portfolio> {
         data: normalizedPortfolio,
       };
     } catch (error: unknown) {
-      const apiError = toApiError(error, "Failed to fetch user portfolio");
+      const apiError = toApiError(error, 'Failed to fetch user portfolio');
       return {
         success: false,
         error: {
@@ -99,7 +97,7 @@ export class PortfolioService extends BaseApiService<Portfolio> {
     portfolioId: string,
     stockId: string,
     shares: number,
-    price: number,
+    price: number
   ): Promise<ApiResponse<Transaction>> {
     if (this.useMockData) {
       // Mock implementation code kept for reference
@@ -107,8 +105,8 @@ export class PortfolioService extends BaseApiService<Portfolio> {
       return {
         success: false,
         error: {
-          code: "NOT_IMPLEMENTED",
-          message: "Mock implementation not used",
+          code: 'NOT_IMPLEMENTED',
+          message: 'Mock implementation not used',
         },
       };
     }
@@ -129,9 +127,7 @@ export class PortfolioService extends BaseApiService<Portfolio> {
         type: TransactionType.BUY,
       });
 
-      const rawTransaction = unwrapData<
-        Transaction & { timestamp: string | Date }
-      >(response);
+      const rawTransaction = unwrapData<Transaction & { timestamp: string | Date }>(response);
       const transaction: Transaction = {
         ...rawTransaction,
         timestamp: new Date(rawTransaction.timestamp),
@@ -142,7 +138,7 @@ export class PortfolioService extends BaseApiService<Portfolio> {
         data: transaction,
       };
     } catch (error: unknown) {
-      const apiError = toApiError(error, "Failed to process buy transaction");
+      const apiError = toApiError(error, 'Failed to process buy transaction');
       return {
         success: false,
         error: {
@@ -160,7 +156,7 @@ export class PortfolioService extends BaseApiService<Portfolio> {
     portfolioId: string,
     stockId: string,
     shares: number,
-    price: number,
+    price: number
   ): Promise<ApiResponse<Transaction>> {
     if (this.useMockData) {
       // Mock implementation code kept for reference
@@ -168,8 +164,8 @@ export class PortfolioService extends BaseApiService<Portfolio> {
       return {
         success: false,
         error: {
-          code: "NOT_IMPLEMENTED",
-          message: "Mock implementation not used",
+          code: 'NOT_IMPLEMENTED',
+          message: 'Mock implementation not used',
         },
       };
     }
@@ -190,9 +186,7 @@ export class PortfolioService extends BaseApiService<Portfolio> {
         type: TransactionType.SELL,
       });
 
-      const rawTransaction = unwrapData<
-        Transaction & { timestamp: string | Date }
-      >(response);
+      const rawTransaction = unwrapData<Transaction & { timestamp: string | Date }>(response);
       const transaction: Transaction = {
         ...rawTransaction,
         timestamp: new Date(rawTransaction.timestamp),
@@ -203,7 +197,7 @@ export class PortfolioService extends BaseApiService<Portfolio> {
         data: transaction,
       };
     } catch (error: unknown) {
-      const apiError = toApiError(error, "Failed to process sell transaction");
+      const apiError = toApiError(error, 'Failed to process sell transaction');
       return {
         success: false,
         error: {
@@ -219,29 +213,25 @@ export class PortfolioService extends BaseApiService<Portfolio> {
    * @param portfolioId The ID of the portfolio
    * @returns Promise with transaction history data
    */
-  async getUserTransactions(
-    portfolioId: string,
-  ): Promise<ApiResponse<Transaction[]>> {
+  async getUserTransactions(portfolioId: string): Promise<ApiResponse<Transaction[]>> {
     if (this.useMockData) {
       // Mock implementation code kept for reference
       // ...existing mock implementation...
       return {
         success: false,
         error: {
-          code: "NOT_IMPLEMENTED",
-          message: "Mock implementation not used",
+          code: 'NOT_IMPLEMENTED',
+          message: 'Mock implementation not used',
         },
       };
     }
 
     try {
-      const response = await apiClient.get<unknown>(
-        `${this.endpoint}/${portfolioId}/transactions`,
-      );
+      const response = await apiClient.get<unknown>(`${this.endpoint}/${portfolioId}/transactions`);
       const transactions = unwrapData<unknown[]>(response);
 
       // Normalize transaction timestamps
-      const normalizedTransactions = transactions.map((tx) => {
+      const normalizedTransactions = transactions.map(tx => {
         const raw = tx as Transaction & { timestamp: string | Date };
         return { ...raw, timestamp: new Date(raw.timestamp) } as Transaction;
       });
@@ -251,7 +241,7 @@ export class PortfolioService extends BaseApiService<Portfolio> {
         data: normalizedTransactions,
       };
     } catch (error: unknown) {
-      const apiError = toApiError(error, "Failed to fetch transaction history");
+      const apiError = toApiError(error, 'Failed to fetch transaction history');
       return {
         success: false,
         error: {
