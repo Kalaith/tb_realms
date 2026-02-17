@@ -1,6 +1,46 @@
 <?php
 
-require_once __DIR__ . '/../vendor/autoload.php';
+$autoloadCandidates = [
+    __DIR__ . '/../vendor/autoload.php',      // local backend/vendor
+    __DIR__ . '/../../vendor/autoload.php',   // project-level vendor
+    __DIR__ . '/../../../vendor/autoload.php',// central vendor (e.g. htdocs/vendor)
+    __DIR__ . '/../../../../vendor/autoload.php',
+];
+
+$autoloadPath = null;
+foreach ($autoloadCandidates as $candidate) {
+    if (file_exists($candidate)) {
+        $autoloadPath = $candidate;
+        break;
+    }
+}
+
+if ($autoloadPath === null) {
+    throw new RuntimeException('Composer autoload.php not found in expected locations from ' . __DIR__);
+}
+
+$loader = require_once $autoloadPath;
+
+// Ensure project-local classes are resolvable even when using a shared central vendor autoloader.
+$appSrcPath = realpath(__DIR__ . '/../src');
+if ($appSrcPath !== false) {
+    if ($loader instanceof \Composer\Autoload\ClassLoader) {
+        $loader->addPsr4('App\\', $appSrcPath . DIRECTORY_SEPARATOR, true);
+    }
+
+    spl_autoload_register(function (string $class) use ($appSrcPath): void {
+        $prefix = 'App\\';
+        if (strncmp($class, $prefix, strlen($prefix)) !== 0) {
+            return;
+        }
+
+        $relativeClass = substr($class, strlen($prefix));
+        $file = $appSrcPath . DIRECTORY_SEPARATOR . str_replace('\\', DIRECTORY_SEPARATOR, $relativeClass) . '.php';
+        if (file_exists($file)) {
+            require_once $file;
+        }
+    }, true, true);
+}
 
 use Dotenv\Dotenv;
 use App\Core\Router;

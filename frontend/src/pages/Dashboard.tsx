@@ -6,6 +6,9 @@ import { Stock } from '../entities/Stock';
 import { LoadingSpinner } from '../components/utility';
 
 const Dashboard = () => {
+  const asNumber = (value: unknown): number =>
+    typeof value === 'number' && Number.isFinite(value) ? value : 0;
+
   const [portfolio, setPortfolio] = useState<Portfolio | null>(null);
   const [topStocks, setTopStocks] = useState<Stock[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
@@ -17,7 +20,7 @@ const Dashboard = () => {
         setLoading(true);
 
         // Fetch user portfolio
-        const portfolioResponse = await portfolioService.getUserPortfolio('user1');
+        const portfolioResponse = await portfolioService.getUserPortfolio('me');
         if (portfolioResponse.success && portfolioResponse.data) {
           setPortfolio(portfolioResponse.data);
         }
@@ -76,7 +79,7 @@ const Dashboard = () => {
                 Total Value
               </div>
               <div className="text-2xl font-bold text-gray-900 dark:text-gray-100">
-                ${portfolio.totalValue.toLocaleString()}
+                ${asNumber(portfolio.totalValue).toLocaleString()}
               </div>
             </div>
             <div className="p-4 bg-gray-50 rounded-lg dark:bg-gray-700">
@@ -84,7 +87,7 @@ const Dashboard = () => {
                 Available Cash
               </div>
               <div className="text-2xl font-bold text-gray-900 dark:text-gray-100">
-                ${portfolio.cash.toLocaleString()}
+                ${asNumber(portfolio.cash).toLocaleString()}
               </div>
             </div>
             <div className="p-4 bg-gray-50 rounded-lg dark:bg-gray-700">
@@ -92,11 +95,11 @@ const Dashboard = () => {
                 Daily Change
               </div>
               <div
-                className={`text-2xl font-bold ${portfolio.performance.dailyChangePercent >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}
+                className={`text-2xl font-bold ${asNumber(portfolio.performance.dailyChangePercent) >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}
               >
-                ${portfolio.performance.dailyChange.toLocaleString()}(
-                {portfolio.performance.dailyChangePercent >= 0 ? '+' : ''}
-                {portfolio.performance.dailyChangePercent.toFixed(2)}%)
+                ${asNumber(portfolio.performance.dailyChange).toLocaleString()}(
+                {asNumber(portfolio.performance.dailyChangePercent) >= 0 ? '+' : ''}
+                {asNumber(portfolio.performance.dailyChangePercent).toFixed(2)}%)
               </div>
             </div>
           </div>
@@ -165,19 +168,19 @@ const Dashboard = () => {
                           {position.shares}
                         </td>
                         <td className="px-4 py-3 text-gray-700 whitespace-nowrap dark:text-gray-300">
-                          ${position.averageBuyPrice.toFixed(2)}
+                          ${asNumber(position.averageBuyPrice).toFixed(2)}
                         </td>
                         <td className="px-4 py-3 text-gray-700 whitespace-nowrap dark:text-gray-300">
-                          ${position.stock.currentPrice.toFixed(2)}
+                          ${asNumber(position.stock?.currentPrice).toFixed(2)}
                         </td>
                         <td className="px-4 py-3 text-gray-700 whitespace-nowrap dark:text-gray-300">
-                          ${position.currentValue.toLocaleString()}
+                          ${asNumber(position.currentValue).toLocaleString()}
                         </td>
                         <td
-                          className={`px-4 py-3 font-medium whitespace-nowrap ${position.totalReturnPercentage >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}
+                          className={`px-4 py-3 font-medium whitespace-nowrap ${asNumber(position.totalReturnPercentage) >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}
                         >
-                          {position.totalReturnPercentage >= 0 ? '+' : ''}
-                          {position.totalReturnPercentage.toFixed(2)}%
+                          {asNumber(position.totalReturnPercentage) >= 0 ? '+' : ''}
+                          {asNumber(position.totalReturnPercentage).toFixed(2)}%
                         </td>
                       </tr>
                     ))}
@@ -218,13 +221,13 @@ const Dashboard = () => {
                   {/* Performance and price at the bottom */}
                   <div className="flex items-center justify-between w-full mt-auto">
                     <div
-                      className={`text-lg font-bold ${stock.changePercent >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}
+                      className={`text-lg font-bold ${asNumber(stock.changePercent) >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}
                     >
-                      {stock.changePercent >= 0 ? '+' : ''}
-                      {stock.changePercent.toFixed(2)}%
+                      {asNumber(stock.changePercent) >= 0 ? '+' : ''}
+                      {asNumber(stock.changePercent).toFixed(2)}%
                     </div>
                     <div className="text-base font-medium text-gray-800 dark:text-gray-200">
-                      ${stock.currentPrice.toFixed(2)}
+                      ${asNumber(stock.currentPrice).toFixed(2)}
                     </div>
                   </div>
                 </div>
@@ -264,13 +267,13 @@ const Dashboard = () => {
                           {tx.stockSymbol}
                         </span>
                         <span className="text-sm text-gray-600 dark:text-gray-400">
-                          {tx.shares} shares @ ${tx.price.toFixed(2)}
+                          {asNumber(tx.shares)} shares @ ${asNumber(tx.price).toFixed(2)}
                         </span>
                       </div>
                     </div>
                     <div className="flex items-center">
                       <div className="mr-4 text-base font-medium text-gray-800 dark:text-gray-200">
-                        ${tx.total.toLocaleString()}
+                        ${asNumber(tx.total).toLocaleString()}
                       </div>
                       <div className="text-sm text-gray-500 dark:text-gray-400">
                         {tx.timestamp.toLocaleDateString()}

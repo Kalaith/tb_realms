@@ -12,7 +12,7 @@ use App\Models\Stock;
 use App\Models\User;
 use App\Exceptions\ResourceNotFoundException;
 use App\Exceptions\UnauthorizedException;
-use Ramsey\Uuid\Uuid;
+use Illuminate\Database\Capsule\Manager as Capsule;
 
 /**
  * Portfolio management business logic
@@ -165,16 +165,34 @@ class PortfolioActions
             throw new ResourceNotFoundException('User not found');
         }
 
-        $portfolioData = [
-            'id' => 'portfolio-' . Uuid::uuid4()->toString(),
-            'user_id' => $userId,
-            'cash_balance' => $user->starting_balance,
-            'total_value' => $user->starting_balance,
-            'total_invested' => 0,
-            'total_profit_loss' => 0,
-            'performance_percentage' => 0,
-            'risk_level' => 'moderate'
-        ];
+        $startingBalance = isset($user->starting_balance) && is_numeric($user->starting_balance)
+            ? (float) $user->starting_balance
+            : 10000.00;
+
+        $columns = array_fill_keys(Capsule::schema()->getColumnListing('portfolios'), true);
+        $portfolioData = [];
+
+        if (isset($columns['user_id'])) {
+            $portfolioData['user_id'] = $userId;
+        }
+        if (isset($columns['cash_balance'])) {
+            $portfolioData['cash_balance'] = $startingBalance;
+        }
+        if (isset($columns['total_value'])) {
+            $portfolioData['total_value'] = $startingBalance;
+        }
+        if (isset($columns['total_invested'])) {
+            $portfolioData['total_invested'] = 0;
+        }
+        if (isset($columns['total_profit_loss'])) {
+            $portfolioData['total_profit_loss'] = 0;
+        }
+        if (isset($columns['performance_percentage'])) {
+            $portfolioData['performance_percentage'] = 0;
+        }
+        if (isset($columns['risk_level'])) {
+            $portfolioData['risk_level'] = 'moderate';
+        }
 
         return $this->portfolioRepository->createPortfolio($portfolioData);
     }

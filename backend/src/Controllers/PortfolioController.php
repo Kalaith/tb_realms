@@ -6,6 +6,7 @@ use App\Http\Response;
 use App\Http\Request;
 use App\Actions\PortfolioActions;
 use App\Traits\ApiResponseTrait;
+use App\Exceptions\ResourceNotFoundException;
 
 class PortfolioController
 {
@@ -70,13 +71,24 @@ class PortfolioController
     public function getPortfolioByUser(Request $request, Response $response, array $args): Response
     {
         $identifier = $args['identifier'] ?? null;
-        
-        return $this->handleApiAction(
-            $response,
-            fn() => $this->portfolioActions->getPortfolioByIdentifier($identifier),
-            'getting portfolio by user identifier',
-            'Portfolio not found for user'
-        );
+        $currentUserId = $this->getUserId($request);
+
+        try {
+            if (!$identifier || $identifier === 'me') {
+                return $this->successResponse($response, $this->portfolioActions->getPortfolioData($currentUserId));
+            }
+
+            return $this->successResponse(
+                $response,
+                $this->portfolioActions->getPortfolioByIdentifier((string) $identifier)
+            );
+        } catch (ResourceNotFoundException $error) {
+            // For authenticated callers, always fallback to own portfolio and auto-create if missing.
+            return $this->successResponse($response, $this->portfolioActions->getPortfolioData($currentUserId));
+        } catch (\Exception $error) {
+            error_log('Error getting portfolio by user identifier: ' . $error->getMessage());
+            return $this->errorResponse($response, 'Internal server error', 500);
+        }
     }
 
     /**
