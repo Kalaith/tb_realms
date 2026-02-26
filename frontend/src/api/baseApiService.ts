@@ -27,20 +27,29 @@ export abstract class BaseApiService<T> {
     return { code: 'ERROR', message: 'An error occurred' };
   }
 
+  private static unwrapData<U>(payload: unknown, fallback: U): U {
+    if (payload && typeof payload === 'object' && 'data' in payload) {
+      const nested = (payload as { data?: unknown }).data;
+      if (nested !== undefined && nested !== null) {
+        return nested as U;
+      }
+    }
+    if (payload === undefined || payload === null) {
+      return fallback;
+    }
+    return payload as U;
+  }
+
   /**
    * Get all items
    */
   async getAll(): Promise<ApiResponse<T[]>> {
     try {
       const response = await apiClient.get<unknown>(this.endpoint);
-      const responseRecord =
-        typeof response === 'object' && response !== null
-          ? (response as Record<string, unknown>)
-          : null;
-      const data = responseRecord && 'data' in responseRecord ? responseRecord['data'] : response;
+      const data = BaseApiService.unwrapData<T[]>(response.data, []);
       return {
         success: true,
-        data: (data as T[]) || ([] as T[]), // Handle both { data: [] } and direct array responses
+        data,
       };
     } catch (error: unknown) {
       const apiError = BaseApiService.toApiError(error);
@@ -60,11 +69,7 @@ export abstract class BaseApiService<T> {
   async getById(id: string): Promise<ApiResponse<T>> {
     try {
       const response = await apiClient.get<unknown>(`${this.endpoint}/${id}`);
-      const responseRecord =
-        typeof response === 'object' && response !== null
-          ? (response as Record<string, unknown>)
-          : null;
-      const data = responseRecord && 'data' in responseRecord ? responseRecord['data'] : response;
+      const data = BaseApiService.unwrapData<T | undefined>(response.data, undefined);
       return {
         success: true,
         data: data as T,
@@ -86,12 +91,8 @@ export abstract class BaseApiService<T> {
    */
   async create(item: Partial<T>): Promise<ApiResponse<T>> {
     try {
-      const response = await apiClient.post<unknown, Partial<T>>(this.endpoint, item);
-      const responseRecord =
-        typeof response === 'object' && response !== null
-          ? (response as Record<string, unknown>)
-          : null;
-      const data = responseRecord && 'data' in responseRecord ? responseRecord['data'] : response;
+      const response = await apiClient.post<unknown>(this.endpoint, item);
+      const data = BaseApiService.unwrapData<T | undefined>(response.data, undefined);
       return {
         success: true,
         data: data as T,
@@ -113,12 +114,8 @@ export abstract class BaseApiService<T> {
    */
   async update(id: string, item: Partial<T>): Promise<ApiResponse<T>> {
     try {
-      const response = await apiClient.put<unknown, Partial<T>>(`${this.endpoint}/${id}`, item);
-      const responseRecord =
-        typeof response === 'object' && response !== null
-          ? (response as Record<string, unknown>)
-          : null;
-      const data = responseRecord && 'data' in responseRecord ? responseRecord['data'] : response;
+      const response = await apiClient.put<unknown>(`${this.endpoint}/${id}`, item);
+      const data = BaseApiService.unwrapData<T | undefined>(response.data, undefined);
       return {
         success: true,
         data: data as T,

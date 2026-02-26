@@ -26,7 +26,11 @@ export const fetchLeaderboardData = async (): Promise<LeaderboardUser[]> => {
     const response = await apiClient.get<{ data?: LeaderboardUser[] } | LeaderboardUser[]>(
       'leaderboard'
     );
-    return Array.isArray(response) ? response : (response.data ?? []);
+    const payload = response.data;
+    if (Array.isArray(payload)) {
+      return payload;
+    }
+    return payload.data ?? [];
   } catch (error) {
     console.error('Error fetching leaderboard data:', error);
     return [];
@@ -41,10 +45,11 @@ export const fetchUserRanking = async (userId: string): Promise<LeaderboardUser 
     const response = await apiClient.get<{ data?: LeaderboardUser } | LeaderboardUser>(
       `leaderboard/user/${userId}`
     );
-    if (response && typeof response === 'object' && 'data' in response) {
-      return response.data;
+    const payload = response.data;
+    if (payload && typeof payload === 'object' && 'data' in payload) {
+      return (payload as { data?: LeaderboardUser }).data;
     }
-    return response as LeaderboardUser;
+    return payload as LeaderboardUser;
   } catch (error) {
     console.error('Error fetching user ranking:', error);
     return undefined;

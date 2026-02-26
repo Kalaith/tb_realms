@@ -1,0 +1,16 @@
+[26-Feb-2026 07:33:43 UTC] PHP Fatal error:  Uncaught PDOException: SQLSTATE[28000] [1045] Access denied for user 'webhatch_tb_realms_admin'@'localhost' (using password: YES) in /home/webhatch/public_html/tb_realms/api/src/External/DatabaseService.php:182
+Stack trace:
+#0 /home/webhatch/public_html/tb_realms/api/src/External/DatabaseService.php(182): PDO->__construct()
+#1 /home/webhatch/public_html/tb_realms/api/src/External/DatabaseService.php(14): App\External\DatabaseService->initDatabase()
+#2 /home/webhatch/public_html/tb_realms/api/src/External/DatabaseService.php(19): App\External\DatabaseService->__construct()
+#3 /home/webhatch/public_html/tb_realms/api/public/index.php(77): App\External\DatabaseService::getInstance()
+#4 {main}
+  thrown in /home/webhatch/public_html/tb_realms/api/src/External/DatabaseService.php on line 182
+[26-Feb-2026 07:33:53 UTC] PHP Fatal error:  Uncaught PDOException: SQLSTATE[28000] [1045] Access denied for user 'webhatch_tb_realms_admin'@'localhost' (using password: YES) in /home/webhatch/public_html/tb_realms/api/src/External/DatabaseService.php:182
+Stack trace:
+#0 /home/webhatch/public_html/tb_realms/api/src/External/DatabaseService.php(182): PDO->__construct()
+#1 /home/webhatch/public_html/tb_realms/api/src/External/DatabaseService.php(14): App\External\DatabaseService->initDatabase()
+#2 /home/webhatch/public_html/tb_realms/api/src/External/DatabaseService.php(19): App\External\DatabaseService->__construct()
+#3 /home/webhatch/public_html/tb_realms/api/public/index.php(77): App\External\DatabaseService::getInstance()
+#4 {main}
+  thrown in /home/webhatch/public_html/tb_realms/api/src/External/DatabaseService.php on line 182
