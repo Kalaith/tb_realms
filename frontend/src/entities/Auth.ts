@@ -2,9 +2,6 @@
  * Authentication related types
  */
 
-/**
- * Authenticated user data returned from API
- */
 export interface AuthUser {
   id: string;
   email?: string | null;
@@ -12,25 +9,24 @@ export interface AuthUser {
   firstName?: string;
   lastName?: string;
   displayName?: string;
+  display_name?: string | null;
   token?: string;
   avatarUrl?: string | null;
   createdAt?: Date;
   updatedAt?: Date;
   startingBalance?: number;
   roles?: string[];
+  role?: string;
+  is_guest?: boolean;
+  auth_type?: 'frontpage' | 'guest';
+  guest_user_id?: string | null;
 }
 
-/**
- * Login request payload
- */
 export interface LoginRequest {
   email: string;
   password: string;
 }
 
-/**
- * Registration request payload
- */
 export interface RegisterRequest {
   email: string;
   username: string;
@@ -39,9 +35,6 @@ export interface RegisterRequest {
   lastName?: string;
 }
 
-/**
- * API response structure
- */
 export interface ApiResponse<T> {
   success: boolean;
   data: T;

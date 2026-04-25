@@ -25,7 +25,6 @@ class WebHatcheryJwtMiddleware
             }
         }
 
-        // Normalize common malformed values.
         if (stripos($token, 'Bearer ') === 0) {
             $token = trim(substr($token, 7));
         }
@@ -44,23 +43,28 @@ class WebHatcheryJwtMiddleware
         }
 
         try {
-            // Match Mytherra behavior: trust Web Hatchery sessions with lenient expiry window.
             JWT::$leeway = 31536000;
             $decoded = JWT::decode($token, new Key($secret, 'HS256'));
 
-            $externalUserId = $decoded->sub ?? $decoded->user_id ?? null;
-            if (!$externalUserId) {
+            $externalUserId = (string) ($decoded->sub ?? $decoded->user_id ?? '');
+            if ($externalUserId === '') {
                 return $this->unauthorized($response, 'Token missing user identifier');
             }
 
-            $localUser = $this->resolveOrCreateLocalUser($decoded, (string) $externalUserId);
+            $isGuest = $this->extractBool($decoded->is_guest ?? false) || (($decoded->auth_type ?? null) === 'guest');
+            $localUser = $this->resolveOrCreateLocalUser($decoded, $externalUserId, $isGuest);
 
             $authUser = [
                 'id' => (int) $localUser->id,
-                'external_id' => (string) $externalUserId,
-                'email' => $decoded->email ?? null,
+                'external_id' => $externalUserId,
+                'guest_user_id' => $isGuest ? $externalUserId : null,
+                'email' => $isGuest ? '' : ($decoded->email ?? $localUser->email),
                 'username' => $localUser->username,
-                'roles' => $decoded->roles ?? [],
+                'display_name' => $localUser->display_name ?: $localUser->username,
+                'roles' => $decoded->roles ?? ($isGuest ? ['guest'] : []),
+                'role' => $isGuest ? 'guest' : ($localUser->role ?? 'player'),
+                'is_guest' => $isGuest,
+                'auth_type' => $isGuest ? 'guest' : 'frontpage',
             ];
 
             $request = $request->withAttribute('auth_user', $authUser);
@@ -73,32 +77,48 @@ class WebHatcheryJwtMiddleware
         }
     }
 
-    private function resolveOrCreateLocalUser(object $decoded, string $externalUserId): User
+    private function resolveOrCreateLocalUser(object $decoded, string $externalUserId, bool $isGuest): User
     {
         $email = isset($decoded->email) && is_string($decoded->email) ? trim($decoded->email) : '';
         $tokenUsername = isset($decoded->username) && is_string($decoded->username) ? trim($decoded->username) : '';
+        $columns = $this->getUserColumns();
 
         $user = null;
-        if ($email !== '') {
+        if (isset($columns['auth0_id'])) {
+            $user = User::where('auth0_id', $externalUserId)->first();
+        }
+
+        if (!$user && !$isGuest && $email !== '') {
             $user = User::where('email', $email)->first();
         }
-        if (!$user && $tokenUsername !== '') {
+        if (!$user && !$isGuest && $tokenUsername !== '') {
             $user = User::where('username', $tokenUsername)->first();
         }
-        if (!$user && ctype_digit($externalUserId)) {
+        if (!$user && !$isGuest && ctype_digit($externalUserId)) {
             $user = User::find((int) $externalUserId);
         }
 
         if ($user) {
-            $columns = $this->getUserColumns();
             $updates = [];
-            if (isset($columns['email']) && $email !== '' && $user->email !== $email) {
+            if (isset($columns['auth0_id']) && $externalUserId !== '' && $user->auth0_id !== $externalUserId) {
+                $conflict = User::where('auth0_id', $externalUserId)->where('id', '!=', $user->id)->exists();
+                if (!$conflict) {
+                    $updates['auth0_id'] = $externalUserId;
+                }
+            }
+            if (!$isGuest && isset($columns['email']) && $email !== '' && $user->email !== $email) {
                 $updates['email'] = $email;
             }
             if (isset($columns['username']) && $tokenUsername !== '' && $user->username !== $tokenUsername && !User::where('username', $tokenUsername)->where('id', '!=', $user->id)->exists()) {
                 $updates['username'] = $tokenUsername;
                 if (isset($columns['display_name']) && empty($user->display_name)) {
                     $updates['display_name'] = $tokenUsername;
+                }
+            }
+            if (isset($columns['display_name']) && !isset($updates['display_name'])) {
+                $displayName = isset($decoded->display_name) && is_string($decoded->display_name) ? trim($decoded->display_name) : '';
+                if ($displayName !== '' && $user->display_name !== $displayName) {
+                    $updates['display_name'] = $displayName;
                 }
             }
             if (isset($columns['last_login_at'])) {
@@ -113,9 +133,11 @@ class WebHatcheryJwtMiddleware
             return $user;
         }
 
-        $baseUsername = $tokenUsername !== '' ? $tokenUsername : 'wh_user_' . preg_replace('/[^a-zA-Z0-9_]/', '', $externalUserId);
+        $baseUsername = $tokenUsername !== ''
+            ? $tokenUsername
+            : ($isGuest ? 'guest_' . substr(preg_replace('/[^a-zA-Z0-9]/', '', $externalUserId), 0, 10) : 'wh_user_' . preg_replace('/[^a-zA-Z0-9_]/', '', $externalUserId));
         if ($baseUsername === '') {
-            $baseUsername = 'wh_user_' . time();
+            $baseUsername = $isGuest ? 'guest_' . time() : 'wh_user_' . time();
         }
         $username = $baseUsername;
         $counter = 1;
@@ -124,11 +146,16 @@ class WebHatcheryJwtMiddleware
             $username = $baseUsername . '_' . $counter;
         }
 
-        $resolvedEmail = $email !== '' ? $email : $username . '@local.webhatchery';
+        $resolvedEmail = $email !== '' ? $email : $username . ($isGuest ? '@guest.tradeborn.local' : '@local.webhatchery');
+        while (User::where('email', $resolvedEmail)->exists()) {
+            $counter++;
+            $resolvedEmail = $baseUsername . '_' . $counter . ($isGuest ? '@guest.tradeborn.local' : '@local.webhatchery');
+        }
 
-        $columns = $this->getUserColumns();
         $createData = [];
-
+        if (isset($columns['auth0_id'])) {
+            $createData['auth0_id'] = $externalUserId;
+        }
         if (isset($columns['email'])) {
             $createData['email'] = $resolvedEmail;
         }
@@ -139,7 +166,9 @@ class WebHatcheryJwtMiddleware
             $createData['password'] = password_hash(bin2hex(random_bytes(16)), PASSWORD_DEFAULT);
         }
         if (isset($columns['display_name'])) {
-            $createData['display_name'] = $tokenUsername !== '' ? $tokenUsername : $username;
+            $createData['display_name'] = $isGuest
+                ? 'Guest Trader'
+                : ((isset($decoded->display_name) && is_string($decoded->display_name) && trim($decoded->display_name) !== '') ? trim($decoded->display_name) : $username);
         }
         if (isset($columns['starting_balance'])) {
             $createData['starting_balance'] = 10000.00;
@@ -147,21 +176,37 @@ class WebHatcheryJwtMiddleware
         if (isset($columns['is_active'])) {
             $createData['is_active'] = true;
         }
+        if (isset($columns['role'])) {
+            $createData['role'] = 'player';
+        }
         if (isset($columns['last_login_at'])) {
             $createData['last_login_at'] = date('Y-m-d H:i:s');
         }
 
-        $created = User::create($createData);
-
-        error_log('WebHatcheryJwtMiddleware created local user id=' . $created->id . ' external_id=' . $externalUserId);
-
-        return $created;
+        return User::create($createData);
     }
 
     private function getUserColumns(): array
     {
         $columns = Capsule::schema()->getColumnListing('users');
         return array_fill_keys($columns, true);
+    }
+
+    private function extractBool(mixed $value): bool
+    {
+        if (is_bool($value)) {
+            return $value;
+        }
+
+        if (is_string($value)) {
+            return in_array(strtolower(trim($value)), ['1', 'true', 'yes'], true);
+        }
+
+        if (is_numeric($value)) {
+            return (int) $value === 1;
+        }
+
+        return false;
     }
 
     private function unauthorized(Response $response, string $message): Response

@@ -2,6 +2,7 @@ import axios from 'axios';
 
 const normalizeBaseUrl = (value: string): string => value.replace(/\/+$/, '');
 const rawApiUrl = import.meta.env.VITE_API_URL;
+const GUEST_AUTH_STORAGE_KEY = 'tb-realms-guest-session';
 
 if (!rawApiUrl) {
     throw new Error('VITE_API_URL environment variable is required');
@@ -9,10 +10,31 @@ if (!rawApiUrl) {
 
 const BASE_URL = normalizeBaseUrl(rawApiUrl);
 
-/**
- * Standardized Web Hatchery Axios Instance
- * Automatically handles Bearer tokens and 401 Unauthorized redirects.
- */
+const readToken = (): string | null => {
+    try {
+        const authStorageStr = localStorage.getItem('auth-storage');
+        if (authStorageStr) {
+            const authData = JSON.parse(authStorageStr);
+            const token = authData?.state?.token;
+            if (typeof token === 'string' && token.trim() !== '') {
+                return token;
+            }
+        }
+
+        const guestStorageStr = localStorage.getItem(GUEST_AUTH_STORAGE_KEY);
+        if (guestStorageStr) {
+            const guestData = JSON.parse(guestStorageStr) as { token?: string | null };
+            if (typeof guestData?.token === 'string' && guestData.token.trim() !== '') {
+                return guestData.token;
+            }
+        }
+    } catch (error) {
+        console.warn('Failed to parse auth token from local storage', error);
+    }
+
+    return null;
+};
+
 export const apiClient = axios.create({
     baseURL: BASE_URL,
     headers: {
@@ -20,39 +42,20 @@ export const apiClient = axios.create({
     },
 });
 
-// Request Interceptor: Attach Auth Token
 apiClient.interceptors.request.use(
     (config) => {
-        // We intentionally interact directly with localStorage here to avoid
-        // reactivity issues or circular dependencies when initializing Axios outside of React.
-        try {
-            const authStorageStr = localStorage.getItem('auth-storage');
-            if (authStorageStr) {
-                const authData = JSON.parse(authStorageStr);
-                // Zustand persist wraps state in a `state` object
-                const token = authData?.state?.token;
-                if (token) {
-                    config.headers.Authorization = `Bearer ${token}`;
-                }
-            }
-        } catch (error) {
-            console.warn('Failed to parse auth token from local storage', error);
+        const token = readToken();
+        if (token) {
+            config.headers.Authorization = `Bearer ${token}`;
         }
-
         return config;
     },
-    (error) => {
-        return Promise.reject(error);
-    }
+    (error) => Promise.reject(error)
 );
 
-// Response Interceptor: Handle 401s and standardize errors
 apiClient.interceptors.response.use(
-    (response) => {
-        return response;
-    },
+    (response) => response,
     (error) => {
-        // Intercept 401 Unauthorized and redirect to central login
         if (error.response?.status === 401) {
             const loginUrl =
                 error.response?.data?.login_url ||

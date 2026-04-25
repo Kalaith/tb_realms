@@ -1,6 +1,5 @@
 /**
  * Navigation Component
- * Main navigation bar for the application
  */
 import React from 'react';
 import { Link } from 'react-router-dom';
@@ -8,18 +7,16 @@ import { useAuth } from '../../contexts/AuthContext';
 import { useNavigation } from '../../contexts/NavigationContext';
 
 const Navigation: React.FC = () => {
-  const { user } = useAuth();
+  const { user, continueAsGuest, loginWithRedirect, getLinkAccountUrl, logout } = useAuth();
   const { mainNavigation, appBranding } = useNavigation();
 
-  // Show all navigation items since auth is no longer required
   const navItems = mainNavigation.filter(
     item => item.showInHeader === undefined || item.showInHeader
   );
 
   return (
     <nav className="fixed top-0 left-0 z-30 w-full bg-white border-b shadow-sm dark:bg-gray-800 dark:border-gray-700">
-      <div className="container flex items-center justify-between h-16 px-6 mx-auto">
-        {/* App name in top left corner */}
+      <div className="container flex items-center justify-between h-16 px-6 mx-auto gap-4">
         <div className="flex items-center">
           <Link to="/" className="flex items-center">
             <span className="text-xl font-bold text-blue-600 dark:text-blue-400">
@@ -28,7 +25,6 @@ const Navigation: React.FC = () => {
           </Link>
         </div>
 
-        {/* Middle section - shows dynamic Market links */}
         <div className="hidden md:flex items-center space-x-4">
           {navItems.map(item => (
             <Link
@@ -41,17 +37,49 @@ const Navigation: React.FC = () => {
           ))}
         </div>
 
-        {/* Right section - shows user info */}
-        <div className="flex items-center">
-          {user && (
-            <div className="flex items-center space-x-3">
-              <span className="text-sm text-gray-700 dark:text-gray-300">
-                Welcome, {user.username}
-              </span>
-              <span className="text-sm text-green-600 dark:text-green-400 font-medium">
-                ${(0).toLocaleString()}
-              </span>
-            </div>
+        <div className="flex items-center gap-3">
+          {user ? (
+            <>
+              <div className="hidden md:flex flex-col items-end text-sm">
+                <span className="text-gray-700 dark:text-gray-300">
+                  {user.is_guest ? 'Guest session' : 'Signed in'}
+                </span>
+                <span className="font-medium text-blue-600 dark:text-blue-400">
+                  {user.display_name || user.username || user.email}
+                </span>
+              </div>
+              {user.is_guest ? (
+                <a
+                  href={getLinkAccountUrl()}
+                  className="rounded-md border border-blue-500 px-3 py-2 text-sm font-medium text-blue-600 hover:bg-blue-50 dark:text-blue-300 dark:hover:bg-gray-700"
+                >
+                  Link Account
+                </a>
+              ) : null}
+              <button
+                onClick={logout}
+                className="rounded-md border border-gray-300 px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700"
+              >
+                {user.is_guest ? 'Exit Guest' : 'Account'}
+              </button>
+            </>
+          ) : (
+            <>
+              <button
+                onClick={() => {
+                  void continueAsGuest();
+                }}
+                className="rounded-md bg-blue-600 px-3 py-2 text-sm font-medium text-white hover:bg-blue-700"
+              >
+                Guest
+              </button>
+              <button
+                onClick={loginWithRedirect}
+                className="rounded-md border border-blue-600 px-3 py-2 text-sm font-medium text-blue-600 hover:bg-blue-50 dark:text-blue-300 dark:hover:bg-gray-700"
+              >
+                Sign In
+              </button>
+            </>
           )}
         </div>
       </div>

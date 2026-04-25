@@ -19,10 +19,11 @@ return function (
 ): void {
     $api = '/api';
 
-    // Auth session
     $router->get($api . '/auth/session', [AuthController::class, 'session'], [WebHatcheryJwtMiddleware::class]);
+    $router->get($api . '/auth/current-user', [AuthController::class, 'currentUser'], [WebHatcheryJwtMiddleware::class]);
+    $router->post($api . '/auth/guest-session', [AuthController::class, 'createGuestSession']);
+    $router->post($api . '/auth/link-guest', [AuthController::class, 'linkGuestAccount'], [WebHatcheryJwtMiddleware::class]);
 
-    // Status + health (public)
     $router->get($api . '/status', function ($request, $response) {
         $response->getBody()->write(json_encode([
             'success' => true,
@@ -41,51 +42,14 @@ return function (
         return $response->withHeader('Content-Type', 'application/json');
     });
 
-    // Navigation (public)
     $router->get($api . '/navigation', function ($request, $response) {
         $mainNavigation = [
-            [
-                'name' => 'Dashboard',
-                'path' => '/dashboard',
-                'icon' => 'ðŸ ',
-                'requiresAuth' => false,
-                'showInHeader' => true
-            ],
-            [
-                'name' => 'Market',
-                'path' => '/market',
-                'icon' => 'ðŸ“ˆ',
-                'requiresAuth' => false,
-                'showInHeader' => true
-            ],
-            [
-                'name' => 'Portfolio',
-                'path' => '/portfolio',
-                'icon' => 'ðŸ’¼',
-                'requiresAuth' => false,
-                'showInHeader' => true
-            ],
-            [
-                'name' => 'Transactions',
-                'path' => '/transactions',
-                'icon' => 'ðŸ’³',
-                'requiresAuth' => false,
-                'showInHeader' => true
-            ],
-            [
-                'name' => 'Watchlist',
-                'path' => '/watchlist',
-                'icon' => 'ðŸ‘ï¸',
-                'requiresAuth' => false,
-                'showInHeader' => true
-            ],
-            [
-                'name' => 'Leaderboard',
-                'path' => '/leaderboard',
-                'icon' => 'ðŸ†',
-                'requiresAuth' => false,
-                'showInHeader' => true
-            ]
+            ['name' => 'Dashboard', 'path' => '/dashboard', 'icon' => 'dashboard', 'requiresAuth' => false, 'showInHeader' => true],
+            ['name' => 'Market', 'path' => '/market', 'icon' => 'market', 'requiresAuth' => false, 'showInHeader' => true],
+            ['name' => 'Portfolio', 'path' => '/portfolio', 'icon' => 'portfolio', 'requiresAuth' => false, 'showInHeader' => true],
+            ['name' => 'Transactions', 'path' => '/transactions', 'icon' => 'transactions', 'requiresAuth' => false, 'showInHeader' => true],
+            ['name' => 'Watchlist', 'path' => '/watchlist', 'icon' => 'watchlist', 'requiresAuth' => false, 'showInHeader' => true],
+            ['name' => 'Leaderboard', 'path' => '/leaderboard', 'icon' => 'leaderboard', 'requiresAuth' => false, 'showInHeader' => true],
         ];
 
         $response->getBody()->write(json_encode([
@@ -98,16 +62,8 @@ return function (
 
     $router->get($api . '/navigation/account', function ($request, $response) {
         $accountNavigation = [
-            [
-                'name' => 'Profile',
-                'path' => '/profile',
-                'icon' => 'ðŸ‘¤'
-            ],
-            [
-                'name' => 'Settings',
-                'path' => '/settings',
-                'icon' => 'âš™ï¸'
-            ]
+            ['name' => 'Profile', 'path' => '/profile', 'icon' => 'profile'],
+            ['name' => 'Settings', 'path' => '/settings', 'icon' => 'settings'],
         ];
 
         $response->getBody()->write(json_encode([
@@ -133,7 +89,6 @@ return function (
         return $response->withHeader('Content-Type', 'application/json');
     });
 
-    // Public stock routes
     $router->get($api . '/stocks', [$stockController, 'getAllStocks']);
     $router->get($api . '/stocks/filter', [$stockController, 'getAllStocks']);
     $router->get($api . '/stocks/{id}', [$stockController, 'getStockById']);
@@ -142,7 +97,6 @@ return function (
     $router->get($api . '/stocks/category/{category}', [$stockController, 'getStocksByCategory']);
     $router->get($api . '/stocks/guild/{guild}', [$stockController, 'getStocksByGuild']);
 
-    // Portfolio (protected)
     $router->get($api . '/portfolio', [$portfolioController, 'getPortfolio'], [WebHatcheryJwtMiddleware::class]);
     $router->get($api . '/portfolios/user/{identifier}', [$portfolioController, 'getPortfolioByUser'], [WebHatcheryJwtMiddleware::class]);
     $router->get($api . '/portfolio/summary', [$portfolioController, 'getPortfolio'], [WebHatcheryJwtMiddleware::class]);
@@ -150,20 +104,17 @@ return function (
     $router->get($api . '/portfolio/performance', [$portfolioController, 'getPerformance'], [WebHatcheryJwtMiddleware::class]);
     $router->get($api . '/portfolio/holdings', [$portfolioController, 'getHoldings'], [WebHatcheryJwtMiddleware::class]);
 
-    // Transactions (protected)
     $router->post($api . '/transactions/buy', [$transactionController, 'buyStock'], [WebHatcheryJwtMiddleware::class]);
     $router->post($api . '/transactions/sell', [$transactionController, 'sellStock'], [WebHatcheryJwtMiddleware::class]);
     $router->get($api . '/transactions', [$transactionController, 'getTransactions'], [WebHatcheryJwtMiddleware::class]);
     $router->get($api . '/transactions/history', [$transactionController, 'getTransactionHistory'], [WebHatcheryJwtMiddleware::class]);
     $router->get($api . '/transactions/{id}', [$transactionController, 'getTransactionById'], [WebHatcheryJwtMiddleware::class]);
 
-    // Watchlist (protected)
     $router->get($api . '/watchlist', [$watchlistController, 'getWatchlist'], [WebHatcheryJwtMiddleware::class]);
     $router->get($api . '/watchlist/me', [$watchlistController, 'getWatchlist'], [WebHatcheryJwtMiddleware::class]);
     $router->post($api . '/watchlist', [$watchlistController, 'addToWatchlist'], [WebHatcheryJwtMiddleware::class]);
     $router->delete($api . '/watchlist/{stockId}', [$watchlistController, 'removeFromWatchlist'], [WebHatcheryJwtMiddleware::class]);
 
-    // Users (protected)
     $router->get($api . '/users', [$userController, 'getAllUsers'], [WebHatcheryJwtMiddleware::class]);
     $router->get($api . '/users/{id}', [$userController, 'getUserById'], [WebHatcheryJwtMiddleware::class]);
     $router->get($api . '/users/{id}/profile', [$userController, 'getUserProfile'], [WebHatcheryJwtMiddleware::class]);
