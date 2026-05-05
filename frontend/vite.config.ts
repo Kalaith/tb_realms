@@ -7,19 +7,11 @@ export default defineConfig(({ mode }) => {
   // Load environment variables
   const env = loadEnv(mode, process.cwd(), '');
 
-  // Determine base path from environment variable or fallback based on mode
-  let base = '/';
-
-  if (env.VITE_BASE_PATH) {
-    // Use environment variable if set
-    base = env.VITE_BASE_PATH.endsWith('/') ? env.VITE_BASE_PATH : env.VITE_BASE_PATH + '/';
-  } else if (mode === 'preview') {
-    // Fallback for preview mode
-    base = '/tb_realms/';
-  } else if (mode === 'production') {
-    // Fallback for production mode
-    base = '/tb_realms/';
+  const configuredBasePath = process.env.VITE_BASE_PATH ?? env.VITE_BASE_PATH;
+  if (!configuredBasePath) {
+    throw new Error('VITE_BASE_PATH environment variable is required');
   }
+  const base = configuredBasePath.endsWith('/') ? configuredBasePath : `${configuredBasePath}/`;
 
   return {
     base,

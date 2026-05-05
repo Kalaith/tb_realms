@@ -1,12 +1,12 @@
 import React from 'react';
-import { useAuth } from '../../contexts/AuthContext';
+import { useAuth } from '../../hooks/useAuth';
 
 interface ProtectedRouteProps {
   children?: React.ReactNode;
 }
 
 const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
-  const { isAuthenticated, isLoading, continueAsGuest, loginWithRedirect } = useAuth();
+  const { isAuthenticated, isLoading, continueAsGuest, requestLogin, loginUrl } = useAuth();
 
   if (isLoading) {
     return (
@@ -33,12 +33,13 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
             >
               Continue as Guest
             </button>
-            <button
+            <a
+              href={loginUrl}
               className="rounded-lg border border-gray-300 px-4 py-3 font-semibold text-gray-700 hover:bg-gray-100 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700"
-              onClick={loginWithRedirect}
+              onClick={requestLogin}
             >
               Sign In
-            </button>
+            </a>
           </div>
         </div>
       </div>

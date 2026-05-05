@@ -2,9 +2,10 @@
  * Navigation Context
  * Provides navigation data from the backend throughout the application
  */
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import React, { useCallback, useEffect, useMemo, useState, type ReactNode } from 'react';
 import { NavigationItem, AccountNavItem, AppBranding } from '../entities/navigation';
 import navigationService from '../api/navigationService';
+import { NavigationContext, type NavigationContextType } from './navigationContextValue';
 
 // Fallback data in case API call fails
 const fallbackMainNavigation: NavigationItem[] = [
@@ -31,24 +32,6 @@ const fallbackAppBranding: AppBranding = {
   version: '1.0.0',
 };
 
-/**
- * Navigation context state and methods
- */
-interface NavigationContextType {
-  // State
-  mainNavigation: NavigationItem[];
-  accountNavigation: AccountNavItem[];
-  appBranding: AppBranding;
-  isLoading: boolean;
-  error: string | null;
-
-  // Methods
-  refreshNavigationData: () => Promise<void>;
-}
-
-// Create context with default undefined value
-const NavigationContext = createContext<NavigationContextType | undefined>(undefined);
-
 // Provider props
 interface NavigationProviderProps {
   children: ReactNode;
@@ -68,7 +51,7 @@ export const NavigationProvider: React.FC<NavigationProviderProps> = ({ children
   /**
    * Fetch navigation data from API
    */
-  const refreshNavigationData = async (): Promise<void> => {
+  const refreshNavigationData = useCallback(async (): Promise<void> => {
     setIsLoading(true);
     setError(null);
 
@@ -96,7 +79,7 @@ export const NavigationProvider: React.FC<NavigationProviderProps> = ({ children
     } finally {
       setIsLoading(false);
     }
-  };
+  }, []);
   /**
    * Load navigation data on mount
    */ useEffect(() => {
@@ -116,31 +99,20 @@ export const NavigationProvider: React.FC<NavigationProviderProps> = ({ children
     return () => {
       window.removeEventListener('auth:login-success', handleLoginSuccess);
     };
-  }, []);
+  }, [refreshNavigationData]);
 
   // Create context value
-  const contextValue: NavigationContextType = {
-    mainNavigation,
-    accountNavigation,
-    appBranding,
-    isLoading,
-    error,
-    refreshNavigationData,
-  };
+  const contextValue: NavigationContextType = useMemo(
+    () => ({
+      mainNavigation,
+      accountNavigation,
+      appBranding,
+      isLoading,
+      error,
+      refreshNavigationData,
+    }),
+    [accountNavigation, appBranding, error, isLoading, mainNavigation, refreshNavigationData]
+  );
 
   return <NavigationContext.Provider value={contextValue}>{children}</NavigationContext.Provider>;
-};
-
-/**
- * Custom hook for accessing navigation context
- * @throws Error if used outside of NavigationProvider
- */
-export const useNavigation = (): NavigationContextType => {
-  const context = useContext(NavigationContext);
-
-  if (context === undefined) {
-    throw new Error('useNavigation must be used within a NavigationProvider');
-  }
-
-  return context;
 };

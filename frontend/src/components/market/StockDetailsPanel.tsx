@@ -23,6 +23,13 @@ const StockDetailsPanel: React.FC<StockDetailsPanelProps> = ({
 }) => {
   const [marketEvents, setMarketEvents] = useState<MarketEvent[]>([]);
   const [loadingNews, setLoadingNews] = useState(false);
+  const trendPosition =
+    stock.yearHigh > stock.yearLow
+      ? Math.min(
+          100,
+          Math.max(0, ((stock.currentPrice - stock.yearLow) / (stock.yearHigh - stock.yearLow)) * 100)
+        )
+      : 0;
 
   // Fetch market events when stock changes or news tab is active
   useEffect(() => {
@@ -210,14 +217,12 @@ const StockDetailsPanel: React.FC<StockDetailsPanelProps> = ({
                   <h3 className="text-sm font-semibold text-gray-800 dark:text-gray-200 mb-2">
                     Price Trend
                   </h3>
-                  <div className="relative w-full h-1 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
-                    <div
-                      className={`absolute top-0 left-0 h-full ${stock.changePercent >= 0 ? 'bg-green-500' : 'bg-red-500'}`}
-                      style={{
-                        width: `${(((stock.currentPrice - stock.yearLow) / (stock.yearHigh - stock.yearLow)) * 100).toFixed(2)}%`,
-                      }}
-                    ></div>
-                  </div>
+                  <progress
+                    className={`block h-1 w-full overflow-hidden rounded-full ${stock.changePercent >= 0 ? 'accent-green-500' : 'accent-red-500'}`}
+                    max={100}
+                    value={trendPosition}
+                    aria-label="52-week price range position"
+                  />
                   <div className="flex justify-between mt-1 text-xs text-gray-500 dark:text-gray-400">
                     <span>52-Week Low</span>
                     <span>Current</span>

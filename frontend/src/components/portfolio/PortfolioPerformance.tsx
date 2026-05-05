@@ -1,7 +1,9 @@
+import type { FC } from 'react';
+
 /**
  * Displays the portfolio performance metrics and chart
  */
-const PortfolioPerformance = () => {
+const PortfolioPerformance: FC = () => {
   return (
     <div className="p-6 bg-white rounded-lg shadow-md dark:bg-gray-800">
       <h3 className="mb-4 text-lg font-medium text-gray-800 dark:text-gray-200">

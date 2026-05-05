@@ -2,13 +2,13 @@ import React, { useState, useEffect } from 'react';
 import { formatCurrency, formatPercentage } from '../utils/formatUtils';
 import { LoadingSpinner } from '../components/utility';
 import { watchlistService, WatchlistItem } from '../api/watchlistService';
-import { useAuth } from '../contexts/AuthContext';
+import { useAuth } from '../hooks/useAuth';
 
 const Watchlist: React.FC = () => {
   const [watchlist, setWatchlist] = useState<WatchlistItem[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [searchQuery, setSearchQuery] = useState<string>('');
-  const { isAuthenticated, continueAsGuest, loginWithRedirect } = useAuth();
+  const { isAuthenticated, continueAsGuest, requestLogin, loginUrl } = useAuth();
 
   useEffect(() => {
     const fetchWatchlist = async () => {
@@ -127,12 +127,13 @@ const Watchlist: React.FC = () => {
               >
                 Continue as Guest
               </button>
-              <button
-                onClick={loginWithRedirect}
+              <a
+                href={loginUrl}
+                onClick={requestLogin}
                 className="px-4 py-2 text-sm font-medium text-blue-600 border border-blue-600 rounded-md hover:bg-blue-50 dark:text-blue-300 dark:border-blue-400 dark:hover:bg-gray-700"
               >
                 Sign In
-              </button>
+              </a>
             </div>
           </div>
         </div>

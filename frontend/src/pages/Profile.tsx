@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { LoadingSpinner } from '../components/utility';
-import { useAuth } from '../contexts/AuthContext';
+import { useAuth } from '../hooks/useAuth';
 import { formatDateTime } from '../utils/formatUtils';
 
 /**
@@ -38,27 +38,29 @@ const Profile: React.FC = () => {
         setLoading(true);
         setError(null);
 
-        // In a real app, you would fetch this from an API
-        // For now, we'll simulate an API call with a timeout
-        await new Promise(resolve => setTimeout(resolve, 500));
+        if (!user) {
+          setProfile(null);
+          setFormData({});
+          return;
+        }
 
-        // Mock profile data
-        const mockProfileData: UserProfile = {
-          id: 'elf782',
-          username: user?.username || 'trader123',
-          email: user?.email || 'trader@example.com',
-          fullName: 'Alex Johnson',
-          avatarUrl: 'https://i.pravatar.cc/300',
-          joinDate: '2023-03-15T10:30:00Z',
-          bio: 'Passionate trader with 5+ years of experience in stock markets. Focused on tech and renewable energy sectors.',
-          location: 'San Francisco, CA',
-          twitterHandle: '@trader123',
-          linkedinProfile: 'linkedin.com/in/alexjohnson',
-          experience: 'advanced',
+        const displayName = user.display_name || user.displayName || user.username || user.email || '';
+        const profileData: UserProfile = {
+          id: user.id,
+          username: user.username || displayName,
+          email: user.email || '',
+          fullName: displayName,
+          avatarUrl: user.avatarUrl || null,
+          joinDate: user.createdAt instanceof Date ? user.createdAt.toISOString() : new Date().toISOString(),
+          bio: '',
+          location: '',
+          twitterHandle: '',
+          linkedinProfile: '',
+          experience: 'beginner',
         };
 
-        setProfile(mockProfileData);
-        setFormData(mockProfileData);
+        setProfile(profileData);
+        setFormData(profileData);
       } catch (err) {
         setError('Failed to load profile data');
         console.error(err);

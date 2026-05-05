@@ -1,17 +1,16 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Actions;
 
-use App\External\StockRepository;
-use App\External\TransactionRepository;
-use App\External\PortfolioRepository;
+use App\Repositories\StockRepository;
+use App\Repositories\TransactionRepository;
+use App\Repositories\PortfolioRepository;
 use App\Models\Stock;
-use App\Models\Transaction;
-use App\Models\Portfolio;
 use App\Exceptions\ResourceNotFoundException;
-use App\Exceptions\UnauthorizedException;
-use Ramsey\Uuid\Uuid;
-use Illuminate\Database\Capsule\Manager as DB;
+use DateInterval;
+use DateTimeImmutable;
 
 /**
  * Stock trading business logic
@@ -102,7 +101,7 @@ class StockActions
     /**
      * Get stock by ID with detailed information
      */
-    public function getStockById(string $stockId): array
+    public function getStockById(string|int $stockId): array
     {
         $stock = $this->stockRepository->findById($stockId);
         
@@ -152,7 +151,7 @@ class StockActions
     /**
      * Get stock price history for charts
      */
-    public function getStockHistory(string $stockId, int $days = self::DEFAULT_HISTORY_DAYS): array
+    public function getStockHistory(string|int $stockId, int $days = self::DEFAULT_HISTORY_DAYS): array
     {
         $stock = $this->stockRepository->findById($stockId);
         
@@ -171,7 +170,7 @@ class StockActions
      */
     public function updateStockPrices(array $priceUpdates): array
     {
-        return DB::transaction(function() use ($priceUpdates) {
+        return $this->stockRepository->transaction(function () use ($priceUpdates) {
             $updatedStocks = [];
 
             foreach ($priceUpdates as $update) {
@@ -190,7 +189,7 @@ class StockActions
                         'day_change' => $dayChange,
                         'day_change_percentage' => $dayChangePercentage,
                         'volume' => $update['volume'] ?? $stock->volume,
-                        'last_updated' => now()
+                        'last_updated' => gmdate('Y-m-d H:i:s')
                     ];
 
                     $updatedStock = $this->stockRepository->updateStock($stock->id, $updateData);
@@ -266,12 +265,12 @@ class StockActions
         $basePrice = (float) $stock->current_price;
         
         for ($i = $days; $i >= 0; $i--) {
-            $date = now()->subDays($i);
+            $date = (new DateTimeImmutable('now'))->sub(new DateInterval('P' . $i . 'D'));
             $variance = (mt_rand(-self::PRICE_VARIANCE_BASIS_POINTS, self::PRICE_VARIANCE_BASIS_POINTS) / self::PRICE_VARIANCE_DIVISOR);
             $price = $basePrice * (1 + $variance);
 
             $history[] = [
-                'date' => $date->toDateString(),
+                'date' => $date->format('Y-m-d'),
                 'open' => round($price * 0.995, 4),
                 'high' => round($price * 1.01, 4),
                 'low' => round($price * 0.99, 4),
@@ -288,15 +287,18 @@ class StockActions
      */
     private function getMarketStatus(): array
     {
-        // Simple market hours simulation
-        $hour = (int) now()->format('H');
+        $now = new DateTimeImmutable('now');
+        $hour = (int) $now->format('H');
         $isOpen = $hour >= self::MARKET_OPEN_HOUR && $hour < self::MARKET_CLOSE_HOUR;
+        $nextOpen = $hour < self::MARKET_OPEN_HOUR
+            ? $now->setTime(self::MARKET_OPEN_HOUR, 0)
+            : $now->modify('+1 day')->setTime(self::MARKET_OPEN_HOUR, 0);
         
         return [
             'is_open' => $isOpen,
             'status' => $isOpen ? 'open' : 'closed',
-            'next_open' => $isOpen ? null : now()->next(self::MARKET_OPEN_HOUR . ':00')->toISOString(),
-            'next_close' => $isOpen ? now()->setTime(self::MARKET_CLOSE_HOUR, 0)->toISOString() : null
+            'next_open' => $isOpen ? null : $nextOpen->format(DATE_ATOM),
+            'next_close' => $isOpen ? $now->setTime(self::MARKET_CLOSE_HOUR, 0)->format(DATE_ATOM) : null
         ];
     }
 }

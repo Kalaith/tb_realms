@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 $autoloadCandidates = [
     __DIR__ . '/../vendor/autoload.php',      // local backend/vendor
     __DIR__ . '/../../vendor/autoload.php',   // project-level vendor
@@ -44,7 +46,8 @@ if ($appSrcPath !== false) {
 
 use Dotenv\Dotenv;
 use App\Core\Router;
-use App\External\DatabaseService;
+use App\Core\Database;
+use App\Core\Environment;
 use App\Controllers\PortfolioController;
 use App\Controllers\StockController;
 use App\Controllers\TransactionController;
@@ -55,33 +58,28 @@ use App\Actions\StockActions;
 use App\Actions\TransactionActions;
 use App\Actions\UserActions;
 use App\Actions\WatchlistActions;
-use App\External\UserRepository;
-use App\External\PortfolioRepository;
-use App\External\StockRepository;
-use App\External\TransactionRepository;
-use App\External\WatchlistRepository;
+use App\Repositories\UserRepository;
+use App\Repositories\PortfolioRepository;
+use App\Repositories\StockRepository;
+use App\Repositories\TransactionRepository;
+use App\Repositories\WatchlistRepository;
 
 // Load environment variables first
 $dotenv = Dotenv::createImmutable(__DIR__ . '/..');
 $dotenv->safeLoad();
 
-// Add required environment variables
-$required_env_vars = ['DB_HOST', 'DB_PORT', 'DB_NAME', 'DB_USER', 'DB_PASSWORD'];
-foreach ($required_env_vars as $var) {
-    if (!isset($_ENV[$var])) {
-        throw new \RuntimeException("Missing required environment variable: {$var}");
-    }
+foreach (['DB_HOST', 'DB_PORT', 'DB_NAME', 'DB_USER', 'DB_PASSWORD', 'JWT_SECRET', 'WEB_HATCHERY_LOGIN_URL'] as $var) {
+    Environment::required($var, $var === 'DB_PASSWORD');
 }
 
-// Initialize database service after environment variables are loaded
-$db = DatabaseService::getInstance();
+$pdo = Database::getConnection();
 
 // Repositories
-$userRepository = new UserRepository();
-$portfolioRepository = new PortfolioRepository();
-$stockRepository = new StockRepository();
-$transactionRepository = new TransactionRepository();
-$watchlistRepository = new WatchlistRepository();
+$userRepository = new UserRepository($pdo);
+$portfolioRepository = new PortfolioRepository($pdo);
+$stockRepository = new StockRepository($pdo);
+$transactionRepository = new TransactionRepository($pdo);
+$watchlistRepository = new WatchlistRepository($pdo);
 
 // Actions
 $portfolioActions = new PortfolioActions($portfolioRepository, $transactionRepository, $stockRepository, $userRepository);
@@ -101,8 +99,8 @@ $watchlistController = new WatchlistController($watchlistActions);
 $router = new Router();
 
 // Set base path for subdirectory deployment (preview environment)
-if (isset($_ENV['APP_ENV']) && $_ENV['APP_ENV'] === 'preview') {
-    $router->setBasePath('/tradeborn_realms');
+if (Environment::required('APP_ENV') === 'preview') {
+    $router->setBasePath('/tb_realms');
 } else {
     $requestPath = $_SERVER['REQUEST_URI'] ?? '';
     $requestPath = parse_url($requestPath, PHP_URL_PATH) ?? '';

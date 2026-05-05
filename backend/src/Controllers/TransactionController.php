@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Controllers;
 
 use App\Http\Response;
@@ -101,7 +103,6 @@ class TransactionController
 
     private function getUserId(Request $request): string|int
     {
-        $authUser = $request->getAttribute('auth_user');
-        return $authUser['id'] ?? $request->getAttribute('user_id') ?? '';
+        return $request->getAttribute('user_id') ?? '';
     }
 }

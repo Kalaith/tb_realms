@@ -3,6 +3,7 @@ import { Transaction } from '../entities/Portfolio';
 import { portfolioService } from '../api/portfolioService';
 import { formatCurrency, formatDateTime } from '../utils/formatUtils';
 import { LoadingSpinner } from '../components/utility';
+import { useAuth } from '../hooks/useAuth';
 
 /**
  * Transactions page - Shows a detailed history of user transactions
@@ -15,9 +16,7 @@ const Transactions: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [filter, setFilter] = useState<'all' | 'buy' | 'sell'>('all');
   const [searchQuery, setSearchQuery] = useState<string>('');
-
-  // Mock user ID - should be replaced with context/auth in a real implementation
-  const userId = 'elf782';
+  const { isAuthenticated } = useAuth();
 
   useEffect(() => {
     const fetchTransactions = async () => {
@@ -25,8 +24,13 @@ const Transactions: React.FC = () => {
         setLoading(true);
         setError(null);
 
+        if (!isAuthenticated) {
+          setTransactions([]);
+          return;
+        }
+
         // Fetch transaction data from the API
-        const response = await portfolioService.getUserTransactions(userId);
+        const response = await portfolioService.getUserTransactions('me');
 
         if (response.success && response.data) {
           setTransactions(response.data);
@@ -42,7 +46,7 @@ const Transactions: React.FC = () => {
     };
 
     fetchTransactions();
-  }, [userId]);
+  }, [isAuthenticated]);
 
   // Filter transactions based on selected filter and search query
   const filteredTransactions = transactions.filter(transaction => {

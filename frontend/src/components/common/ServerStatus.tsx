@@ -2,7 +2,7 @@
  * ServerStatus Component
  * Displays the backend server connection status and provides retry functionality
  */
-import React, { useState, useEffect } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import authApi from '../../api/authApi';
 
 interface ServerStatusProps {
@@ -16,7 +16,7 @@ const ServerStatus: React.FC<ServerStatusProps> = ({ onStatusChange }) => {
   /**
    * Check the server connectivity status
    */
-  const checkServerStatus = async (): Promise<void> => {
+  const checkServerStatus = useCallback(async (): Promise<void> => {
     setIsChecking(true);
     try {
       const connected = await authApi.checkServerConnectivity();
@@ -32,7 +32,7 @@ const ServerStatus: React.FC<ServerStatusProps> = ({ onStatusChange }) => {
     } finally {
       setIsChecking(false);
     }
-  };
+  }, [onStatusChange]);
 
   // Check server status on component mount
   useEffect(() => {
@@ -44,7 +44,7 @@ const ServerStatus: React.FC<ServerStatusProps> = ({ onStatusChange }) => {
     }, 30000); // Check every 30 seconds
 
     return () => clearInterval(intervalId);
-  }, []);
+  }, [checkServerStatus]);
 
   // If still checking for the first time, show minimal UI
   if (isConnected === null && !isChecking) {

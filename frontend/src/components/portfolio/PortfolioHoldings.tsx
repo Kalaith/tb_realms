@@ -1,4 +1,5 @@
-import { Position } from '../../entities/Portfolio';
+import type { FC } from 'react';
+import type { Position } from '../../entities/Portfolio';
 import { formatCurrency, formatPercentage } from '../../utils/formatUtils';
 
 type PortfolioHoldingsProps = {
@@ -10,7 +11,7 @@ type PortfolioHoldingsProps = {
 /**
  * Displays the holdings table with stock positions and action buttons
  */
-const PortfolioHoldings = ({ positions, onBuyClick, onSellClick }: PortfolioHoldingsProps) => {
+const PortfolioHoldings: FC<PortfolioHoldingsProps> = ({ positions, onBuyClick, onSellClick }) => {
   return (
     <div className="overflow-x-auto bg-white rounded-lg shadow-md dark:bg-gray-800">
       <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">

@@ -32,7 +32,7 @@ class UserSettingsService extends BaseApiService<UserSettings> {
     try {
       const response = await apiClient.get<unknown>(`${this.endpoint}/user`);
 
-      // Apply any defaults for missing properties
+      // Apply configured defaults for missing properties
       const settings = {
         id: 'local-settings',
         userId: 'local-user',
@@ -129,35 +129,6 @@ class UserSettingsService extends BaseApiService<UserSettings> {
     }
   }
 
-  /**
-   * Load settings from localStorage
-   */
-  loadFromLocalStorage(): UserSettings | null {
-    try {
-      const stored = localStorage.getItem('userSettings');
-      if (stored) {
-        const parsedSettings = JSON.parse(stored);
-        // Ensure required fields are present
-        if (parsedSettings.id && parsedSettings.userId) {
-          return { ...defaultUserSettings, ...parsedSettings };
-        }
-      }
-    } catch (error) {
-      console.error('Error loading settings from localStorage:', error);
-    }
-    return null;
-  }
-
-  /**
-   * Save settings to localStorage
-   */
-  saveToLocalStorage(settings: Partial<UserSettings>): void {
-    try {
-      localStorage.setItem('userSettings', JSON.stringify(settings));
-    } catch (error) {
-      console.error('Error saving settings to localStorage:', error);
-    }
-  }
 }
 
 export default new UserSettingsService();

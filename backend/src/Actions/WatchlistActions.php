@@ -1,10 +1,12 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Actions;
 
-use App\External\WatchlistRepository;
-use App\External\StockRepository;
-use App\External\UserRepository;
+use App\Repositories\WatchlistRepository;
+use App\Repositories\StockRepository;
+use App\Repositories\UserRepository;
 use App\Exceptions\ResourceNotFoundException;
 
 /**

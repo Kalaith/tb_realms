@@ -1,19 +1,17 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Actions;
 
-use App\External\TransactionRepository;
-use App\External\PortfolioRepository;
-use App\External\StockRepository;
-use App\External\UserRepository;
+use App\Repositories\TransactionRepository;
+use App\Repositories\PortfolioRepository;
+use App\Repositories\StockRepository;
+use App\Repositories\UserRepository;
 use App\Models\Transaction;
-use App\Models\Portfolio;
 use App\Models\Stock;
-use App\Models\User;
 use App\Exceptions\ResourceNotFoundException;
 use App\Exceptions\UnauthorizedException;
-use Ramsey\Uuid\Uuid;
-use Illuminate\Database\Capsule\Manager as DB;
 
 /**
  * Transaction processing business logic
@@ -33,7 +31,7 @@ class TransactionActions
      */
     public function buyStock(string $userId, array $orderData): array
     {
-        return DB::transaction(function () use ($userId, $orderData) {
+        return $this->transactionRepository->transaction(function () use ($userId, $orderData) {
             // Validate input data
             $this->validateOrderData($orderData, 'buy');
             
@@ -65,7 +63,6 @@ class TransactionActions
 
             // Create transaction record
             $transactionData = [
-                'id' => 'transaction-' . Uuid::uuid4()->toString(),
                 'user_id' => $userId,
                 'portfolio_id' => $portfolio->id,
                 'stock_id' => $stockId,
@@ -105,7 +102,7 @@ class TransactionActions
      */
     public function sellStock(string $userId, array $orderData): array
     {
-        return DB::transaction(function () use ($userId, $orderData) {
+        return $this->transactionRepository->transaction(function () use ($userId, $orderData) {
             // Validate input data
             $this->validateOrderData($orderData, 'sell');
             
@@ -138,7 +135,6 @@ class TransactionActions
 
             // Create transaction record
             $transactionData = [
-                'id' => 'transaction-' . Uuid::uuid4()->toString(),
                 'user_id' => $userId,
                 'portfolio_id' => $portfolio->id,
                 'stock_id' => $stockId,
@@ -206,7 +202,7 @@ class TransactionActions
     {
         $transaction = $this->transactionRepository->findById($transactionId);
         
-        if (!$transaction || $transaction->user_id !== $userId) {
+        if (!$transaction || (int) $transaction->user_id !== (int) $userId) {
             throw new ResourceNotFoundException('Transaction not found');
         }
 
@@ -220,10 +216,10 @@ class TransactionActions
      */
     public function cancelTransaction(string $userId, string $transactionId): array
     {
-        return DB::transaction(function () use ($userId, $transactionId) {
+        return $this->transactionRepository->transaction(function () use ($userId, $transactionId) {
             $transaction = $this->transactionRepository->findById($transactionId);
             
-            if (!$transaction || $transaction->user_id !== $userId) {
+            if (!$transaction || (int) $transaction->user_id !== (int) $userId) {
                 throw new ResourceNotFoundException('Transaction not found');
             }
 
@@ -293,13 +289,13 @@ class TransactionActions
     /**
      * Get current holding quantity for a stock
      */
-    private function getCurrentHoldingQuantity(string $portfolioId, string $stockId): int
+    private function getCurrentHoldingQuantity(string|int $portfolioId, string|int $stockId): int
     {
         $transactions = $this->transactionRepository->getCompletedTransactions($portfolioId);
         $totalQuantity = 0;
 
         foreach ($transactions as $transaction) {
-            if ($transaction->stock_id === $stockId) {
+            if ((int) $transaction->stock_id === (int) $stockId) {
                 if ($transaction->type === 'buy') {
                     $totalQuantity += $transaction->quantity;
                 } else {

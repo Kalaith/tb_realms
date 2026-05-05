@@ -15,14 +15,6 @@ export function useUserSettings() {
   useEffect(() => {
     const loadSettings = async () => {
       try {
-        // First try to load from localStorage for immediate display
-        const localSettings = userSettingsService.loadFromLocalStorage();
-        if (localSettings) {
-          setSettings(localSettings);
-          setIsLoading(false);
-        }
-
-        // Then load from API (in case there are updates)
         const response = await userSettingsService.getCurrentUserSettings();
         if (response.success && response.data) {
           setSettings(response.data);
@@ -58,7 +50,7 @@ export function useUserSettings() {
   );
 
   /**
-   * Save all current settings to the backend/localStorage
+   * Save all current settings to the backend
    */
   const saveSettings = useCallback(async () => {
     if (!settings) {

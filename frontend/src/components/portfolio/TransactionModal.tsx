@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useEffect } from 'react';
-import { Position } from '../../entities/Portfolio';
+import type { Position } from '../../entities/Portfolio';
 import { formatCurrency } from '../../utils/formatUtils';
 
 type TransactionModalProps = {
@@ -16,7 +16,7 @@ type TransactionModalProps = {
 /**
  * Modal component for buying and selling stocks
  */
-const TransactionModal = ({
+const TransactionModal: React.FC<TransactionModalProps> = ({
   isOpen,
   type,
   position,
@@ -25,7 +25,7 @@ const TransactionModal = ({
   onExecute,
   transactionStatus,
   transactionMessage,
-}: TransactionModalProps) => {
+}) => {
   const [shares, setShares] = useState<number>(type === 'buy' ? 1 : Math.min(10, position.shares));
 
   // Reset shares when modal opens/changes position or type

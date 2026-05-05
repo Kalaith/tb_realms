@@ -4,6 +4,7 @@ import { UserAchievement, UserAchievementStats } from '../entities/Achievement';
 import AchievementIcon from '../components/achievements/AchievementIcon';
 import { formatDate } from '../utils/formatUtils';
 import { LoadingSpinner } from '../components/utility';
+import { useAuth } from '../hooks/useAuth';
 
 const Achievements: React.FC = () => {
   const [achievements, setAchievements] = useState<UserAchievement[]>([]);
@@ -11,9 +12,7 @@ const Achievements: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [filter, setFilter] = useState<string>('all');
-
-  // Mock user ID - consistent with portfolio service
-  const userId = 'elf782';
+  const { isAuthenticated } = useAuth();
 
   useEffect(() => {
     const fetchAchievements = async () => {
@@ -21,9 +20,15 @@ const Achievements: React.FC = () => {
         setLoading(true);
         setError(null);
 
+        if (!isAuthenticated) {
+          setAchievements([]);
+          setStats(null);
+          return;
+        }
+
         // Get user's achievements data
-        const achievementsResponse = await achievementService.getUserAchievements(userId);
-        const statsResponse = await achievementService.getUserAchievementStats(userId);
+        const achievementsResponse = await achievementService.getUserAchievements('me');
+        const statsResponse = await achievementService.getUserAchievementStats('me');
 
         if (achievementsResponse.success && achievementsResponse.data) {
           setAchievements(achievementsResponse.data);
@@ -43,7 +48,7 @@ const Achievements: React.FC = () => {
     };
 
     fetchAchievements();
-  }, [userId]);
+  }, [isAuthenticated]);
 
   // Filter achievements based on selected filter
   const filteredAchievements = achievements.filter(achievement => {
@@ -246,12 +251,12 @@ const Achievements: React.FC = () => {
                       {achievement.progress} / {achievement.achievement.requirement.threshold}
                     </span>
                   </div>
-                  <div className="w-full bg-gray-200 rounded-full h-2 dark:bg-gray-700">
-                    <div
-                      className="bg-blue-600 h-2 rounded-full dark:bg-blue-500"
-                      style={{ width: `${achievement.progressPercentage}%` }}
-                    ></div>
-                  </div>
+                  <progress
+                    className="block h-2 w-full overflow-hidden rounded-full accent-blue-600 dark:accent-blue-500"
+                    max={100}
+                    value={achievement.progressPercentage}
+                    aria-label="Achievement progress"
+                  />
                 </div>
               )}
             </div>

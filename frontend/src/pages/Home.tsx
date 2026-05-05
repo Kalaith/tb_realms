@@ -6,13 +6,20 @@ import { stockService } from '../api/stockService';
 import { Stock } from '../entities/Stock';
 import { TopPerformingStocks, MarketOverview } from '../components/market';
 import { LoadingSpinner } from '../components/utility';
-import { useAuth } from '../contexts/AuthContext';
+import { useAuth } from '../hooks/useAuth';
 
 const Home: React.FC = () => {
   const [stocks, setStocks] = useState<Stock[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const { isAuthenticated, continueAsGuest, loginWithRedirect } = useAuth();
+  const {
+    isAuthenticated,
+    continueAsGuest,
+    requestLogin,
+    loginUrl,
+    canMergeGuestSession,
+    mergeGuestSession,
+  } = useAuth();
 
   const marketData = [
     { title: 'Market Index', value: 4826.32, change: 1.12, description: 'Overall market performance' },
@@ -79,6 +86,24 @@ const Home: React.FC = () => {
       <MarketOverview marketData={marketData} lastUpdated={new Date()} />
       <TopPerformingStocks stocks={stocks} limit={10} />
 
+      {canMergeGuestSession && (
+        <div className="p-4 bg-amber-50 rounded-lg shadow dark:bg-gray-800 dark:border dark:border-amber-900">
+          <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+            <p className="text-sm text-amber-900 dark:text-amber-200">
+              Guest progress is available for this signed-in account.
+            </p>
+            <button
+              onClick={() => {
+                void mergeGuestSession();
+              }}
+              className="px-4 py-2 text-sm font-semibold text-white bg-amber-600 rounded-md hover:bg-amber-700"
+            >
+              Merge Guest Progress
+            </button>
+          </div>
+        </div>
+      )}
+
       {!isAuthenticated && (
         <div className="p-6 bg-blue-50 rounded-lg shadow dark:bg-gray-800 dark:border dark:border-blue-900">
           <h2 className="mb-4 text-xl font-semibold text-gray-800 dark:text-white">
@@ -97,12 +122,13 @@ const Home: React.FC = () => {
             >
               Continue as Guest
             </button>
-            <button
-              onClick={loginWithRedirect}
+            <a
+              href={loginUrl}
+              onClick={requestLogin}
               className="px-6 py-3 text-blue-600 bg-white border border-blue-600 rounded-md hover:bg-blue-50 dark:text-blue-400 dark:bg-gray-700 dark:border-blue-400 dark:hover:bg-gray-600"
             >
               Sign In
-            </button>
+            </a>
           </div>
         </div>
       )}

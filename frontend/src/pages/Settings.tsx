@@ -45,14 +45,6 @@ const Settings: React.FC = () => {
   useEffect(() => {
     const loadSettings = async () => {
       try {
-        // First try to load from localStorage for immediate display
-        const localSettings = userSettingsService.loadFromLocalStorage();
-        if (localSettings) {
-          setSettings(localSettings);
-          setIsLoading(false);
-        }
-
-        // Then load from API (in case there are updates)
         const response = await userSettingsService.getCurrentUserSettings();
         if (response.success && response.data) {
           setSettings(response.data);

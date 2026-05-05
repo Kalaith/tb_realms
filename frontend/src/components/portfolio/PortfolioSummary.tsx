@@ -1,4 +1,5 @@
-import { Portfolio as PortfolioType } from '../../entities/Portfolio';
+import type { FC } from 'react';
+import type { Portfolio as PortfolioType } from '../../entities/Portfolio';
 import { formatCurrency, formatPercentage } from '../../utils/formatUtils';
 
 type PortfolioSummaryProps = {
@@ -10,11 +11,11 @@ type PortfolioSummaryProps = {
 /**
  * Displays summary cards with portfolio metrics at the top of the portfolio page
  */
-const PortfolioSummary = ({
+const PortfolioSummary: FC<PortfolioSummaryProps> = ({
   portfolio,
   totalProfitLoss,
   totalProfitLossPercentage,
-}: PortfolioSummaryProps) => {
+}) => {
   return (
     <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
       <div className="p-6 bg-white rounded-lg shadow-md dark:bg-gray-800">

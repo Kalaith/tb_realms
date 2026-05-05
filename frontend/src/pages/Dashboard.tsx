@@ -1,11 +1,12 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, type FC } from 'react';
 import { Portfolio } from '../entities/Portfolio';
 import { portfolioService } from '../api/portfolioService';
 import { stockService } from '../api/stockService';
 import { Stock } from '../entities/Stock';
 import { LoadingSpinner } from '../components/utility';
+import { useAuth } from '../hooks/useAuth';
 
-const Dashboard = () => {
+const Dashboard: FC = () => {
   const asNumber = (value: unknown): number =>
     typeof value === 'number' && Number.isFinite(value) ? value : 0;
 
@@ -13,16 +14,20 @@ const Dashboard = () => {
   const [topStocks, setTopStocks] = useState<Stock[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+  const { isAuthenticated } = useAuth();
 
   useEffect(() => {
     const fetchDashboardData = async () => {
       try {
         setLoading(true);
 
-        // Fetch user portfolio
-        const portfolioResponse = await portfolioService.getUserPortfolio('me');
-        if (portfolioResponse.success && portfolioResponse.data) {
-          setPortfolio(portfolioResponse.data);
+        if (isAuthenticated) {
+          const portfolioResponse = await portfolioService.getUserPortfolio('me');
+          if (portfolioResponse.success && portfolioResponse.data) {
+            setPortfolio(portfolioResponse.data);
+          }
+        } else {
+          setPortfolio(null);
         }
 
         // Fetch top stocks
@@ -44,7 +49,7 @@ const Dashboard = () => {
     };
 
     fetchDashboardData();
-  }, []);
+  }, [isAuthenticated]);
 
   // Use the same container for loading state
   if (loading)

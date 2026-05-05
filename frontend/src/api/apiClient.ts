@@ -1,39 +1,20 @@
 import axios from 'axios';
+import { getAuthToken, persistLoginUrl } from '../stores/authStore';
 
 const normalizeBaseUrl = (value: string): string => value.replace(/\/+$/, '');
 const rawApiUrl = import.meta.env.VITE_API_URL;
-const GUEST_AUTH_STORAGE_KEY = 'tb-realms-guest-session';
+const rawLoginUrl = import.meta.env.VITE_WEB_HATCHERY_LOGIN_URL;
 
 if (!rawApiUrl) {
     throw new Error('VITE_API_URL environment variable is required');
 }
 
+if (!rawLoginUrl) {
+    throw new Error('VITE_WEB_HATCHERY_LOGIN_URL environment variable is required');
+}
+
 const BASE_URL = normalizeBaseUrl(rawApiUrl);
-
-const readToken = (): string | null => {
-    try {
-        const authStorageStr = localStorage.getItem('auth-storage');
-        if (authStorageStr) {
-            const authData = JSON.parse(authStorageStr);
-            const token = authData?.state?.token;
-            if (typeof token === 'string' && token.trim() !== '') {
-                return token;
-            }
-        }
-
-        const guestStorageStr = localStorage.getItem(GUEST_AUTH_STORAGE_KEY);
-        if (guestStorageStr) {
-            const guestData = JSON.parse(guestStorageStr) as { token?: string | null };
-            if (typeof guestData?.token === 'string' && guestData.token.trim() !== '') {
-                return guestData.token;
-            }
-        }
-    } catch (error) {
-        console.warn('Failed to parse auth token from local storage', error);
-    }
-
-    return null;
-};
+const WEB_HATCHERY_LOGIN_URL = normalizeBaseUrl(rawLoginUrl);
 
 export const apiClient = axios.create({
     baseURL: BASE_URL,
@@ -44,7 +25,7 @@ export const apiClient = axios.create({
 
 apiClient.interceptors.request.use(
     (config) => {
-        const token = readToken();
+        const token = getAuthToken();
         if (token) {
             config.headers.Authorization = `Bearer ${token}`;
         }
@@ -57,27 +38,9 @@ apiClient.interceptors.response.use(
     (response) => response,
     (error) => {
         if (error.response?.status === 401) {
-            const loginUrl =
-                error.response?.data?.login_url ||
-                import.meta.env.VITE_WEB_HATCHERY_LOGIN_URL;
-
+            const loginUrl = error.response?.data?.login_url || WEB_HATCHERY_LOGIN_URL;
             if (loginUrl) {
-                try {
-                    const raw = localStorage.getItem('auth-storage');
-                    const parsed = raw ? JSON.parse(raw) : {};
-                    const state = parsed?.state ?? {};
-                    const next = {
-                        ...parsed,
-                        state: {
-                            ...state,
-                            loginUrl,
-                        },
-                    };
-                    localStorage.setItem('auth-storage', JSON.stringify(next));
-                    window.dispatchEvent(new CustomEvent('webhatchery:login-required', { detail: { loginUrl } }));
-                } catch (storageError) {
-                    console.warn('Failed to persist login URL to auth storage', storageError);
-                }
+                persistLoginUrl(loginUrl);
             }
         }
         return Promise.reject(error);

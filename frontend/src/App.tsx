@@ -1,4 +1,5 @@
 import { BrowserRouter, Routes, Route, Link } from 'react-router-dom';
+import type React from 'react';
 import { AuthProvider } from './contexts/AuthContext';
 import { NavigationProvider } from './contexts/NavigationContext';
 // Using Layout component with simplified navigation (merged Header and Sidebar)
@@ -19,7 +20,7 @@ import Settings from './pages/Settings';
 import Achievements from './pages/Achievements';
 
 // 404 Not Found page
-const NotFound = () => (
+const NotFound: React.FC = () => (
   <div className="flex flex-col items-center justify-center h-full py-16">
     <h1 className="text-4xl font-bold text-gray-800 dark:text-gray-200 mb-4">404</h1>
     <p className="text-xl text-gray-600 dark:text-gray-400 mb-8">Page Not Found</p>
@@ -32,9 +33,11 @@ const NotFound = () => (
   </div>
 );
 
-function App() {
-  // Get base path from environment variables
-  const basename = import.meta.env.VITE_BASE_PATH?.replace(/\/$/, '') ?? '';
+const App: React.FC = () => {
+  if (!import.meta.env.VITE_BASE_PATH) {
+    throw new Error('VITE_BASE_PATH environment variable is required');
+  }
+  const basename = import.meta.env.VITE_BASE_PATH.replace(/\/$/, '');
 
   return (
     <ErrorBoundary>
@@ -68,6 +71,6 @@ function App() {
       </AuthProvider>
     </ErrorBoundary>
   );
-}
+};
 
 export default App;

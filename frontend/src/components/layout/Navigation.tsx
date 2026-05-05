@@ -3,11 +3,11 @@
  */
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { useAuth } from '../../contexts/AuthContext';
-import { useNavigation } from '../../contexts/NavigationContext';
+import { useAuth } from '../../hooks/useAuth';
+import { useNavigation } from '../../hooks/useNavigation';
 
 const Navigation: React.FC = () => {
-  const { user, continueAsGuest, loginWithRedirect, getLinkAccountUrl, logout } = useAuth();
+  const { user, continueAsGuest, requestLogin, getLinkAccountUrl, logout, loginUrl } = useAuth();
   const { mainNavigation, appBranding } = useNavigation();
 
   const navItems = mainNavigation.filter(
@@ -73,12 +73,13 @@ const Navigation: React.FC = () => {
               >
                 Guest
               </button>
-              <button
-                onClick={loginWithRedirect}
+              <a
+                href={loginUrl}
+                onClick={requestLogin}
                 className="rounded-md border border-blue-600 px-3 py-2 text-sm font-medium text-blue-600 hover:bg-blue-50 dark:text-blue-300 dark:hover:bg-gray-700"
               >
                 Sign In
-              </button>
+              </a>
             </>
           )}
         </div>

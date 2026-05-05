@@ -1,5 +1,6 @@
 import { BaseApiService } from './baseApiService';
-import { Portfolio, Transaction, TransactionType } from '../entities/Portfolio';
+import { TransactionType } from '../entities/Portfolio';
+import type { Portfolio, Transaction } from '../entities/Portfolio';
 import { ApiResponse } from '../entities/api';
 import apiClient from './apiClient';
 import { toApiError } from './apiErrorUtils';
@@ -121,22 +122,9 @@ export class PortfolioService extends BaseApiService<Portfolio> {
       (p as unknown as Record<string, unknown>).transactions ??
       []) as Array<Record<string, unknown>>;
 
-    const normalizedTransactions: Transaction[] = rawTransactions.map(tx => {
-      const timestamp = (tx.timestamp ?? tx.created_at ?? new Date().toISOString()) as string | Date;
-      const total = asNumber(tx.total ?? tx.totalAmount ?? tx.total_amount);
-      const stockSymbol = String(tx.stockSymbol ?? tx.stock_symbol ?? tx.symbol ?? '');
-      return {
-        id: String(tx.id ?? ''),
-        stockId: String(tx.stockId ?? tx.stock_id ?? ''),
-        stockSymbol,
-        stockName: String(tx.stockName ?? stockSymbol),
-        type: (tx.type as TransactionType) ?? TransactionType.BUY,
-        shares: asNumber(tx.shares),
-        price: asNumber(tx.price),
-        total,
-        timestamp: new Date(timestamp),
-      };
-    });
+    const normalizedTransactions: Transaction[] = rawTransactions.map(tx =>
+      this.normalizeTransaction(tx)
+    );
 
     const dailyChange =
       asNumber(p.performance?.dailyChange) || asNumber(p.performance?.daily_change) || asNumber(p.daily_change);
@@ -181,6 +169,28 @@ export class PortfolioService extends BaseApiService<Portfolio> {
     };
   }
 
+  private normalizeTransaction(transaction: unknown): Transaction {
+    const tx = transaction as Record<string, unknown>;
+    const stock = tx.stock as Record<string, unknown> | undefined;
+    const timestamp = (tx.timestamp ?? tx.created_at ?? new Date().toISOString()) as string | Date;
+    const stockSymbol = String(tx.stockSymbol ?? tx.stock_symbol ?? tx.symbol ?? stock?.symbol ?? '');
+    const type = String(tx.type ?? TransactionType.BUY).toUpperCase() as TransactionType;
+    const asNumber = (value: unknown, fallback = 0): number =>
+      typeof value === 'number' && Number.isFinite(value) ? value : fallback;
+
+    return {
+      id: String(tx.id ?? ''),
+      stockId: String(tx.stockId ?? tx.stock_id ?? stock?.id ?? ''),
+      stockSymbol,
+      stockName: String(tx.stockName ?? tx.stock_name ?? stock?.name ?? stockSymbol),
+      type,
+      shares: asNumber(tx.shares ?? tx.quantity),
+      price: asNumber(tx.price ?? tx.price_per_share),
+      total: asNumber(tx.total ?? tx.totalAmount ?? tx.total_amount),
+      timestamp: new Date(timestamp),
+    };
+  }
+
   /**
    * Get user's portfolio
    */
@@ -198,8 +208,9 @@ export class PortfolioService extends BaseApiService<Portfolio> {
     }
 
     try {
-      const response = await apiClient.get<unknown>(`${this.endpoint}/user/${userId}`);
-      const portfolioData = unwrapData<unknown>(response);
+      const path = userId === 'me' ? 'portfolio' : `${this.endpoint}/user/${encodeURIComponent(userId)}`;
+      const response = await apiClient.get<unknown>(path);
+      const portfolioData = unwrapData<unknown>(response.data);
 
       // Normalize the portfolio data with proper date objects
       const normalizedPortfolio = this.normalizePortfolioData(portfolioData);
@@ -224,10 +235,10 @@ export class PortfolioService extends BaseApiService<Portfolio> {
    * Execute a buy transaction
    */
   async buyStock(
-    portfolioId: string,
+    _portfolioId: string,
     stockId: string,
     shares: number,
-    price: number
+    _price: number
   ): Promise<ApiResponse<Transaction>> {
     if (this.useMockData) {
       // Mock implementation code kept for reference
@@ -242,26 +253,13 @@ export class PortfolioService extends BaseApiService<Portfolio> {
     }
 
     try {
-      const response = await apiClient.post<
-        unknown,
-        {
-          stockId: string;
-          shares: number;
-          price: number;
-          type: TransactionType;
-        }
-      >(`${this.endpoint}/${portfolioId}/transaction`, {
-        stockId,
-        shares,
-        price,
-        type: TransactionType.BUY,
+      const response = await apiClient.post<unknown>('transactions/buy', {
+        stock_id: stockId,
+        quantity: shares,
       });
 
-      const rawTransaction = unwrapData<Transaction & { timestamp: string | Date }>(response);
-      const transaction: Transaction = {
-        ...rawTransaction,
-        timestamp: new Date(rawTransaction.timestamp),
-      };
+      const payload = unwrapData<{ transaction?: unknown }>(response.data);
+      const transaction = this.normalizeTransaction(payload.transaction ?? payload);
 
       return {
         success: true,
@@ -283,10 +281,10 @@ export class PortfolioService extends BaseApiService<Portfolio> {
    * Execute a sell transaction
    */
   async sellStock(
-    portfolioId: string,
+    _portfolioId: string,
     stockId: string,
     shares: number,
-    price: number
+    _price: number
   ): Promise<ApiResponse<Transaction>> {
     if (this.useMockData) {
       // Mock implementation code kept for reference
@@ -301,26 +299,13 @@ export class PortfolioService extends BaseApiService<Portfolio> {
     }
 
     try {
-      const response = await apiClient.post<
-        unknown,
-        {
-          stockId: string;
-          shares: number;
-          price: number;
-          type: TransactionType;
-        }
-      >(`${this.endpoint}/${portfolioId}/transaction`, {
-        stockId,
-        shares,
-        price,
-        type: TransactionType.SELL,
+      const response = await apiClient.post<unknown>('transactions/sell', {
+        stock_id: stockId,
+        quantity: shares,
       });
 
-      const rawTransaction = unwrapData<Transaction & { timestamp: string | Date }>(response);
-      const transaction: Transaction = {
-        ...rawTransaction,
-        timestamp: new Date(rawTransaction.timestamp),
-      };
+      const payload = unwrapData<{ transaction?: unknown }>(response.data);
+      const transaction = this.normalizeTransaction(payload.transaction ?? payload);
 
       return {
         success: true,
@@ -343,7 +328,7 @@ export class PortfolioService extends BaseApiService<Portfolio> {
    * @param portfolioId The ID of the portfolio
    * @returns Promise with transaction history data
    */
-  async getUserTransactions(portfolioId: string): Promise<ApiResponse<Transaction[]>> {
+  async getUserTransactions(_portfolioId: string): Promise<ApiResponse<Transaction[]>> {
     if (this.useMockData) {
       // Mock implementation code kept for reference
       // ...existing mock implementation...
@@ -357,14 +342,15 @@ export class PortfolioService extends BaseApiService<Portfolio> {
     }
 
     try {
-      const response = await apiClient.get<unknown>(`${this.endpoint}/${portfolioId}/transactions`);
-      const transactions = unwrapData<unknown[]>(response);
-
-      // Normalize transaction timestamps
-      const normalizedTransactions = transactions.map(tx => {
-        const raw = tx as Transaction & { timestamp: string | Date };
-        return { ...raw, timestamp: new Date(raw.timestamp) } as Transaction;
-      });
+      const response = await apiClient.get<unknown>('transactions');
+      const payload = unwrapData<unknown>(response.data);
+      const transactionData =
+        payload && typeof payload === 'object' && 'transactions' in payload
+          ? (payload as { transactions?: unknown[] }).transactions
+          : payload;
+      const normalizedTransactions = Array.isArray(transactionData)
+        ? transactionData.map(tx => this.normalizeTransaction(tx))
+        : [];
 
       return {
         success: true,

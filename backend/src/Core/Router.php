@@ -100,18 +100,11 @@ final class Router
                 try {
                     $response = $this->invokeHandler($route['handler'], $request, $response, $routeParams);
                 } catch (Throwable $e) {
-                    $debug = ($_ENV['APP_DEBUG'] ?? 'false') === 'true';
+                    error_log('Unhandled API error: ' . $e->getMessage());
                     $payload = [
                         'success' => false,
                         'error' => 'Internal server error'
                     ];
-                    if ($debug) {
-                        $payload['exception'] = get_class($e);
-                        $payload['message'] = $e->getMessage();
-                        $payload['file'] = $e->getFile();
-                        $payload['line'] = $e->getLine();
-                        $payload['trace'] = $e->getTraceAsString();
-                    }
                     $response = $this->writeJson($response->withStatus(500), $payload);
                 }
 

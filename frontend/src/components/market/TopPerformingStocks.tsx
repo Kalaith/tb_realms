@@ -6,7 +6,7 @@
 import React from 'react';
 import { Stock } from '../../entities/Stock';
 import { formatCurrency, formatPercentage } from '../../utils/formatUtils';
-import { useAuth } from '../../contexts/AuthContext';
+import { useAuth } from '../../hooks/useAuth';
 import { Link } from 'react-router-dom';
 
 interface TopPerformingStocksProps {
@@ -15,7 +15,7 @@ interface TopPerformingStocksProps {
 }
 
 const TopPerformingStocks: React.FC<TopPerformingStocksProps> = ({ stocks, limit = 5 }) => {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, loginUrl, requestLogin } = useAuth();
 
   // Sort stocks by percentage change (descending)
   const topStocks = [...stocks].sort((a, b) => b.changePercent - a.changePercent).slice(0, limit);
@@ -113,12 +113,13 @@ const TopPerformingStocks: React.FC<TopPerformingStocksProps> = ({ stocks, limit
 
       {!isAuthenticated && (
         <div className="p-4 text-center bg-gray-50 dark:bg-gray-700">
-          <Link
-            to="/login"
+          <a
+            href={loginUrl}
+            onClick={requestLogin}
             className="inline-block px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600"
           >
             Sign in to trade these stocks
-          </Link>
+          </a>
         </div>
       )}
     </div>

@@ -16,6 +16,7 @@ import {
   TradeNotification,
 } from '../components/trade';
 import { LoadingSpinner } from '../components/utility';
+import { useAuth } from '../hooks/useAuth';
 
 /**
  * Trade page - Main component for stock trading functionality
@@ -39,8 +40,7 @@ const Trade: React.FC = () => {
   const [tradeComplete, setTradeComplete] = useState<boolean>(false);
   const [tradeResult, setTradeResult] = useState<TradeResult | null>(null);
 
-  // Mock user ID - in a real app, this would come from authentication
-  const userId = 'user1';
+  const { isAuthenticated } = useAuth();
 
   // Load stocks and user portfolio on component mount
   useEffect(() => {
@@ -52,28 +52,30 @@ const Trade: React.FC = () => {
         // Fetch all stocks
         const stocksResponse = await stockService.getAll();
         if (stocksResponse.success && stocksResponse.data) {
-          setStocks(stocksResponse.data);
-          if (stocksResponse.data.length > 0 && !selectedStock) {
-            setSelectedStock(stocksResponse.data[0]);
-          }
+          const nextStocks = stocksResponse.data;
+          setStocks(nextStocks);
+          setSelectedStock(currentStock => currentStock ?? nextStocks[0] ?? null);
         } else {
           throw new Error(stocksResponse.error?.message || 'Failed to fetch stocks');
         }
 
-        // Fetch user portfolio
-        const portfolioResponse = await portfolioService.getUserPortfolio(userId);
-        if (portfolioResponse.success && portfolioResponse.data) {
-          setUserPortfolio(portfolioResponse.data);
+        if (isAuthenticated) {
+          const portfolioResponse = await portfolioService.getUserPortfolio('me');
+          if (portfolioResponse.success && portfolioResponse.data) {
+            setUserPortfolio(portfolioResponse.data);
 
-          // Get recent transactions
-          if (portfolioResponse.data.transactionHistory) {
-            const sortedTransactions = [...portfolioResponse.data.transactionHistory]
-              .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
-              .slice(0, 5); // Get 5 most recent transactions
-            setRecentTransactions(sortedTransactions);
+            if (portfolioResponse.data.transactionHistory) {
+              const sortedTransactions = [...portfolioResponse.data.transactionHistory]
+                .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
+                .slice(0, 5);
+              setRecentTransactions(sortedTransactions);
+            }
+          } else {
+            throw new Error(portfolioResponse.error?.message || 'Failed to fetch portfolio');
           }
         } else {
-          throw new Error(portfolioResponse.error?.message || 'Failed to fetch portfolio');
+          setUserPortfolio(null);
+          setRecentTransactions([]);
         }
 
         setLoading(false);
@@ -86,7 +88,7 @@ const Trade: React.FC = () => {
     };
 
     fetchData();
-  }, [tradeComplete]);
+  }, [isAuthenticated, tradeComplete]);
 
   // Update trade amount when shares or selected stock changes
   useEffect(() => {

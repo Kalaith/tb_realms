@@ -1,7 +1,7 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, type FC } from 'react';
 import { stockService } from '../api/stockService';
-import { Stock } from '../entities/Stock';
-import { StockFilters } from '../entities/api';
+import type { Stock } from '../entities/Stock';
+import type { StockFilters } from '../entities/api';
 import { MarketFilters, StocksTable } from '../components/market';
 import StockDetailsPanel from '../components/market/StockDetailsPanel';
 import { LoadingSpinner } from '../components/utility';
@@ -10,7 +10,7 @@ import { LoadingSpinner } from '../components/utility';
  * Market page displays a list of all available stocks with filtering and sorting options
  * Users can click on stocks to view detailed information and perform buy/sell actions
  */
-const Market = () => {
+const Market: FC = () => {
   // State management
   const [stocks, setStocks] = useState<Stock[]>([]);
   const [loading, setLoading] = useState<boolean>(true);

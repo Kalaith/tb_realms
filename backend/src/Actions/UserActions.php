@@ -1,11 +1,12 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Actions;
 
-use App\External\UserRepository;
+use App\Repositories\UserRepository;
 use App\Models\User;
 use App\Exceptions\ResourceNotFoundException;
-use App\Exceptions\UnauthorizedException;
 
 /**
  * User management business logic

@@ -1,6 +1,6 @@
 # Initialize the database
-Write-Host "Mytherra Database Initialization" -ForegroundColor Green
-Write-Host "============================"
+Write-Host "Tradeborn Realms Database Migration" -ForegroundColor Green
+Write-Host "==================================="
 
 # Ensure we're in the correct directory
 $scriptPath = Split-Path -Parent $MyInvocation.MyCommand.Path
@@ -17,7 +17,7 @@ try {
     exit 1
 }
 
-Write-Host "`nInitializing database..." -ForegroundColor Yellow
+Write-Host "`nRunning ordered backend/database/migrations SQL files..." -ForegroundColor Yellow
 php scripts/initializeDatabase.php
 
 if ($LASTEXITCODE -eq 0) {

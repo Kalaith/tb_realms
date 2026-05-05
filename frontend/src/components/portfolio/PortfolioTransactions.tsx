@@ -1,4 +1,5 @@
-import { Transaction } from '../../entities/Portfolio';
+import type { FC } from 'react';
+import type { Transaction } from '../../entities/Portfolio';
 import { formatCurrency, formatDateTime } from '../../utils/formatUtils';
 
 type PortfolioTransactionsProps = {
@@ -8,7 +9,7 @@ type PortfolioTransactionsProps = {
 /**
  * Displays the transaction history table
  */
-const PortfolioTransactions = ({ transactions }: PortfolioTransactionsProps) => {
+const PortfolioTransactions: FC<PortfolioTransactionsProps> = ({ transactions }) => {
   return (
     <div className="overflow-x-auto bg-white rounded-lg shadow-md dark:bg-gray-800">
       <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">

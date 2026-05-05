@@ -1,7 +1,7 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, type FC } from 'react';
 import { portfolioService } from '../api/portfolioService';
-import { Portfolio as PortfolioType, Position } from '../entities/Portfolio';
-import { useAuth } from '../contexts/AuthContext';
+import type { Portfolio as PortfolioType, Position } from '../entities/Portfolio';
+import { useAuth } from '../hooks/useAuth';
 import {
   PortfolioSummary,
   PortfolioHoldings,
@@ -14,7 +14,7 @@ import { LoadingSpinner } from '../components/utility';
 /**
  * Portfolio page component that orchestrates the portfolio view and interactions
  */
-const Portfolio = () => {
+const Portfolio: FC = () => {
   const [portfolio, setPortfolio] = useState<PortfolioType | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
@@ -30,9 +30,7 @@ const Portfolio = () => {
     'idle' | 'loading' | 'success' | 'error'
   >('idle');
   const [transactionMessage, setTransactionMessage] = useState<string>('');
-  // Get current user from auth context
-  const { user, isAuthenticated } = useAuth();
-  const userId = user?.username || '';
+  const { isAuthenticated } = useAuth();
 
   useEffect(() => {
     const fetchPortfolio = async () => {
@@ -43,19 +41,12 @@ const Portfolio = () => {
         return;
       }
 
-      // Also check for userId to be extra safe
-      if (!userId) {
-        setLoading(false);
-        setError('Unable to identify user. Please try logging in again.');
-        return;
-      }
-
       try {
         setLoading(true);
         setError(null);
 
         // Fetch portfolio data for the current user
-        const response = await portfolioService.getUserPortfolio(userId);
+        const response = await portfolioService.getUserPortfolio('me');
 
         if (response.success && response.data) {
           setPortfolio(response.data);
@@ -71,7 +62,7 @@ const Portfolio = () => {
     };
 
     fetchPortfolio();
-  }, [userId]);
+  }, [isAuthenticated]);
 
   // Calculate total profit/loss
   const totalProfitLoss = useMemo(() => {
@@ -141,7 +132,7 @@ const Portfolio = () => {
 
       if (response.success) {
         // Refresh portfolio data
-        const updatedPortfolio = await portfolioService.getUserPortfolio(userId);
+        const updatedPortfolio = await portfolioService.getUserPortfolio('me');
         if (updatedPortfolio.success && updatedPortfolio.data) {
           setPortfolio(updatedPortfolio.data);
         }
