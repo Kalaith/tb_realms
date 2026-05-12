@@ -200,6 +200,10 @@ final class UserRepository extends PdoRepository
         if (!is_array($roles)) {
             $roles = [$isGuest ? 'guest' : 'player'];
         }
+        $roles = array_values(array_map('strval', $roles));
+        if ($this->toBool($decoded->is_admin ?? false) && !in_array('admin', $roles, true)) {
+            $roles[] = 'admin';
+        }
 
         return new AuthUser(
             id: $externalId,
@@ -208,7 +212,7 @@ final class UserRepository extends PdoRepository
             username: (string) $user->username,
             displayName: (string) ($user->display_name ?: $user->username),
             role: $isGuest ? 'guest' : (string) ($user->role ?: 'player'),
-            roles: array_values(array_map('strval', $roles)),
+            roles: $roles,
             isGuest: $isGuest,
             authType: $isGuest ? 'guest' : 'frontpage',
             guestUserId: $isGuest ? $externalId : null

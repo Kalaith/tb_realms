@@ -6,6 +6,7 @@ namespace App\Traits;
 
 use App\Http\Response;
 use App\Exceptions\ResourceNotFoundException;
+use App\Exceptions\UnauthorizedException;
 
 trait ApiResponseTrait
 {
@@ -48,6 +49,16 @@ trait ApiResponseTrait
                 'success' => false,
                 'message' => $notFoundMessage ?? 'Resource not found'
             ], 200);
+        } catch (UnauthorizedException $error) {
+            return $this->jsonResponse($response, [
+                'success' => false,
+                'message' => $error->getMessage()
+            ], 403);
+        } catch (\InvalidArgumentException $error) {
+            return $this->jsonResponse($response, [
+                'success' => false,
+                'message' => $error->getMessage()
+            ], 400);
         } catch (\Exception $error) {
             // Log the error for debugging
             error_log("Error {$errorContext}: " . $error->getMessage());

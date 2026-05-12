@@ -9,7 +9,9 @@ use App\Repositories\TransactionRepository;
 use App\Repositories\StockRepository;
 use App\Repositories\UserRepository;
 use App\Models\Portfolio;
+use App\Models\User;
 use App\Exceptions\ResourceNotFoundException;
+use App\Exceptions\UnauthorizedException;
 
 /**
  * Portfolio management business logic
@@ -59,25 +61,28 @@ class PortfolioActions
     }
 
     /**
-     * Get portfolio data by user identifier (username or ID)
+     * Get portfolio data by user identifier (username or ID).
+     *
+     * @param array<string, mixed> $authUser
      */
-    public function getPortfolioByIdentifier(string $identifier): array
+    public function getPortfolioByIdentifier(string|int $currentUserId, string $identifier, array $authUser): array
     {
-        // Try to find user by username first, then by ID
-        $user = $this->userRepository->findByUsername($identifier);
-        
-        if (!$user) {
-            // Try to find by ID if identifier is numeric
-            if (is_numeric($identifier)) {
-                $user = $this->userRepository->findById((int)$identifier);
-            }
+        $identifier = trim($identifier);
+        if ($identifier === '' || strtolower($identifier) === 'me') {
+            return $this->getPortfolioData($currentUserId);
         }
-        
+
+        $user = $this->resolveUserByIdentifier($identifier);
         if (!$user) {
             throw new ResourceNotFoundException('User not found');
         }
-        
-        return $this->getPortfolioData((string)$user->id);
+
+        $targetUserId = (int) $user->id;
+        if ((int) $currentUserId !== $targetUserId && !$this->isAdmin($authUser)) {
+            throw new UnauthorizedException('Portfolio access denied');
+        }
+
+        return $this->getPortfolioData((string) $user->id);
     }
 
     /**
@@ -177,6 +182,38 @@ class PortfolioActions
         ];
 
         return $this->portfolioRepository->createPortfolio($portfolioData);
+    }
+
+    private function resolveUserByIdentifier(string $identifier): ?User
+    {
+        $user = $this->userRepository->findByUsername($identifier);
+        if ($user) {
+            return $user;
+        }
+
+        if (is_numeric($identifier)) {
+            return $this->userRepository->findById((int) $identifier);
+        }
+
+        return null;
+    }
+
+    /**
+     * @param array<string, mixed> $authUser
+     */
+    private function isAdmin(array $authUser): bool
+    {
+        $role = strtolower((string) ($authUser['role'] ?? ''));
+        if ($role === 'admin') {
+            return true;
+        }
+
+        $roles = $authUser['roles'] ?? [];
+        if (!is_array($roles)) {
+            return false;
+        }
+
+        return in_array('admin', array_map(static fn($value): string => strtolower((string) $value), $roles), true);
     }
 
     /**

@@ -9,6 +9,7 @@ use App\Controllers\StockController;
 use App\Controllers\TransactionController;
 use App\Controllers\UserController;
 use App\Controllers\WatchlistController;
+use App\Middleware\AdminRoleMiddleware;
 use App\Middleware\WebHatcheryJwtMiddleware;
 
 return function (
@@ -118,9 +119,11 @@ return function (
     $router->post($api . '/watchlist', [$watchlistController, 'addToWatchlist'], [WebHatcheryJwtMiddleware::class]);
     $router->delete($api . '/watchlist/{stockId}', [$watchlistController, 'removeFromWatchlist'], [WebHatcheryJwtMiddleware::class]);
 
-    $router->get($api . '/users', [$userController, 'getAllUsers'], [WebHatcheryJwtMiddleware::class]);
-    $router->get($api . '/users/{id}', [$userController, 'getUserById'], [WebHatcheryJwtMiddleware::class]);
+    $adminOnly = [WebHatcheryJwtMiddleware::class, AdminRoleMiddleware::class];
+
+    $router->get($api . '/users', [$userController, 'getAllUsers'], $adminOnly);
+    $router->get($api . '/users/{id}', [$userController, 'getUserById'], $adminOnly);
     $router->get($api . '/users/{id}/profile', [$userController, 'getUserProfile'], [WebHatcheryJwtMiddleware::class]);
-    $router->put($api . '/users/{id}', [$userController, 'updateUser'], [WebHatcheryJwtMiddleware::class]);
-    $router->delete($api . '/users/{id}', [$userController, 'deleteUser'], [WebHatcheryJwtMiddleware::class]);
+    $router->put($api . '/users/{id}', [$userController, 'updateUser'], $adminOnly);
+    $router->delete($api . '/users/{id}', [$userController, 'deleteUser'], $adminOnly);
 };
